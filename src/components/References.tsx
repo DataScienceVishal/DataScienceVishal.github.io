@@ -16,10 +16,7 @@ export function References() {
           </div>
 
           <div className="py-16 lg:py-20 lg:pl-10">
-            <h2
-              id="references-heading"
-              className="t-display-3"
-            >
+            <h2 id="references-heading" className="t-display-3">
               Sources
             </h2>
             <p className="t-body-sm mt-3 max-w-[62ch] text-graphite">
@@ -38,9 +35,7 @@ export function References() {
                     id={`ref-${source.n}`}
                     className="grid grid-cols-[2rem_minmax(0,1fr)] gap-x-4 py-4 scroll-mt-28"
                   >
-                    <span className="t-mono-sm text-graphite">
-                      {source.n}
-                    </span>
+                    <span className="t-mono-sm text-graphite">{source.n}</span>
                     <div>
                       {source.href !== null ? (
                         <a
@@ -60,9 +55,7 @@ export function References() {
                           ) : null}
                         </a>
                       ) : (
-                        <p className="t-body-sm text-bone">
-                          {source.full}
-                        </p>
+                        <p className="t-body-sm text-bone">{source.full}</p>
                       )}
                       {source.note ? (
                         <p className="t-mono-xs mt-1 text-graphite">

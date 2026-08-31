@@ -1,9 +1,10 @@
 "use client";
 
 import { ArrowUpRight } from "@phosphor-icons/react";
-import { m, useReducedMotion } from "motion/react";
+import { m } from "motion/react";
 import { CONTACT, NAV_LINKS } from "../data/content";
 import { CUE, HOVER_IN, HOVER_OUT, enter } from "../motion/tokens";
+import { useReduceMotion } from "../motion/reduce";
 
 /**
  * A plain text bar. The twin link is a link, not an outlined button: this page
@@ -11,7 +12,7 @@ import { CUE, HOVER_IN, HOVER_OUT, enter } from "../motion/tokens";
  * register the brief rules out.
  */
 export function Nav() {
-  const reduce = useReducedMotion();
+  const reduce = useReduceMotion();
 
   return (
     <m.header
@@ -24,10 +25,7 @@ export function Nav() {
         aria-label="Primary"
         className="mx-auto flex h-16 max-w-[1320px] items-center justify-between gap-4 px-5 sm:px-8 lg:h-[4.5rem] lg:px-10"
       >
-        <a
-          href="#top"
-          className="t-brand text-bone"
-        >
+        <a href="#top" className="t-brand text-bone">
           {CONTACT.name}
         </a>
 

@@ -21,9 +21,9 @@ const ENTRIES: Entry[] = [
     dates: "Jul 2018 to Sep 2020",
     movement: (
       <>
-        Two years of GST filings, income tax returns and audits. Every figure had
-        to survive somebody checking it months later, which is a useful thing to
-        learn before you learn anything else.
+        Two years of GST filings, income tax returns and audits. Every figure
+        had to survive somebody checking it months later, which is a useful
+        thing to learn before you learn anything else.
       </>
     ),
     carried: "a low tolerance for figures nobody can trace",
@@ -36,8 +36,8 @@ const ENTRIES: Entry[] = [
     movement: (
       <>
         Still filings, now sitting beside an e-commerce operation. First time I
-        was looking at sales data rather than a tax return, and the first time the
-        question was what the data meant rather than whether it balanced.
+        was looking at sales data rather than a tax return, and the first time
+        the question was what the data meant rather than whether it balanced.
       </>
     ),
     carried: "data as something to interrogate, not just to file",
@@ -56,11 +56,12 @@ const ENTRIES: Entry[] = [
         <Claim source="resume">
           monthly reporting from about two hours to about thirty minutes
         </Claim>
-        . The forecasting was the interesting part. The reporting rebuild was the
-        part people noticed.
+        . The forecasting was the interesting part. The reporting rebuild was
+        the part people noticed.
       </>
     ),
-    carried: "a model is only as useful as the reporting that survives around it",
+    carried:
+      "a model is only as useful as the reporting that survives around it",
   },
   {
     n: "04",
@@ -94,9 +95,7 @@ function Row({ entry }: { entry: Entry }) {
           className="flex items-baseline justify-between gap-4 lg:hidden"
           aria-hidden="true"
         >
-          <span className="t-mono-md text-graphite">
-            {entry.n}
-          </span>
+          <span className="t-mono-md text-graphite">{entry.n}</span>
           <span className="t-mono-sm whitespace-nowrap text-graphite">
             {entry.dates}
           </span>
@@ -171,9 +170,7 @@ export function Trajectory() {
           </div>
 
           <div className="mt-5 lg:mt-0 lg:pt-0.5">
-            <h3 className="t-title">
-              Northeastern University London
-            </h3>
+            <h3 className="t-title">Northeastern University London</h3>
             <p className="t-body mt-1.5 text-read">
               MSc, AI and Computer Science
             </p>

@@ -8,10 +8,11 @@ import {
   useRef,
   useState,
 } from "react";
-import { AnimatePresence, m, useReducedMotion, useScroll } from "motion/react";
+import { AnimatePresence, m, useScroll } from "motion/react";
 import { HERO_MODEL } from "../data/content";
 import { hasWebGL } from "../lib/webgl";
 import { useSmoothScroll } from "../motion/scroll";
+import { useReduceMotion } from "../motion/reduce";
 
 const ModelStage = lazy(() => import("./three/ModelStage"));
 
@@ -30,7 +31,7 @@ const ModelStage = lazy(() => import("./three/ModelStage"));
  * supplied model has none this can address.
  */
 export function HeroFigure({ className = "" }: { className?: string }) {
-  const reduce = Boolean(useReducedMotion());
+  const reduce = useReduceMotion();
   const hostRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
   /**

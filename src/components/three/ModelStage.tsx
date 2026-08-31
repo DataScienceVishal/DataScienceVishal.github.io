@@ -255,6 +255,26 @@ function Model({
   // previous frame's value to ease from.
   const leanRef = useRef({ x: 0, y: 0 });
 
+  // With the loop on demand, nothing renders unless something asks. Scroll is
+  // one of the two things that can move this scene, so a change in progress
+  // buys exactly one frame.
+  const invalidate = useThree((state) => state.invalidate);
+  useEffect(() => progress.on("change", invalidate), [progress, invalidate]);
+
+  // The pointer is the other. R3F's own pointer state only updates while it is
+  // rendering, so the listener has to sit on the canvas itself: without this
+  // the lean would wait for a scroll to notice the pointer had moved.
+  useEffect(() => {
+    const el = gl.domElement;
+    const ask = () => invalidate();
+    el.addEventListener("pointermove", ask, { passive: true });
+    el.addEventListener("pointerleave", ask, { passive: true });
+    return () => {
+      el.removeEventListener("pointermove", ask);
+      el.removeEventListener("pointerleave", ask);
+    };
+  }, [gl, invalidate]);
+
   useFrame((state) => {
     const g = ref.current;
     if (!g) return;
@@ -277,6 +297,16 @@ function Model({
     g.rotation.y = spin.baseY + p * spin.turns * Math.PI * 2 + l.y;
     g.rotation.x = spin.baseX + p * spin.tilt + l.x;
     g.position.y = spin.lift + Math.sin(p * Math.PI) * spin.lift * 0.5;
+
+    // The lean eases toward the pointer over several frames, so it has to
+    // re-arm the loop until it arrives. The threshold is a rotation too small
+    // to see, which is where stopping costs nothing.
+    if (
+      Math.abs(targetY - l.y) > 0.0002 ||
+      Math.abs(targetX - l.x) > 0.0002
+    ) {
+      invalidate();
+    }
   });
 
   return (
@@ -331,8 +361,19 @@ export default function ModelStage({
       dpr={[1, maxDpr]}
       camera={{ position: [0, 0, 4.2], fov: 34 }}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-      // Under reduced motion the scene renders once and then stops entirely.
-      frameloop={reduce ? "demand" : "always"}
+      /*
+        On demand, always. This used to be "always" whenever motion was
+        allowed, which meant three canvases each rendering 60 times a second
+        for the whole life of the page: while the reader was reading, while the
+        model was off screen, while nothing on the page was moving at all. The
+        frames were indistinguishable from each other and cost a full render
+        apiece, and they were competing with scroll for the main thread.
+
+        Every source of change now asks for a frame explicitly: scroll through
+        the progress subscription, the pointer through a listener on the
+        canvas, and the lean easing by re-arming itself until it settles.
+      */
+      frameloop="demand"
       style={{ background: "transparent" }}
     >
       <ambientLight intensity={0.55} />

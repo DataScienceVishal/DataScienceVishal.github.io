@@ -37,9 +37,7 @@ export function Research() {
           <p className="t-mono-sm text-graphite">
             Northeastern University London, in progress
           </p>
-          <h3 className="t-display-3 mt-3">
-            Agentic AI and agent reliability
-          </h3>
+          <h3 className="t-display-3 mt-3">Agentic AI and agent reliability</h3>
           <p className="t-body mt-5 max-w-[60ch]">
             <Claim source="nul-dissertation" flip>
               Still being written
@@ -49,8 +47,9 @@ export function Research() {
             untrusted input rather than as instructions.
           </p>
           <p className="t-body mt-4 max-w-[60ch] text-graphite">
-            The twin is the test bed, which is why it ships with a test suite and
-            a prompt-injection section in its README instead of a demo video.
+            The twin is the test bed, which is why it ships with a test suite
+            and a prompt-injection section in its README instead of a demo
+            video.
           </p>
         </article>
       </div>
