@@ -24,9 +24,9 @@ function Register() {
         A FastAPI service with ChromaDB retrieval over{" "}
         <Claim source="twin-repo">87 indexed documents</Claim> built from YAML
         knowledge files, the resume PDF and live GitHub ingestion, embedded and
-        generated with Azure OpenAI. Intent-boosted retrieval, conversation-aware
-        follow-ups, eight function-calling tools, answers streamed over SSE, and
-        a React 19 front end.
+        generated with Azure OpenAI. Intent-boosted retrieval,
+        conversation-aware follow-ups, eight function-calling tools, answers
+        streamed over SSE, and a React 19 front end.
       </dd>
 
       <dt className="t-mono-md mt-9 text-graphite first:mt-0 lg:mt-0 lg:pt-1">
@@ -35,9 +35,9 @@ function Register() {
       <dd className="t-body mt-2 max-w-[68ch] lg:mt-0">
         Running on Railway and Vercel. Ingestion is a background task keyed on
         content hashes, so{" "}
-        <Claim source="resume">health checks answer in about 20 ms</Claim> during
-        a cold start instead of restart-looping. Per-IP rate limiting and a daily
-        spend cap keep it cheap.{" "}
+        <Claim source="resume">health checks answer in about 20 ms</Claim>{" "}
+        during a cold start instead of restart-looping. Per-IP rate limiting and
+        a daily spend cap keep it cheap.{" "}
         <Claim source="twin-tests">370 tests run in CI</Claim> alongside mypy.
       </dd>
     </dl>
@@ -59,8 +59,8 @@ export function FeaturedWork() {
       <p className="t-body max-w-[68ch] border-l border-brass pl-5 text-read">
         Part of that knowledge base is pulled from public GitHub READMEs, which
         is a live prompt-injection surface. Retrieved text is delimited, the
-        prompt states that everything inside it is data rather than instructions,
-        and{" "}
+        prompt states that everything inside it is data rather than
+        instructions, and{" "}
         <Claim source="twin-repo">
           the response rules forbid echoing an injected instruction back
         </Claim>

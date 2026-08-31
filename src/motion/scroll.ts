@@ -22,19 +22,26 @@ import {
  * chases the scroll position instead of snapping to it, which is what makes the
  * motion read as continuous.
  *
- * Overdamped on purpose. The damping ratio here is about 1.26, so the value
- * eases in and stops without ever crossing its target. A spring that overshoots
- * would send a bar past its own value and back, which on a chart is not a
- * flourish but a wrong number briefly drawn.
+ * Overdamped, just. The damping ratio is a shade over 1, so the value eases in
+ * and stops without ever crossing its target. A spring that overshoots would
+ * send a bar past its own value and back, which on a chart is not a flourish
+ * but a wrong number briefly drawn.
  *
- * These settle in a bit under 0.4s. A stiffer pair was tried first and measured
- * barely better than no spring at all: one notch still moved a bar through 59
- * percent of its range in a single frame, because it reached its target inside
- * two frames. The settle has to outlast the notch to smooth anything.
+ * The settle is about 0.18s, and the number is a compromise between two inputs
+ * that want opposite things. A wheel wants a long settle, because it delivers
+ * one 120px jump and the spring is the only thing standing between that jump
+ * and a teleport. A trackpad wants none, because it already delivers a smooth
+ * stream of small deltas, and any settle on top of that is just the page
+ * trailing behind the reader's fingers.
+ *
+ * 0.4s was tried and is too slow: it smooths a wheel beautifully and makes a
+ * trackpad feel like it is dragging something heavy. 0.18s is roughly eleven
+ * frames, which is enough to spread a notch across a visible arc while staying
+ * under the point where a trackpad reader can feel the page lagging them.
  */
 const SCROLL_SPRING = {
-  stiffness: 70,
-  damping: 21,
+  stiffness: 500,
+  damping: 45,
   mass: 1,
   // Roughly a thousandth of the 0 to 1 range. Below this the spring stops
   // rather than spending frames on motion no one can see.

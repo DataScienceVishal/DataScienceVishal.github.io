@@ -1,10 +1,11 @@
 "use client";
 
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
-import { useInView, useReducedMotion, useScroll } from "motion/react";
+import { useInView, useScroll } from "motion/react";
 import { hasWebGL } from "../lib/webgl";
 import type { Spin } from "./three/ModelStage";
 import { useSmoothScroll } from "../motion/scroll";
+import { useReduceMotion } from "../motion/reduce";
 
 const ModelStage = lazy(() => import("./three/ModelStage"));
 
@@ -56,7 +57,7 @@ export function ModelViewport({
   scrollTarget,
 }: ModelViewportProps) {
   const hostRef = useRef<HTMLDivElement>(null);
-  const reduce = useReducedMotion();
+  const reduce = useReduceMotion();
 
   // A screen of margin, so the chunk and the model are in flight before the
   // reader arrives rather than popping in under them.

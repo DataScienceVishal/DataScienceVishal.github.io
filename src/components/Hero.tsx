@@ -1,10 +1,11 @@
 "use client";
 
-import { m, useReducedMotion } from "motion/react";
+import { m } from "motion/react";
 import { CALL_MAILTO, CONTACT } from "../data/content";
 import { CUE, enter } from "../motion/tokens";
 import { PrimaryAction, SecondaryAction } from "./Buttons";
 import { HeroFigure } from "./HeroFigure";
+import { useReduceMotion } from "../motion/reduce";
 
 /** Split so each line can be revealed on its own cue. */
 const THESIS: Array<Array<{ text: string; emph?: boolean }>> = [
@@ -13,7 +14,7 @@ const THESIS: Array<Array<{ text: string; emph?: boolean }>> = [
 ];
 
 export function Hero() {
-  const reduce = useReducedMotion();
+  const reduce = useReduceMotion();
 
   return (
     <section
@@ -23,10 +24,7 @@ export function Hero() {
     >
       <div className="md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,0.55fr)] md:items-center md:gap-10 lg:gap-14">
         <div>
-          <h1
-            id="hero-heading"
-            className="t-display-1 max-w-[17ch] text-bone"
-          >
+          <h1 id="hero-heading" className="t-display-1 max-w-[17ch] text-bone">
             {THESIS.map((line, i) => (
               <m.span
                 key={i}
@@ -59,8 +57,8 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={enter(CUE.subtext)}
           >
-            AI and ML engineer in London. Looking for an AI or ML internship now,
-            full time from January 2027.
+            AI and ML engineer in London. Looking for an AI or ML internship
+            now, full time from January 2027.
           </m.p>
 
           <div className="mt-9 flex flex-col items-start gap-3 sm:flex-row sm:items-center">

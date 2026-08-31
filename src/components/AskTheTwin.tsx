@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Copy, Warning } from "@phosphor-icons/react";
-import { AnimatePresence, m, useReducedMotion } from "motion/react";
+import { AnimatePresence, m } from "motion/react";
 import { CONTACT, TWIN_QUESTIONS } from "../data/content";
 import { HOVER_IN, HOVER_OUT, MOVE } from "../motion/tokens";
 import { PrimaryAction } from "./Buttons";
 import { ModelViewport } from "./ModelViewport";
+import { useReduceMotion } from "../motion/reduce";
 
 type CopyState = { index: number; ok: boolean } | null;
 
@@ -18,7 +19,7 @@ type CopyState = { index: number; ok: boolean } | null;
 export function AskTheTwin() {
   const [copied, setCopied] = useState<CopyState>(null);
   const timer = useRef<number | null>(null);
-  const reduce = useReducedMotion();
+  const reduce = useReduceMotion();
 
   useEffect(() => {
     return () => {

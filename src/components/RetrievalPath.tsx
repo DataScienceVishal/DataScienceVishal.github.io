@@ -1,10 +1,11 @@
 "use client";
 
 import { useRef } from "react";
-import { m, useReducedMotion, useTransform } from "motion/react";
+import { m, useTransform } from "motion/react";
 import { useDrawProgress } from "../motion/scroll";
 import { Claim } from "./Claim";
 import { CursorPanel } from "./CursorPanel";
+import { useReduceMotion } from "../motion/reduce";
 
 /**
  * The twin's real retrieval path, from its own README. Every label and every
@@ -51,7 +52,7 @@ const stageAt = (i: number) => (i / (STAGES.length - 1)) * 0.82;
 const DIM = 0.26;
 
 export function RetrievalPath() {
-  const reduce = useReducedMotion();
+  const reduce = useReduceMotion();
   const ref = useRef<HTMLElement>(null);
 
   // The signal position is a function of scroll, so it runs with the reader and
@@ -67,13 +68,27 @@ export function RetrievalPath() {
    * order cannot shift if a stage is ever added.
    */
   const stageOpacity = [
-    useTransform(draw, [stageAt(0), stageAt(0) + 0.1], [DIM, 1], { clamp: true }),
-    useTransform(draw, [stageAt(1), stageAt(1) + 0.1], [DIM, 1], { clamp: true }),
-    useTransform(draw, [stageAt(2), stageAt(2) + 0.1], [DIM, 1], { clamp: true }),
-    useTransform(draw, [stageAt(3), stageAt(3) + 0.1], [DIM, 1], { clamp: true }),
-    useTransform(draw, [stageAt(4), stageAt(4) + 0.1], [DIM, 1], { clamp: true }),
-    useTransform(draw, [stageAt(5), stageAt(5) + 0.1], [DIM, 1], { clamp: true }),
-    useTransform(draw, [stageAt(6), stageAt(6) + 0.1], [DIM, 1], { clamp: true }),
+    useTransform(draw, [stageAt(0), stageAt(0) + 0.1], [DIM, 1], {
+      clamp: true,
+    }),
+    useTransform(draw, [stageAt(1), stageAt(1) + 0.1], [DIM, 1], {
+      clamp: true,
+    }),
+    useTransform(draw, [stageAt(2), stageAt(2) + 0.1], [DIM, 1], {
+      clamp: true,
+    }),
+    useTransform(draw, [stageAt(3), stageAt(3) + 0.1], [DIM, 1], {
+      clamp: true,
+    }),
+    useTransform(draw, [stageAt(4), stageAt(4) + 0.1], [DIM, 1], {
+      clamp: true,
+    }),
+    useTransform(draw, [stageAt(5), stageAt(5) + 0.1], [DIM, 1], {
+      clamp: true,
+    }),
+    useTransform(draw, [stageAt(6), stageAt(6) + 0.1], [DIM, 1], {
+      clamp: true,
+    }),
   ];
 
   return (
@@ -99,9 +114,7 @@ export function RetrievalPath() {
               <m.li
                 key={stage.op}
                 className="grid grid-cols-[13px_minmax(0,1fr)] items-baseline gap-x-4 sm:grid-cols-[13px_5.25rem_minmax(0,1fr)]"
-                style={
-                  reduce ? { opacity: 1 } : { opacity: stageOpacity[i] }
-                }
+                style={reduce ? { opacity: 1 } : { opacity: stageOpacity[i] }}
               >
                 <m.span
                   aria-hidden="true"

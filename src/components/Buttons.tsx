@@ -1,10 +1,11 @@
 "use client";
 
 import { ArrowUpRight } from "@phosphor-icons/react";
-import { m, useReducedMotion } from "motion/react";
+import { m } from "motion/react";
 import type { ReactNode } from "react";
 import { useMagnet, usePointerField } from "../motion/pointer";
 import { HOVER_IN, HOVER_OUT } from "../motion/tokens";
+import { useReduceMotion } from "../motion/reduce";
 
 interface ActionProps {
   href: string;
@@ -30,7 +31,7 @@ export function PrimaryAction({
   external = false,
   className = "",
 }: ActionProps) {
-  const reduce = useReducedMotion();
+  const reduce = useReduceMotion();
   // The control leans toward the pointer by up to 4px. Small enough to feel
   // like weight rather than like a game.
   const field = usePointerField();
@@ -72,7 +73,7 @@ export function SecondaryAction({
   external = false,
   className = "",
 }: ActionProps) {
-  const reduce = useReducedMotion();
+  const reduce = useReduceMotion();
   const field = usePointerField();
   const { mx, my } = useMagnet(field, 4);
 

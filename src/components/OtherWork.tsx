@@ -61,8 +61,8 @@ export function OtherWork() {
           provider is worse than over-flagging a healthy one, so dropping the
           cutoff from 0.50 to 0.30 takes minority recall from{" "}
           <Claim source="ukhe-repo">0.62 to 0.94</Claim>, catching 15 of 16
-          at-risk providers for 18 false positives instead of 12. This one is not
-          on the resume; it was published after it.
+          at-risk providers for 18 false positives instead of 12. This one is
+          not on the resume; it was published after it.
         </Entry>
 
         <Entry
@@ -75,31 +75,36 @@ export function OtherWork() {
               scene={{
                 kind: "gltf",
                 url: "/models/chess.glb",
-                spin: { turns: 0.85, tilt: 0.22, baseY: -0.5, baseX: 0.16, scale: 1, lift: 0 },
+                spin: {
+                  turns: 0.85,
+                  tilt: 0.22,
+                  baseY: -0.5,
+                  baseX: 0.16,
+                  scale: 1,
+                  lift: 0,
+                },
               }}
               height="clamp(15rem, 34vw, 20rem)"
               alt="A chess set rendered in three dimensions, turning as the page scrolls."
               caption="The board turns with the scroll rather than on a loop, so it only moves while you do."
               credit={
                 <>
-                  Model: A Beautiful Game, Ed Mackey and ASWF, CC BY 4.0, from the
-                  Khronos glTF sample assets.
+                  Model: A Beautiful Game, Ed Mackey and ASWF, CC BY 4.0, from
+                  the Khronos glTF sample assets.
                 </>
               }
             />
           }
         >
-          <Claim source="chess-repo">
-            4.8 million FIDE player-month rows
-          </Claim>{" "}
+          <Claim source="chess-repo">4.8 million FIDE player-month rows</Claim>{" "}
           from February 2015 to November 2024, joined to 304,767 chess.com games
           for twelve tracked players. Twelve queries across titles, federations
           and online activity. Only{" "}
           <Claim source="chess-repo" flip>
             1.4% of female players ever change federation
           </Claim>
-          . The age-against-activity hypothesis came out at p around 0.44 with
-          n = 12, so it is written up as not significant rather than as a finding.
+          . The age-against-activity hypothesis came out at p around 0.44 with n
+          = 12, so it is written up as not significant rather than as a finding.
           Also not on the resume.
         </Entry>
 

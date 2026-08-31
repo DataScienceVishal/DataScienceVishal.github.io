@@ -1,18 +1,14 @@
 "use client";
 
 import { useId, useRef, useState } from "react";
-import {
-  m,
-  useMotionValueEvent,
-  useReducedMotion,
-  useTransform,
-} from "motion/react";
+import { m, useMotionValueEvent, useTransform } from "motion/react";
 import type { CSSProperties, ReactNode } from "react";
 import type { BarChartData, LineChartData, Series } from "../data/charts";
 import { HOVER_IN, HOVER_OUT } from "../motion/tokens";
 import { useNearestIndex, usePointerField } from "../motion/pointer";
 import { useDrawProgress } from "../motion/scroll";
 import { Claim } from "./Claim";
+import { useReduceMotion } from "../motion/reduce";
 
 const TONE: Record<Series["tone"], string> = {
   accent: "var(--color-brass)",
@@ -62,7 +58,9 @@ function Marker({
 }) {
   if (kind === "square") {
     const h = 3.2 * scale;
-    return <rect x={cx - h} y={cy - h} width={h * 2} height={h * 2} fill={fill} />;
+    return (
+      <rect x={cx - h} y={cy - h} width={h * 2} height={h * 2} fill={fill} />
+    );
   }
   if (kind === "diamond") {
     const h = 3.4 * scale;
@@ -148,25 +146,25 @@ function DataTable({
   return (
     <div className="sr-only">
       <table>
-      <caption>{caption}</caption>
-      <thead>
-        <tr>
-          {head.map((h) => (
-            <th key={h} scope="col">
-              {h}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((r) => (
-          <tr key={r[0]}>
-            <th scope="row">{r[0]}</th>
-            {r.slice(1).map((c, i) => (
-              <td key={i}>{c}</td>
+        <caption>{caption}</caption>
+        <thead>
+          <tr>
+            {head.map((h) => (
+              <th key={h} scope="col">
+                {h}
+              </th>
             ))}
           </tr>
-        ))}
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r[0]}>
+              <th scope="row">{r[0]}</th>
+              {r.slice(1).map((c, i) => (
+                <td key={i}>{c}</td>
+              ))}
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
@@ -177,8 +175,17 @@ function Legend({ series }: { series: Series[] }) {
   return (
     <ul className="mb-4 flex flex-wrap gap-x-5 gap-y-1.5">
       {series.map((s) => (
-        <li key={s.label} className="t-mono-xs flex items-center gap-2 text-graphite">
-          <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" className="shrink-0">
+        <li
+          key={s.label}
+          className="t-mono-xs flex items-center gap-2 text-graphite"
+        >
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 10 10"
+            aria-hidden="true"
+            className="shrink-0"
+          >
             <Marker kind={s.marker} cx={5} cy={5} fill={TONE[s.tone]} />
           </svg>
           {s.label}
@@ -196,7 +203,7 @@ const PLOT_H = H - PAD.top - PAD.bottom;
 
 export function LineChart({ data }: { data: LineChartData }) {
   const ref = useRef<HTMLDivElement>(null);
-  const reduce = Boolean(useReducedMotion());
+  const reduce = useReduceMotion();
   const titleId = useId();
 
   // Tied to scroll position, so the marks draw and undraw with the reader
@@ -219,7 +226,8 @@ export function LineChart({ data }: { data: LineChartData }) {
   // Prefer a per-point label. Falling back to the index would print
   // "probability cutoff 5", which is a position and not a value.
   const xValue = (i: number) =>
-    data.xValues?.[i] ?? (data.xTicks.length === n ? data.xTicks[i] : String(i));
+    data.xValues?.[i] ??
+    (data.xTicks.length === n ? data.xTicks[i] : String(i));
 
   /**
    * The pointer position is a motion value throughout. Only the quantised
@@ -247,7 +255,9 @@ export function LineChart({ data }: { data: LineChartData }) {
    */
   const flip = at > (n - 1) / 2;
   const anchor = (((x(at) - PAD.left) / PLOT_W) * 100).toFixed(3);
-  const anchorFlipped = (((PAD.left + PLOT_W - x(at)) / PLOT_W) * 100).toFixed(3);
+  const anchorFlipped = (((PAD.left + PLOT_W - x(at)) / PLOT_W) * 100).toFixed(
+    3,
+  );
 
   return (
     <div ref={ref} className="max-w-[26rem]">
@@ -358,13 +368,18 @@ export function LineChart({ data }: { data: LineChartData }) {
           />
 
           {data.series.map((s, si) => {
-            const d = s.points.map((p, i) => `${i === 0 ? "M" : "L"}${x(i)},${y(p)}`).join(" ");
+            const d = s.points
+              .map((p, i) => `${i === 0 ? "M" : "L"}${x(i)},${y(p)}`)
+              .join(" ");
             const last = s.points[n - 1];
             // Only the series that matters gets an endpoint label when two
             // endpoints would sit within a few pixels of each other.
             const crowded =
               data.series.length === 2 &&
-              Math.abs(y(data.series[0].points[n - 1]) - y(data.series[1].points[n - 1])) < 14;
+              Math.abs(
+                y(data.series[0].points[n - 1]) -
+                  y(data.series[1].points[n - 1]),
+              ) < 14;
             const labelled = !crowded || s.tone === "accent";
 
             return (
@@ -385,7 +400,12 @@ export function LineChart({ data }: { data: LineChartData }) {
                 {s.points.map((p, i) => (
                   <g key={i}>
                     <m.g style={reduce ? undefined : { opacity: dots }}>
-                      <Marker kind={s.marker} cx={x(i)} cy={y(p)} fill={TONE[s.tone]} />
+                      <Marker
+                        kind={s.marker}
+                        cx={x(i)}
+                        cy={y(p)}
+                        fill={TONE[s.tone]}
+                      />
                     </m.g>
                     {/* A 24px hit area, so the value is reachable by pointer too. */}
                     <rect
@@ -456,9 +476,18 @@ export function LineChart({ data }: { data: LineChartData }) {
           <span className="block text-bone">{`${data.xLabel} ${xValue(at)}`}</span>
           <ul className="mt-1">
             {data.series.map((s) => (
-              <li key={s.label} className="flex flex-wrap items-baseline justify-between gap-x-2">
+              <li
+                key={s.label}
+                className="flex flex-wrap items-baseline justify-between gap-x-2"
+              >
                 <span className="flex items-center gap-1.5">
-                  <svg width="8" height="8" viewBox="0 0 10 10" aria-hidden="true" className="shrink-0">
+                  <svg
+                    width="8"
+                    height="8"
+                    viewBox="0 0 10 10"
+                    aria-hidden="true"
+                    className="shrink-0"
+                  >
                     <Marker kind={s.marker} cx={5} cy={5} fill={TONE[s.tone]} />
                   </svg>
                   {s.label}
@@ -516,7 +545,7 @@ const TRACK_W = 156;
 
 export function BarChart({ data }: { data: BarChartData }) {
   const ref = useRef<HTMLDivElement>(null);
-  const reduce = Boolean(useReducedMotion());
+  const reduce = useReduceMotion();
   const titleId = useId();
 
   // Same contract as the line charts: bar length is a function of scroll
@@ -607,7 +636,9 @@ export function BarChart({ data }: { data: BarChartData }) {
           {data.bars.map((b, i) => {
             const yTop = i * rowH;
             const w = (b.value / data.xMax) * trackW;
-            const fill = b.highlight ? "var(--color-brass)" : "var(--color-graphite)";
+            const fill = b.highlight
+              ? "var(--color-brass)"
+              : "var(--color-graphite)";
             // The hovered bar brightens one step up the same ramp. The accent
             // bar brightens by mixing the two tokens it already sits between,
             // so no new colour enters the palette and the accent stays brass.
@@ -626,7 +657,9 @@ export function BarChart({ data }: { data: BarChartData }) {
                     fontSize: 9.5,
                     fontFamily: "var(--font-mono)",
                     fill:
-                      live || b.highlight ? "var(--color-bone)" : "var(--color-read)",
+                      live || b.highlight
+                        ? "var(--color-bone)"
+                        : "var(--color-read)",
                     transition: `fill ${timing(live ? HOVER_IN : HOVER_OUT)}`,
                   }}
                 >

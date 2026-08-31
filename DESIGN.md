@@ -453,25 +453,60 @@ no delay.
 
 | Token | Value | Notes |
 | --- | --- | --- |
-| `scroll-spring` | `stiffness 70, damping 21, mass 1, restDelta 0.0005` | Damping ratio 1.26, settling in a bit under 0.4s |
+| `scroll-spring` | `stiffness 500, damping 45, mass 1, restDelta 0.0005` | Damping ratio just over 1, settling in about 0.18s |
 
   Overdamped deliberately. A spring that overshoots would carry a bar past its
   own value and back, which on a chart is a wrong number briefly drawn, not a
-  flourish. Measured on the first bar of the audit chart, across the frames where
-  the value was live rather than pinned at either end: without the spring 20
-  percent of those frames moved at all and the worst advanced 0.797 of the bar's
-  range in one frame; with it, 100 percent moved and the worst was 0.099. Frame
-  pacing did not regress, and improved slightly, from 5 frames over 33ms across a
-  full-page scroll to none.
+  flourish.
 
-  A stiffer pair, `stiffness 150, damping 28`, was tried first and measured
-  barely better than no spring: it reached its target inside two frames, so the
-  notch still landed in one jump. The settle has to outlast the input.
+  **The settle length is a compromise between two inputs that want opposite
+  things.** A wheel wants a long one: it delivers a single 120px jump, and the
+  spring is all that stands between that jump and a teleport. A trackpad wants
+  none at all, because it already delivers a smooth stream of small deltas, and
+  any settle on top of that is just the page trailing the reader's fingers.
+
+  Three values were measured on the first bar of the audit chart, counting only
+  frames where the value was live rather than pinned at either end:
+
+  | Spring | Frames moving | Worst single-frame advance |
+  | --- | --- | --- |
+  | none | 20% | 0.797 of the bar's range |
+  | `150 / 28` | 100% | 0.545 |
+  | `70 / 21`, 0.4s settle | 100% | 0.099 |
+  | `500 / 45`, 0.18s settle | 100% | 0.148 |
+
+  Frames moving is the wrong number to choose on once any spring is present:
+  all three move on every live frame. The worst single-frame advance is the one
+  that separates them, because it says how far the mark can lurch in one frame,
+  and that is the thing the eye reads as a jump. `150 / 28` spreads a notch over
+  about half as many frames as the other two and still lurches more than a third
+  of the bar at once.
+
+  `70 / 21` smooths a wheel beautifully and was shipped, then reported as lag,
+  because on a trackpad it makes the page feel like it is dragging something
+  heavy. The 0.18s pair is roughly eleven frames: enough to spread a notch
+  across a visible arc, short enough that a trackpad reader cannot feel it.
 
   Under `prefers-reduced-motion` the raw value is returned and no spring runs.
 - This is not the banned fade-and-rise on section entry. That is applied to whole
   sections regardless of content; this is a mark drawing along its own axis,
   which is what the mark means.
+- **The 3D layer renders on demand, never on a loop.** `frameloop="demand"`,
+  with every source of change asking for a frame explicitly: scroll through a
+  subscription to the progress value, the pointer through a listener on the
+  canvas, and the lean easing by re-arming itself until it settles.
+
+  This was `"always"` whenever motion was allowed, which meant three canvases
+  each rendering 60 times a second for the entire life of the page: while the
+  reader was reading, while a model was off screen, while nothing moved at all.
+  Two seconds parked on the hero, touching nothing, issued 1,200 WebGL draw
+  calls. It is now zero, and the frames that do happen are the ones that differ
+  from the last.
+
+  That idle work was competing with scroll for the main thread, and it is what
+  made the page feel heavy under a trackpad. Across a trackpad-style scroll the
+  99th percentile frame went from 166.7ms to 17.7ms, the worst from 233.2ms to
+  33.7ms, and frames over 33ms from 17 to 1.
 - `cursor: pointer` on every clickable element, including `button`.
 
 ---

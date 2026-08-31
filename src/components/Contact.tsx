@@ -5,12 +5,13 @@ import {
   GithubLogo,
   LinkedinLogo,
 } from "@phosphor-icons/react";
-import { m, useReducedMotion } from "motion/react";
+import { m } from "motion/react";
 import { CALL_MAILTO, CONTACT, STATUS } from "../data/content";
 import { usePointerField, useSpotlight } from "../motion/pointer";
 import { HOVER_IN, HOVER_OUT } from "../motion/tokens";
 import { PrimaryAction } from "./Buttons";
 import { Section } from "./Section";
+import { useReduceMotion } from "../motion/reduce";
 
 const CHANNELS = [
   {
@@ -91,7 +92,7 @@ function Channel({
 }
 
 export function Contact() {
-  const reduce = useReducedMotion();
+  const reduce = useReduceMotion();
 
   return (
     <Section

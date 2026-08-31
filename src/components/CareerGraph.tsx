@@ -5,7 +5,6 @@ import {
   AnimatePresence,
   m,
   useMotionValueEvent,
-  useReducedMotion,
   useScroll,
   useTransform,
   type MotionValue,
@@ -14,6 +13,7 @@ import { BANDS, MOVES, SPAN, STUDY, type BandKey } from "../data/career";
 import { HOVER_IN, HOVER_OUT } from "../motion/tokens";
 import { useNearestIndex, usePointerField } from "../motion/pointer";
 import { useSmoothScroll } from "../motion/scroll";
+import { useReduceMotion } from "../motion/reduce";
 
 /**
  * The career as a graph rather than as a list. The ledger in Trajectory says
@@ -144,7 +144,7 @@ function MoveMarker({
 
 export function CareerGraph() {
   const frameRef = useRef<HTMLDivElement>(null);
-  const reduce = Boolean(useReducedMotion());
+  const reduce = useReduceMotion();
   const titleId = useId();
 
   /**
@@ -181,7 +181,8 @@ export function CareerGraph() {
           <title id={titleId}>
             Nine years, from GST filings in 2018 to agent reliability in 2027.
             The work rises through four bands, Filings to Reporting to Pipelines
-            to Models, while four periods of study run underneath and overlap it.
+            to Models, while four periods of study run underneath and overlap
+            it.
           </title>
 
           {/* Bands. Hairlines in rule, labels in graphite: rule is never text. */}
@@ -348,7 +349,9 @@ export function CareerGraph() {
                 >
                   <span className="block text-bone">{shown.move.org}</span>
                   <span className="block text-graphite">{shown.move.role}</span>
-                  <span className="block text-graphite">{shown.move.dates}</span>
+                  <span className="block text-graphite">
+                    {shown.move.dates}
+                  </span>
                   <span className="mt-2 block">{shown.move.note}</span>
                 </m.div>
               ) : null}
@@ -365,28 +368,28 @@ export function CareerGraph() {
 
       <div className="sr-only">
         <table>
-        <caption>Career moves, by band</caption>
-        <thead>
-          <tr>
-            <th scope="col">Dates</th>
-            <th scope="col">Organisation</th>
-            <th scope="col">Role</th>
-            <th scope="col">Band</th>
-          </tr>
-        </thead>
-        <tbody>
-          {MOVES.map((move) => (
-            <tr key={move.org}>
-              <th scope="row">{move.dates}</th>
-              <td>{move.org}</td>
-              <td>{move.role}</td>
-              <td>
-                {BANDS.find((b) => b.key === move.band)?.label ?? move.band}
-              </td>
+          <caption>Career moves, by band</caption>
+          <thead>
+            <tr>
+              <th scope="col">Dates</th>
+              <th scope="col">Organisation</th>
+              <th scope="col">Role</th>
+              <th scope="col">Band</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {MOVES.map((move) => (
+              <tr key={move.org}>
+                <th scope="row">{move.dates}</th>
+                <td>{move.org}</td>
+                <td>{move.role}</td>
+                <td>
+                  {BANDS.find((b) => b.key === move.band)?.label ?? move.band}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </figure>
   );

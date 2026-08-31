@@ -51,9 +51,7 @@ export function Section({
               {heading}
             </h2>
             {lede ? (
-              <p className="t-body mt-4 max-w-[62ch] text-read">
-                {lede}
-              </p>
+              <p className="t-body mt-4 max-w-[62ch] text-read">{lede}</p>
             ) : null}
             <div className="mt-10 sm:mt-12">{children}</div>
           </div>
