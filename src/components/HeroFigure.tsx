@@ -11,6 +11,7 @@ import {
 import { AnimatePresence, m, useReducedMotion, useScroll } from "motion/react";
 import { HERO_MODEL } from "../data/content";
 import { hasWebGL } from "../lib/webgl";
+import { useSmoothScroll } from "../motion/scroll";
 
 const ModelStage = lazy(() => import("./three/ModelStage"));
 
@@ -43,10 +44,13 @@ export function HeroFigure({ className = "" }: { className?: string }) {
   const [live, setLive] = useState(false);
   const onReady = useCallback(() => setLive(true), []);
 
-  const { scrollYProgress } = useScroll({
+  const { scrollYProgress: rawProgress } = useScroll({
     target: hostRef,
     offset: ["start end", "end start"],
   });
+  // A wheel notch is one discrete jump. Smoothed, the figure turns through it
+  // instead of snapping. See useSmoothScroll.
+  const scrollYProgress = useSmoothScroll(rawProgress, reduce);
 
   // Mount only once the page has finished loading and the main thread has gone
   // quiet. A WebGL scene above the fold competes with the hero text for the

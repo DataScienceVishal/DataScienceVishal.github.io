@@ -13,6 +13,7 @@ import {
 import { BANDS, MOVES, SPAN, STUDY, type BandKey } from "../data/career";
 import { HOVER_IN, HOVER_OUT } from "../motion/tokens";
 import { useNearestIndex, usePointerField } from "../motion/pointer";
+import { useSmoothScroll } from "../motion/scroll";
 
 /**
  * The career as a graph rather than as a list. The ledger in Trajectory says
@@ -151,10 +152,11 @@ export function CareerGraph() {
    * uses. Bound to scroll position, so it runs backwards when the reader
    * scrolls back up instead of firing once and being spent.
    */
-  const { scrollYProgress } = useScroll({
+  const { scrollYProgress: rawProgress } = useScroll({
     target: frameRef,
     offset: ["start end", "end start"],
   });
+  const scrollYProgress = useSmoothScroll(rawProgress, reduce);
   // The line completes before the graph leaves, so the finished shape is
   // readable rather than only existing at the moment it exits the screen.
   const drawn = useTransform(scrollYProgress, [0.12, 0.62], [0, 1]);

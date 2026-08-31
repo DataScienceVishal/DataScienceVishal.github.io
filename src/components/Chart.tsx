@@ -201,7 +201,7 @@ export function LineChart({ data }: { data: LineChartData }) {
 
   // Tied to scroll position, so the marks draw and undraw with the reader
   // rather than firing once and then ignoring them for the rest of the session.
-  const draw = useDrawProgress(ref);
+  const draw = useDrawProgress(ref, undefined, undefined, reduce);
   // The accent series leads by a hair; the others trail it.
   const drawA = useTransform(draw, [0, 0.82], [0, 1], { clamp: true });
   const drawB = useTransform(draw, [0.1, 0.92], [0, 1], { clamp: true });
@@ -521,7 +521,7 @@ export function BarChart({ data }: { data: BarChartData }) {
 
   // Same contract as the line charts: bar length is a function of scroll
   // position, so the rows grow and shrink with the reader.
-  const draw = useDrawProgress(ref);
+  const draw = useDrawProgress(ref, undefined, undefined, reduce);
   const grow = useTransform(draw, [0, 0.78], [0, 1], { clamp: true });
   const labels = useTransform(draw, [0.62, 0.9], [0, 1], { clamp: true });
   /**

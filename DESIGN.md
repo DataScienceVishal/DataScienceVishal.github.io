@@ -444,6 +444,31 @@ no delay.
   fully drawn while it is being read. `useInView` with `once: true` was used here
   first; it fired one animation and then ignored the reader for the rest of the
   session, which is not the same thing as responding to scroll.
+- **Scroll position is smoothed before anything is derived from it**, through
+  `useSmoothScroll` in `src/motion/scroll.ts`. A mouse wheel is not a continuous
+  input: measured on this page, one notch moved the document 120px in a single
+  frame, and 59 of 71 frames sat perfectly still between notches. Anything mapped
+  straight onto scroll position inherits that staircase and teleports, at a
+  perfect 60fps, with nothing in the profiler to show for it.
+
+| Token | Value | Notes |
+| --- | --- | --- |
+| `scroll-spring` | `stiffness 70, damping 21, mass 1, restDelta 0.0005` | Damping ratio 1.26, settling in a bit under 0.4s |
+
+  Overdamped deliberately. A spring that overshoots would carry a bar past its
+  own value and back, which on a chart is a wrong number briefly drawn, not a
+  flourish. Measured on the first bar of the audit chart, across the frames where
+  the value was live rather than pinned at either end: without the spring 20
+  percent of those frames moved at all and the worst advanced 0.797 of the bar's
+  range in one frame; with it, 100 percent moved and the worst was 0.099. Frame
+  pacing did not regress, and improved slightly, from 5 frames over 33ms across a
+  full-page scroll to none.
+
+  A stiffer pair, `stiffness 150, damping 28`, was tried first and measured
+  barely better than no spring: it reached its target inside two frames, so the
+  notch still landed in one jump. The settle has to outlast the input.
+
+  Under `prefers-reduced-motion` the raw value is returned and no spring runs.
 - This is not the banned fade-and-rise on section entry. That is applied to whole
   sections regardless of content; this is a mark drawing along its own axis,
   which is what the mark means.

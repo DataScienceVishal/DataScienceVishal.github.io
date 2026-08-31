@@ -4,6 +4,7 @@ import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { useInView, useReducedMotion, useScroll } from "motion/react";
 import { hasWebGL } from "../lib/webgl";
 import type { Spin } from "./three/ModelStage";
+import { useSmoothScroll } from "../motion/scroll";
 
 const ModelStage = lazy(() => import("./three/ModelStage"));
 
@@ -82,10 +83,11 @@ export function ModelViewport({
     setSupported(hasWebGL());
   }, []);
 
-  const { scrollYProgress } = useScroll({
+  const { scrollYProgress: rawProgress } = useScroll({
     target: scrollTarget ?? hostRef,
     offset: ["start end", "end start"],
   });
+  const scrollYProgress = useSmoothScroll(rawProgress, Boolean(reduce));
 
   const mounted = near && allowed && supported;
 
