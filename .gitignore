@@ -22,6 +22,8 @@ portfolio-build-prompt.md
 AI_Twin_Resume.pdf
 .agents/
 skills-lock.json
-*.png
+# Verification screenshots, written to the repo root by the browser tooling.
+/*.png
+
 .claude/settings.local.json
 .claude/worktrees/
