@@ -57,7 +57,7 @@ export function RetrievalPath() {
   // The signal position is a function of scroll, so it runs with the reader and
   // runs backwards if they scroll back up. It used to fire once on first view,
   // which meant a reader who scrolled past and returned saw nothing happen.
-  const draw = useDrawProgress(ref, 0.05, 0.5);
+  const draw = useDrawProgress(ref, 0.05, 0.5, Boolean(reduce));
   const signal = useTransform(draw, [0, 1], [0, 1], { clamp: true });
   const caption = useTransform(draw, [0.82, 1], [0, 1], { clamp: true });
 
