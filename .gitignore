@@ -1,0 +1,27 @@
+node_modules
+dist
+dist-ssr
+.DS_Store
+*.local
+.vite
+.vercel
+
+# Playwright MCP artefacts
+.playwright-mcp
+
+# TS build info
+*.tsbuildinfo
+
+# Design reference recordings, ~340 MB of screen captures. Local input, not a deliverable.
+references/
+
+# Working inputs, not deliverables. The build prompt in particular states the
+# brief and the process in full: this repo is linked from the site, and a
+# visitor who reads it learns how the page was made before they read the page.
+portfolio-build-prompt.md
+AI_Twin_Resume.pdf
+.agents/
+skills-lock.json
+*.png
+.claude/settings.local.json
+.claude/worktrees/
