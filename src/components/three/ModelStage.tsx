@@ -5,7 +5,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Center, Environment, Lightformer, useGLTF } from "@react-three/drei";
 // From three-stdlib rather than three/examples, because that is the loader
 // implementation drei's own types are written against.
-import { DRACOLoader, KTX2Loader } from "three-stdlib";
+import { KTX2Loader } from "three-stdlib";
 import {
   Box3,
   Color,
@@ -21,8 +21,18 @@ import type { MotionValue } from "motion/react";
  * a viewport decides to mount it, so three, the loaders and the decoders all
  * land in their own chunk.
  *
- * Decoders are self hosted under /decoders. drei points Draco at a Google CDN by
- * default, which would make the page depend on a third party at runtime.
+ * Decoders are self hosted under /decoders, so the page depends on no third
+ * party at runtime.
+ *
+ * Draco's path has to go in as drei's second argument rather than being set on
+ * the loader here. drei runs extendLoader first and then, if useDraco is `true`,
+ * builds its own DRACOLoader pointed at a Google CDN and overwrites whatever
+ * extendLoader just attached. Passing `true` therefore silently undoes the self
+ * hosting: it shipped that way, and every visitor fetched 750kB of decoder from
+ * gstatic.com, which is both a third party watching the page load and an extra
+ * origin to resolve on the critical path. Passing the path as a string is the
+ * documented way to keep it local. KTX2 is unaffected, because drei does not
+ * touch it, which is why it stays below.
  *
  * Lighting is procedural: an Environment built from Lightformers rather than a
  * downloaded HDR, so there is no extra network request and the key light can sit
@@ -168,6 +178,12 @@ export interface Spin {
   lift: number;
 }
 
+/**
+ * Self hosted Draco. Passed to useGLTF as a string on purpose: see the note at
+ * the top of this file for what `true` does instead.
+ */
+const DRACO_PATH = "/decoders/draco/";
+
 /** Largest dimension the frame can take at the camera set up below. */
 const FIT = 2.05;
 
@@ -211,10 +227,6 @@ function Model({
   const gl = useThree((state) => state.gl);
   const configureLoader = useCallback<ExtendLoader>(
     (loader) => {
-      const draco = new DRACOLoader();
-      draco.setDecoderPath("/decoders/draco/");
-      loader.setDRACOLoader(draco);
-
       const ktx2 = new KTX2Loader();
       ktx2.setTranscoderPath("/decoders/basis/");
       ktx2.detectSupport(gl);
@@ -223,7 +235,7 @@ function Model({
     [gl],
   );
 
-  const { scene } = useGLTF(url, true, true, configureLoader);
+  const { scene } = useGLTF(url, DRACO_PATH, true, configureLoader);
   const ref = useRef<Group>(null);
 
   // Measure the model and normalise it, rather than hardcoding a scale per file.
