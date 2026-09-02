@@ -1,0 +1,9 @@
+Third-party decoders, both Apache License 2.0.
+
+  draco/  Draco 3D Data Compression, Copyright Google LLC
+          https://github.com/google/draco
+  basis/  Basis Universal, Copyright Binomial LLC
+          https://github.com/BinomialLLC/basis_universal
+
+Both are redistributed unmodified. Full licence text:
+https://www.apache.org/licenses/LICENSE-2.0

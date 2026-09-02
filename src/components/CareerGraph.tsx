@@ -361,7 +361,7 @@ export function CareerGraph() {
       </div>
 
       <figcaption className="t-mono-xs mt-4 max-w-[52ch] text-graphite">
-        The work track rises through what he was actually doing rather than
+        The work track rises through what I was actually doing rather than
         through job titles. The study track underneath runs alongside it for six
         of the nine years.
       </figcaption>

@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+/*
+  Tailwind v4 auto-detects sources from the project root, which means it reads
+  the markdown here as if it were markup. The AI skill docs under .claude are
+  full of Tailwind class names used as examples of the generic aesthetic this
+  page exists to avoid, and every one of them was being compiled into the
+  shipped stylesheet: bg-amber-50, bg-zinc-950, text-gray-900, backdrop-blur,
+  max-w-7xl. Four foreign colour families and two effects the brief bans,
+  served to every visitor, generated from a file explaining not to use them.
+*/
+@source not "../.claude";
+@source not "../DESIGN.md";
+@source not "../README.md";
+@source not "../DOMAIN.md";
+
 /* ===========================================================================
    Every value below comes from DESIGN.md. Nothing is invented here. If a new
    token is needed, it goes in DESIGN.md first.
@@ -13,9 +27,10 @@
   font-weight: 200 800;
   font-display: swap;
   src: url("/fonts/bricolage-grotesque-latin-wdth-normal.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
@@ -24,9 +39,10 @@
   font-weight: 100 700;
   font-display: swap;
   src: url("/fonts/ibm-plex-sans-latin-wght-normal.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
@@ -35,9 +51,10 @@
   font-weight: 400;
   font-display: swap;
   src: url("/fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
@@ -46,9 +63,10 @@
   font-weight: 500;
   font-display: swap;
   src: url("/fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
 }
 
 /* --- DESIGN.md section 2, colour, and section 3, faces ------------------- */
@@ -181,6 +199,146 @@
       transition-duration: 0.01ms !important;
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
+    }
+  }
+}
+
+/* --- DESIGN.md section 8, the load sequence ------------------------------
+   The hero entrance runs in CSS rather than in Motion.
+
+   It used to be Motion `initial` props, which meant the prerendered HTML
+   carried `opacity:0` inline on the header, both headline lines, the subline
+   and both calls to action. The entire first screen was therefore invisible
+   until 355kB of JavaScript had downloaded and hydrated, and permanently
+   invisible if it never did. The rest of the page rendered fine, so the site
+   effectively began at section two. That also held back the largest
+   contentful paint, which is the hero, behind hydration.
+
+   In CSS the markup ships visible, paints from the prerender, and the reveal
+   is an enhancement layered on top. The `js` class is set by a blocking inline
+   script in the document head, so the hidden state is only ever applied when
+   there is JavaScript to remove it again.
+
+   Delays are the cues from src/motion/tokens.ts. The two files are the one
+   place this composition is described and they must be kept in step.
+-------------------------------------------------------------------------- */
+
+@layer components {
+  /* Attribution links in the colophon. Underlined so they read as links in a
+     paragraph that is otherwise all one colour, brass on hover like every
+     other outbound link on the page. */
+  .credit-link {
+    color: var(--color-graphite);
+    text-decoration: underline;
+    text-decoration-color: var(--color-rule);
+    text-underline-offset: 3px;
+    transition:
+      color var(--dur-out) var(--ease-in),
+      text-decoration-color var(--dur-out) var(--ease-in);
+  }
+
+  .credit-link:hover,
+  .credit-link:focus-visible {
+    color: var(--color-brass);
+    text-decoration-color: var(--color-brass);
+    transition-duration: var(--dur-in);
+    transition-timing-function: var(--ease-out);
+  }
+
+  /*
+    Everything else that animates, when there is no JavaScript to animate it.
+
+    Motion writes its start state into the markup at prerender: charts ship at
+    scaleX(0), line paths at stroke-dasharray "0 1", the retrieval path stages
+    at 26% opacity, the retrieval caption at 0. With JS those are the first
+    frame of an animation. Without it they are the last frame too, so the page
+    serves five blank charts underneath captions quoting their numbers.
+
+    The data is not lost either way, because every chart also ships an sr-only
+    table, but a sighted reader with JS blocked or broken sees axis furniture
+    and nothing plotted. This resets the marks to their finished state.
+
+    Scoped under html:not(.js), which the head script sets synchronously, so
+    this can never apply in a browser that is going to run the animation.
+  */
+  html:not(.js) [style*="opacity:0"] {
+    opacity: 1 !important;
+  }
+
+  html:not(.js) [style*="scale"] {
+    transform: none !important;
+  }
+
+  html:not(.js) [stroke-dasharray] {
+    stroke-dasharray: none !important;
+  }
+
+  .cue {
+    --cue-delay: 0ms;
+    --cue-y: 12px;
+  }
+
+  .js .cue {
+    opacity: 0;
+    animation: cue-rise var(--dur-enter) var(--ease-out) var(--cue-delay) both;
+  }
+
+  /* The headline lines wipe up from under their own baseline. */
+  .js .cue--reveal {
+    --cue-y: 16px;
+    animation-name: cue-reveal;
+  }
+
+  /* The nav comes down from above rather than up from below. */
+  .js .cue--drop {
+    --cue-y: -8px;
+  }
+
+  .js .cue--scale {
+    animation-name: cue-scale;
+  }
+
+  @keyframes cue-rise {
+    from {
+      opacity: 0;
+      transform: translateY(var(--cue-y));
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes cue-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(var(--cue-y));
+      clip-path: inset(100% 0 0 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  @keyframes cue-scale {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* The global reduced-motion rule collapses the duration but not the delay,
+     which on its own would leave the hero blank for half a second and then
+     snap it in. Drop the delay too, so it is simply there. */
+  @media (prefers-reduced-motion: reduce) {
+    .js .cue {
+      animation-delay: 0ms !important;
     }
   }
 }

@@ -6,7 +6,7 @@ export function Research() {
     <Section
       id="research"
       heading="Research"
-      lede="Two dissertations. One is finished and not online, the other is not finished. Both are here as work in progress rather than as credentials."
+      lede="Two dissertations, on reinforcement learning for dynamic pricing and on agent reliability. One is finished and not online, the other is still being written. Neither is here as a credential."
     >
       <div className="grid gap-14 lg:grid-cols-2 lg:gap-16">
         <article>

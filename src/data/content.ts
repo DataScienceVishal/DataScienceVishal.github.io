@@ -81,13 +81,32 @@ export const NAV_LINKS = [
 ] as const;
 
 /** Shown in Contact. There is no separate availability band on the page. */
+/**
+ * Shown in Contact. There is no separate availability band on the page.
+ *
+ * Written permission-first, and bounded by date. The previous version led with
+ * "Student visa", which a UK screener reads as "needs sponsorship" before they
+ * reach the clause that says otherwise, and paired it with a bare "Part time"
+ * that reads as a preference rather than as a visa condition. The one fact a
+ * UK employer most needs, that no sponsor licence is required at any point,
+ * was not on the page at all: the only occurrence of the word "sponsorship"
+ * was a question to go and ask a chatbot.
+ */
 export const STATUS = [
-  { term: "Availability", value: "Immediate joiner" },
-  { term: "Work status", value: "Part time" },
   {
-    term: "Right to work",
+    term: "Sponsorship",
     value:
-      "Student visa. AI and ML internships until January 2027, full time after that on the graduate route.",
+      "Not required, now or later. The Student visa and the Graduate Route both carry their own permission to work, so there is no sponsor licence and no Certificate of Sponsorship at any stage.",
+  },
+  {
+    term: "Now to January 2027",
+    value:
+      "AI and ML internships, alongside the MSc. Twenty hours a week in term time and full time through university vacations. No notice period, so the start date is whenever suits.",
+  },
+  {
+    term: "From early 2027",
+    value:
+      "Full time, on the Graduate Route. Two years of unrestricted work, following the MSc finishing in January.",
   },
 ] as const;
 

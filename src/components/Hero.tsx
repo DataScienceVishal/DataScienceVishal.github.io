@@ -1,11 +1,13 @@
 "use client";
 
-import { m } from "motion/react";
 import { CALL_MAILTO, CONTACT } from "../data/content";
-import { CUE, enter } from "../motion/tokens";
+import { CUE } from "../motion/tokens";
 import { PrimaryAction, SecondaryAction } from "./Buttons";
 import { HeroFigure } from "./HeroFigure";
-import { useReduceMotion } from "../motion/reduce";
+
+/** Cue delay as a CSS custom property. See the cue block in index.css. */
+const cue = (seconds: number) =>
+  ({ "--cue-delay": `${Math.round(seconds * 1000)}ms` }) as React.CSSProperties;
 
 /** Split so each line can be revealed on its own cue. */
 const THESIS: Array<Array<{ text: string; emph?: boolean }>> = [
@@ -14,8 +16,6 @@ const THESIS: Array<Array<{ text: string; emph?: boolean }>> = [
 ];
 
 export function Hero() {
-  const reduce = useReduceMotion();
-
   return (
     <section
       id="top"
@@ -26,17 +26,14 @@ export function Hero() {
         <div>
           <h1 id="hero-heading" className="t-display-1 max-w-[17ch] text-bone">
             {THESIS.map((line, i) => (
-              <m.span
+              <span
                 key={i}
-                className="block"
-                initial={
-                  reduce
-                    ? false
-                    : { opacity: 0, y: 16, clipPath: "inset(100% 0 0 0)" }
-                }
-                animate={{ opacity: 1, y: 0, clipPath: "inset(0% 0 0 0)" }}
-                transition={enter(i === 0 ? CUE.thesisLine1 : CUE.thesisLine2)}
-                style={{ paddingBottom: "0.06em", textWrap: "balance" }}
+                className="cue cue--reveal block"
+                style={{
+                  paddingBottom: "0.06em",
+                  textWrap: "balance",
+                  ...cue(i === 0 ? CUE.thesisLine1 : CUE.thesisLine2),
+                }}
               >
                 {line.map((part, j) =>
                   part.emph ? (
@@ -47,19 +44,18 @@ export function Hero() {
                     <span key={j}>{part.text}</span>
                   ),
                 )}
-              </m.span>
+              </span>
             ))}
           </h1>
 
-          <m.p
-            className="t-body-lg mt-7 max-w-[42ch] text-read"
-            initial={reduce ? false : { opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={enter(CUE.subtext)}
+          <p
+            className="cue t-body-lg mt-7 max-w-[42ch] text-read"
+            style={cue(CUE.subtext)}
           >
             AI and ML engineer in London. Looking for an AI or ML internship
-            now, full time from January 2027.
-          </m.p>
+            now, full time from early 2027. No visa sponsorship needed for
+            either.
+          </p>
 
           <div className="mt-9 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
             {[
@@ -70,26 +66,23 @@ export function Hero() {
                 Book a call
               </SecondaryAction>,
             ].map((action, i) => (
-              <m.span
+              <span
                 key={i}
-                initial={reduce ? false : { opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={enter(CUE.actions + CUE.actionStagger * i)}
+                className="cue"
+                style={cue(CUE.actions + CUE.actionStagger * i)}
               >
                 {action}
-              </m.span>
+              </span>
             ))}
           </div>
         </div>
 
-        <m.div
-          className="mt-14 flex justify-center md:mt-0 md:justify-end"
-          initial={reduce ? false : { opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={enter(CUE.sentinel)}
+        <div
+          className="cue cue--scale mt-14 flex justify-center md:mt-0 md:justify-end"
+          style={cue(CUE.sentinel)}
         >
           <HeroFigure className="max-w-[13rem] sm:max-w-[16rem] lg:max-w-[20rem]" />
-        </m.div>
+        </div>
       </div>
     </section>
   );

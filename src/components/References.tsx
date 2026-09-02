@@ -6,6 +6,51 @@ import { CONTACT } from "../data/content";
  * The reference list the markers point into. Sources without a public URL are
  * listed with the reason, which is the whole point of numbering them.
  */
+/**
+ * One model credit. CC BY 4.0 asks for the creator, the title, a link to the
+ * material and a link to the licence, so all four are here and all four are
+ * links. The page previously credited "Sketchfab", which is where the files
+ * were downloaded from rather than who made them; the authors were sitting in
+ * each file's own glTF `asset.extras` the whole time.
+ */
+function Credit({
+  href,
+  title,
+  by,
+  byHref,
+}: {
+  href: string;
+  title: string;
+  by: string;
+  byHref?: string;
+}) {
+  const out = { target: "_blank", rel: "noopener noreferrer" } as const;
+  return (
+    <>
+      <a href={href} className="credit-link" {...out}>
+        {title}
+      </a>{" "}
+      by{" "}
+      {byHref ? (
+        <a href={byHref} className="credit-link" {...out}>
+          {by}
+        </a>
+      ) : (
+        by
+      )}
+      ,{" "}
+      <a
+        href="https://creativecommons.org/licenses/by/4.0/"
+        className="credit-link"
+        {...out}
+      >
+        CC BY 4.0
+      </a>
+      .
+    </>
+  );
+}
+
 export function References() {
   return (
     <footer id="references" className="border-t border-rule">
@@ -74,16 +119,31 @@ export function References() {
               his, and two of them are only on the page because someone else
               sculpted them.
             */}
-            <p className="t-mono-sm mt-12 text-graphite">
-              Models: Robot Girl With Hair Wires and Neural Networks of the
-              Brain, both from Sketchfab. A Beautiful Game, Ed Mackey and ASWF,
-              CC BY 4.0, from the Khronos glTF sample assets. All three were
-              recompressed and retinted for this page.
+            <p className="t-mono-sm mt-12 max-w-[62ch] text-graphite">
+              Models, all three CC BY 4.0 and all three recompressed and
+              retinted for this page.{" "}
+              <Credit
+                href="https://sketchfab.com/3d-models/robot-girl-with-hair-wires-ccaa2e655374415c84bc1bb1b177681a"
+                title="Robot girl with hair wires"
+                by="GR-video"
+                byHref="https://sketchfab.com/grvideotv"
+              />{" "}
+              <Credit
+                href="https://sketchfab.com/3d-models/neural-networks-of-the-brain-fa48173d4532407c9c2a4ba06a9bcd2d"
+                title="Neural Networks of the Brain"
+                by="Universal Design for Learning"
+                byHref="https://sketchfab.com/UDL"
+              />{" "}
+              <Credit
+                href="https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/ABeautifulGame"
+                title="A Beautiful Game"
+                by="Moeen Sayed and Mujtaba Sayed, glTF conversion by Ed Mackey"
+              />
             </p>
 
             <p className="t-mono-sm mt-4 text-graphite">
               {CONTACT.name}, London. Static site, built with React and Vite,
-              deployed on Vercel.
+              deployed on GitHub Pages.
             </p>
           </div>
         </div>

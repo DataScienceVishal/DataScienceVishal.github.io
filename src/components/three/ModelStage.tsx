@@ -74,6 +74,17 @@ function toneToMetal(root: Group) {
     for (const raw of mats) {
       const mat = raw as MeshStandardMaterial;
       if (!mat || !mat.color) continue;
+      /*
+       * Once per material, ever. useGLTF caches the scene graph globally and
+       * these edits are mutations of it, so a remount, or StrictMode's double
+       * render in development, would re-ramp a colour that has already been
+       * ramped. The comment on the caller claimed "once per loaded scene",
+       * which useMemo does not actually promise.
+       */
+      if (mat.userData.graded) continue;
+      mat.userData.graded = true;
+      if (mat.userData.graded) continue;
+      mat.userData.graded = true;
       mat.map = null;
       mat.emissiveMap = null;
       mat.color.copy(PEWTER);
@@ -97,6 +108,15 @@ function gradeToPalette(root: Group, strength: number) {
     for (const raw of mats) {
       const mat = raw as MeshStandardMaterial;
       if (!mat || !mat.color) continue;
+      /*
+       * Once per material, ever. useGLTF caches the scene graph globally and
+       * these edits are mutations of it, so a remount, or StrictMode's double
+       * render in development, would re-ramp a colour that has already been
+       * ramped. The comment on the caller claimed "once per loaded scene",
+       * which useMemo does not actually promise.
+       */
+      if (mat.userData.graded) continue;
+      mat.userData.graded = true;
       // A mapped material carries its colour in the texture, not in the albedo,
       // so retinting the albedo does nothing: this model's face stayed skin
       // toned while its untextured wires went amber, the worst of both. The map
@@ -313,10 +333,7 @@ function Model({
     // The lean eases toward the pointer over several frames, so it has to
     // re-arm the loop until it arrives. The threshold is a rotation too small
     // to see, which is where stopping costs nothing.
-    if (
-      Math.abs(targetY - l.y) > 0.0002 ||
-      Math.abs(targetX - l.x) > 0.0002
-    ) {
+    if (Math.abs(targetY - l.y) > 0.0002 || Math.abs(targetX - l.x) > 0.0002) {
       invalidate();
     }
   });

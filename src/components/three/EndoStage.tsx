@@ -461,19 +461,79 @@ function Bust({
             there is a dark seam running down each diagonal of the skull rather
             than a continuous shell. Each sits at a different offset, so where
             they do meet one is visibly on top of the other. */}
-        <Plate off={0.02} phi={Math.PI} span={Math.PI} t0={0} t1={0.72} material={mats.brushed} seg={28} />
-        <Plate off={0.024} phi={Math.PI / 2} span={0.82} t0={0.68} t1={1.72} material={mats.polish} />
-        <Plate off={0.028} phi={Math.PI} span={0.72} t0={0.66} t1={1.95} material={mats.polish} />
-        <Plate off={0.028} phi={0} span={0.72} t0={0.66} t1={1.95} material={mats.polish} />
-        <Plate off={0.024} phi={(3 * Math.PI) / 2} span={0.78} t0={0.64} t1={2.05} material={mats.brushed} />
+        <Plate
+          off={0.02}
+          phi={Math.PI}
+          span={Math.PI}
+          t0={0}
+          t1={0.72}
+          material={mats.brushed}
+          seg={28}
+        />
+        <Plate
+          off={0.024}
+          phi={Math.PI / 2}
+          span={0.82}
+          t0={0.68}
+          t1={1.72}
+          material={mats.polish}
+        />
+        <Plate
+          off={0.028}
+          phi={Math.PI}
+          span={0.72}
+          t0={0.66}
+          t1={1.95}
+          material={mats.polish}
+        />
+        <Plate
+          off={0.028}
+          phi={0}
+          span={0.72}
+          t0={0.66}
+          t1={1.95}
+          material={mats.polish}
+        />
+        <Plate
+          off={0.024}
+          phi={(3 * Math.PI) / 2}
+          span={0.78}
+          t0={0.64}
+          t1={2.05}
+          material={mats.brushed}
+        />
 
         {/* Panel lines, laid over the plates rather than cut into them. A dark
             hairline at a plate edge reads as a gap, which is the cheapest depth
             cue on the object: one round the crown cap, one across the middle of
             the vault, and one straight down the centre of the forehead. */}
-        <Plate off={0.033} phi={Math.PI} span={Math.PI} t0={0.715} t1={0.742} material={mats.recess} seg={26} />
-        <Plate off={0.033} phi={Math.PI} span={Math.PI} t0={1.3} t1={1.324} material={mats.recess} seg={26} />
-        <Plate off={0.033} phi={Math.PI / 2} span={0.014} t0={0.7} t1={1.72} material={mats.recess} seg={4} />
+        <Plate
+          off={0.033}
+          phi={Math.PI}
+          span={Math.PI}
+          t0={0.715}
+          t1={0.742}
+          material={mats.recess}
+          seg={26}
+        />
+        <Plate
+          off={0.033}
+          phi={Math.PI}
+          span={Math.PI}
+          t0={1.3}
+          t1={1.324}
+          material={mats.recess}
+          seg={26}
+        />
+        <Plate
+          off={0.033}
+          phi={Math.PI / 2}
+          span={0.014}
+          t0={0.7}
+          t1={1.72}
+          material={mats.recess}
+          seg={4}
+        />
 
         {/* Sagittal crest, in three segments that follow the dome down front and
             back. One straight bar across a curved skull floats at both ends,
@@ -482,10 +542,18 @@ function Bust({
         <mesh position={[0, 0.835, -0.05]} material={mats.polish}>
           <boxGeometry args={[0.055, 0.05, 0.26]} />
         </mesh>
-        <mesh position={[0, 0.795, 0.12]} rotation={[0.4, 0, 0]} material={mats.polish}>
+        <mesh
+          position={[0, 0.795, 0.12]}
+          rotation={[0.4, 0, 0]}
+          material={mats.polish}
+        >
           <boxGeometry args={[0.05, 0.045, 0.2]} />
         </mesh>
-        <mesh position={[0, 0.785, -0.24]} rotation={[-0.42, 0, 0]} material={mats.polish}>
+        <mesh
+          position={[0, 0.785, -0.24]}
+          rotation={[-0.42, 0, 0]}
+          material={mats.polish}
+        >
           <boxGeometry args={[0.05, 0.045, 0.22]} />
         </mesh>
 
@@ -493,7 +561,11 @@ function Bust({
             the back of the head as much as the front, and a sphere has no back
             of the head. This plate stands 0.03 clear of the core and the nuchal
             ridge under it gives the base of the skull an edge. */}
-        <mesh position={[0, 0.44, -0.38]} rotation={[0.12, 0, 0]} material={mats.brushed}>
+        <mesh
+          position={[0, 0.44, -0.38]}
+          rotation={[0.12, 0, 0]}
+          material={mats.brushed}
+        >
           <boxGeometry args={[0.28, 0.26, 0.14]} />
         </mesh>
         <mesh position={[0, 0.33, -0.315]} material={mats.polish}>
@@ -520,7 +592,7 @@ function Bust({
           <mesh
             key={`port-${s}`}
             position={[s * 0.238, 0.325, -0.06]}
-            rotation={[0, 0, s * -Math.PI / 2]}
+            rotation={[0, 0, (s * -Math.PI) / 2]}
             material={mats.recess}
           >
             <cylinderGeometry args={[0.042, 0.03, 0.05, 12]} />
@@ -558,10 +630,18 @@ function Bust({
             orbit, and a wing running back to the temple. The hood clears the top
             of the lens by 0.015 and only overhangs it by 0.005, which is the
             constraint the whole brow is shaped around. */}
-        <mesh position={[0, 0.495, 0.26]} rotation={[-0.09, 0, 0]} material={mats.polish}>
+        <mesh
+          position={[0, 0.495, 0.26]}
+          rotation={[-0.09, 0, 0]}
+          material={mats.polish}
+        >
           <boxGeometry args={[0.52, 0.055, 0.14]} />
         </mesh>
-        <mesh position={[0, 0.466, 0.322]} rotation={[0.3, 0, 0]} material={mats.brushed}>
+        <mesh
+          position={[0, 0.466, 0.322]}
+          rotation={[0.3, 0, 0]}
+          material={mats.brushed}
+        >
           <boxGeometry args={[0.5, 0.022, 0.05]} />
         </mesh>
         {SIDES.map((s) => (
@@ -592,7 +672,11 @@ function Bust({
             optics: nothing lands in front of the lens and above its lower edge. */}
         {SIDES.map((s) => (
           <group key={`optic-${s}`} position={[s * EYE_X, EYE_Y, 0]}>
-            <mesh position={[0, 0, 0.215]} rotation={[Math.PI / 2, 0, 0]} material={mats.anod}>
+            <mesh
+              position={[0, 0, 0.215]}
+              rotation={[Math.PI / 2, 0, 0]}
+              material={mats.anod}
+            >
               <cylinderGeometry args={[0.105, 0.075, 0.17, 16]} />
             </mesh>
             <mesh position={[0, 0, 0.29]} material={mats.polish}>
@@ -802,10 +886,18 @@ function Bust({
           <mesh position={[0, -0.29, 0.315]} material={mats.polish}>
             <boxGeometry args={[0.19, 0.075, 0.085]} />
           </mesh>
-          <mesh position={[0, -0.315, 0.335]} rotation={[0.22, 0, 0]} material={mats.brushed}>
+          <mesh
+            position={[0, -0.315, 0.335]}
+            rotation={[0.22, 0, 0]}
+            material={mats.brushed}
+          >
             <boxGeometry args={[0.15, 0.07, 0.055]} />
           </mesh>
-          <mesh position={[0, -0.262, 0.352]} rotation={[-0.3, 0, 0]} material={mats.polish}>
+          <mesh
+            position={[0, -0.262, 0.352]}
+            rotation={[-0.3, 0, 0]}
+            material={mats.polish}
+          >
             <boxGeometry args={[0.13, 0.035, 0.05]} />
           </mesh>
           <mesh position={[0, -0.268, 0.28]} material={mats.brushed}>
@@ -858,7 +950,11 @@ function Bust({
         <mesh position={[0, 0.07, -0.06]} material={mats.brushed}>
           <cylinderGeometry args={[0.135, 0.115, 0.08, 18]} />
         </mesh>
-        <mesh position={[0, 0.045, -0.06]} rotation={[Math.PI / 2, 0, 0]} material={mats.polish}>
+        <mesh
+          position={[0, 0.045, -0.06]}
+          rotation={[Math.PI / 2, 0, 0]}
+          material={mats.polish}
+        >
           <torusGeometry args={[0.14, 0.018, 8, 20]} />
         </mesh>
 
@@ -904,7 +1000,7 @@ function Bust({
               geometry={geos.hex}
               material={mats.brushed}
               position={[s * p[0], p[1], p[2]]}
-              rotation={[0, 0, s * -Math.PI / 2]}
+              rotation={[0, 0, (s * -Math.PI) / 2]}
             />
           )),
         )}
@@ -1015,17 +1111,29 @@ function Bust({
       {/* ---------------------------------------------------------------- */}
       {/* Yoke across the top of the chest, the piece the collar bones meet,
           with a chamfer along its front edge and a panel line across the top. */}
-      <mesh position={[0, 0.2, 0]} rotation={[0.06, 0, 0]} material={mats.brushed}>
+      <mesh
+        position={[0, 0.2, 0]}
+        rotation={[0.06, 0, 0]}
+        material={mats.brushed}
+      >
         <boxGeometry args={[0.62, 0.14, 0.28]} />
       </mesh>
-      <mesh position={[0, 0.137, 0.135]} rotation={[0.5, 0, 0]} material={mats.polish}>
+      <mesh
+        position={[0, 0.137, 0.135]}
+        rotation={[0.5, 0, 0]}
+        material={mats.polish}
+      >
         <boxGeometry args={[0.6, 0.03, 0.05]} />
       </mesh>
       <mesh position={[0, 0.245, 0.09]} material={mats.recess}>
         <boxGeometry args={[0.58, 0.012, 0.016]} />
       </mesh>
       {/* Sternum, and a plate over it. */}
-      <mesh position={[0, -0.02, 0.03]} rotation={[0.04, 0, 0]} material={mats.polish}>
+      <mesh
+        position={[0, -0.02, 0.03]}
+        rotation={[0.04, 0, 0]}
+        material={mats.polish}
+      >
         <boxGeometry args={[0.21, 0.44, 0.17]} />
       </mesh>
       <mesh position={[0, -0.02, 0.125]} material={mats.brushed}>
@@ -1219,13 +1327,21 @@ export default function EndoStage({
           more now that a third of the surface area is near black anodised. */}
       <ambientLight intensity={1.2} />
       <directionalLight position={[3, 4, 3]} intensity={4.2} color="#fff4e2" />
-      <directionalLight position={[-4, 1, -2]} intensity={1.9} color="#9aa6bc" />
+      <directionalLight
+        position={[-4, 1, -2]}
+        intensity={1.9}
+        color="#9aa6bc"
+      />
       {/* Rim from behind, so the skull keeps a bright edge against the dark
           panel instead of dissolving into it. */}
       <directionalLight position={[0, 2, -5]} intensity={2.6} color="#e9e7e2" />
       {/* Straight down the lens axis, so the brow hoods do not leave the whole
           mid face in shadow now that the pitch is level. */}
-      <directionalLight position={[0, 0.4, 5]} intensity={1.6} color="#e9e7e2" />
+      <directionalLight
+        position={[0, 0.4, 5]}
+        intensity={1.6}
+        color="#e9e7e2"
+      />
 
       <Suspense fallback={null}>
         <Environment resolution={64}>

@@ -3,11 +3,11 @@
 import { useCallback, useRef } from "react";
 import {
   useMotionValue,
-  useReducedMotion,
   useSpring,
   useTransform,
   type MotionValue,
 } from "motion/react";
+import { useReduceMotion } from "./reduce";
 
 /**
  * Pointer tracking for the cursor-reactive layer.
@@ -41,7 +41,15 @@ const SPRING = { stiffness: 140, damping: 18, mass: 0.5 } as const;
  * you want to be sensitive; read the values in style props.
  */
 export function usePointerField(): PointerField {
-  const reduce = Boolean(useReducedMotion());
+  /*
+   * The hydration-safe reading, not Motion's raw hook. Motion resolves the
+   * media query during the first client render, so on a reduced-motion reader
+   * this value differed between the prerender and hydration. It reaches the
+   * DOM through `background: field.reduce ? "none" : spotlight` in CursorPanel
+   * and Contact, which made it a mismatched style prop on four elements: React
+   * keeps the server value and never patches it.
+   */
+  const reduce = useReduceMotion();
 
   const rawX = useMotionValue(0);
   const rawY = useMotionValue(0);
@@ -54,7 +62,13 @@ export function usePointerField(): PointerField {
 
   const onPointerMove = useCallback(
     (event: React.PointerEvent<HTMLElement>) => {
-      if (reduce) return;
+      /*
+       * Touch is not a pointer that hovers. Without this, a finger scrolling
+       * past the retrieval-path panel tilts it in 3D mid-scroll and a tap on a
+       * call to action makes it lean, because every one of these surfaces was
+       * written for a cursor that can rest somewhere without pressing.
+       */
+      if (reduce || event.pointerType === "touch") return;
       const rect = event.currentTarget.getBoundingClientRect();
       if (!rect.width || !rect.height) return;
       const nx = (event.clientX - rect.left) / rect.width;

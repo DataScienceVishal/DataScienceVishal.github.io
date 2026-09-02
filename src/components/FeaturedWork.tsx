@@ -33,8 +33,8 @@ function Register() {
         Result
       </dt>
       <dd className="t-body mt-2 max-w-[68ch] lg:mt-0">
-        Running on Railway and Vercel. Ingestion is a background task keyed on
-        content hashes, so{" "}
+        <Claim source="twin-live">Running on Railway and Vercel</Claim>.
+        Ingestion is a background task keyed on content hashes, so{" "}
         <Claim source="resume">health checks answer in about 20 ms</Claim>{" "}
         during a cold start instead of restart-looping. Per-IP rate limiting and
         a daily spend cap keep it cheap.{" "}

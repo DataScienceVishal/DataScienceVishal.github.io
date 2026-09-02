@@ -105,7 +105,18 @@ export function AskTheTwin() {
                           whileTap={reduce ? undefined : { y: 0 }}
                           transition={HOVER_OUT}
                         >
-                          <span className="t-body text-bone">{question}</span>
+                          <span className="t-body text-bone">
+                            {/*
+                              The accessible name was the bare question, so a
+                              screen-reader user tabbing through heard four
+                              question-shaped buttons with no verb and no clue
+                              what pressing one would do. The copy glyph beside
+                              it is aria-hidden, and the sentence explaining the
+                              pattern is two paragraphs above.
+                            */}
+                            <span className="sr-only">Copy question: </span>
+                            {question}
+                          </span>
                           <span
                             className="mt-0.5 shrink-0 text-graphite"
                             aria-hidden="true"
@@ -169,8 +180,8 @@ export function AskTheTwin() {
                   tone: "metal",
                 }}
                 height="clamp(13rem, 30vw, 17rem)"
-                alt="White matter tracts of a human brain rendered in three dimensions, turning as the page scrolls and leaning toward the pointer."
-                caption="Tractography, not a metaphor. The twin is a retriever over about forty documents, which is nothing like this."
+                alt="White matter tracts of a human brain rendered in three dimensions, turning as the page scrolls and leaning towards the pointer."
+                caption="Tractography, not a metaphor. The twin is a retriever over eighty-seven documents, which is nothing like this."
                 credit={
                   <>
                     Model: Neural Networks of the Brain, from Sketchfab.
@@ -181,11 +192,18 @@ export function AskTheTwin() {
             </div>
 
             <p aria-live="polite" className="sr-only">
+              {/*
+                The question is named, not just the outcome. Copying a second
+                question within the reset window produced byte-identical text,
+                the DOM did not change, and most screen readers announce
+                nothing at all in that case: the sighted confirmation moved and
+                the spoken one did not.
+              */}
               {copied === null
                 ? ""
                 : copied.ok
-                  ? "Question copied to the clipboard."
-                  : "Copy was blocked. Select the question and copy it by hand."}
+                  ? `Copied to the clipboard: ${TWIN_QUESTIONS[copied.index]}`
+                  : `Copy was blocked. Select this question and copy it by hand: ${TWIN_QUESTIONS[copied.index]}`}
             </p>
           </div>
         </div>

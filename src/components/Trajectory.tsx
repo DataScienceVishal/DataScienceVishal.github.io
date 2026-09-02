@@ -1,3 +1,4 @@
+import { ArrowRight } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
 import { CareerGraph } from "./CareerGraph";
 import { Claim } from "./Claim";
@@ -56,8 +57,8 @@ const ENTRIES: Entry[] = [
         <Claim source="resume">
           monthly reporting from about two hours to about thirty minutes
         </Claim>
-        . The forecasting was the interesting part. The reporting rebuild was
-        the part people noticed.
+        . The forecasting was harder. The reporting rebuild was what people
+        noticed.
       </>
     ),
     carried:
@@ -78,8 +79,8 @@ const ENTRIES: Entry[] = [
           improving query performance by about 20% and cutting infrastructure
           cost by about 20%
         </Claim>
-        . Nobody let me near a model for two years. The pipeline work turned out
-        to be the part that mattered.
+        . A year and a half of pipelines before I got near a model. That turned
+        out to be the part that mattered.
       </>
     ),
   },
@@ -128,9 +129,18 @@ function Row({ entry }: { entry: Entry }) {
       {entry.carried ? (
         <p className="t-mono-xs border-t border-rule py-4 text-graphite lg:pl-[3.4rem]">
           carried forward{" "}
-          <span className="px-1.5 text-brass" aria-hidden="true">
-            &rarr;
-          </span>{" "}
+          {/*
+            Drawn, not typed. U+2192 is outside the font subset and is not in
+            the source families either, so the character rendered in whatever
+            system mono the browser fell back to: a different face, mid-line,
+            in the accent colour, three times on the page.
+          */}
+          <ArrowRight
+            size={11}
+            weight="bold"
+            aria-hidden="true"
+            className="mx-1.5 inline-block shrink-0 align-[-0.05em] text-brass"
+          />
           <span className="text-read">{entry.carried}</span>
         </p>
       ) : null}
@@ -143,7 +153,7 @@ export function Trajectory() {
     <Section
       id="trajectory"
       heading="Trajectory"
-      lede="A Bachelor of Commerce, four jobs, and no computer science degree until 2026. The transitions are the part worth writing down."
+      lede="A Bachelor of Commerce, four jobs, and no computer science degree until 2027 at the earliest. The transitions are what this section is about."
     >
       <div className="mb-16 lg:mb-20">
         <CareerGraph />
