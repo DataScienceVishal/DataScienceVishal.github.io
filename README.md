@@ -1,7 +1,7 @@
 # Vishal Khan, portfolio
 
 Static single page. React 19, Vite, Tailwind v4, Motion. Prerendered at build
-time and deployed to Vercel as static files.
+time and deployed to GitHub Pages as static files.
 
 The stack matches the AI twin (`ai-professional-twin`), and the page is anchored
 on the same `#0b0f19` so the two properties read as one identity.
@@ -22,7 +22,7 @@ npm run dev
 npm run build && npm run preview
 ```
 
-`npm run lint` is a type check. `npm run fonts` re-subsets the three faces and
+`npm run lint` runs `tsc -b`, which typechecks the app and node projects. `npm run fonts` re-subsets the three faces and
 needs Python with fontTools.
 
 ## Build pipeline
@@ -93,10 +93,9 @@ teeth, neck vertebrae with hydraulic rods, ribs, clavicles and shoulder joints,
 with two emissive red optics. The head turns toward the pointer independently of
 the body, and the optics blink once on any click.
 
-It is authored geometry rather than a downloaded model, and not by preference: a
-film endoskeleton is trademarked, every model of one online is an unlicensed
-derivative, and Sketchfab requires OAuth for downloads. Authoring it also means it
-sits exactly on the palette and owes no attribution.
+That bust is no longer on the page. The hero is a supplied model, credited
+below, and `src/components/three/EndoStage.tsx` is left on disk imported by
+nothing as the record of the attempt.
 
 **Primitives cannot reach film quality.** A photoreal endoskeleton is a sculpted
 asset, and boxes and spheres will not get there however well they are tuned. If
@@ -127,9 +126,10 @@ rationale in [DESIGN.md](DESIGN.md) section 12.
 
 | Object | Where | Source |
 | --- | --- | --- |
-| Endoskeleton bust | Hero | Authored from primitives |
-| Wired head | Ask it something | Sketchfab, compressed 29 MB to 1.5 MB, retinted onto the palette |
-| Chess set | Other work, beside the chess analytics entry | `ABeautifulGame`, Khronos glTF sample assets, CC BY 4.0, Ed Mackey and ASWF |
+| Wired head | Hero | `robot.glb`. [Robot girl with hair wires](https://sketchfab.com/3d-models/robot-girl-with-hair-wires-ccaa2e655374415c84bc1bb1b177681a) by [GR-video](https://sketchfab.com/grvideotv), CC BY 4.0. Compressed 29 MB to 0.93 MB, retinted onto the palette |
+| Brain tractography | Ask it something | `brain.glb`. [Neural Networks of the Brain](https://sketchfab.com/3d-models/neural-networks-of-the-brain-fa48173d4532407c9c2a4ba06a9bcd2d) by [Universal Design for Learning](https://sketchfab.com/UDL), CC BY 4.0. Compressed 1.79 MB to 76 kB |
+| Chess set | Other work, beside the chess analytics entry | `chess.glb`. [A Beautiful Game](https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/ABeautifulGame) by Moeen Sayed and Mujtaba Sayed, glTF conversion by Ed Mackey, CC BY 4.0 |
+| Hero poster | Hero, until the canvas paints | `hero-figure.webp`, a render of `robot.glb`, so the same credit applies |
 
 ## Compressing a model, and where to put it
 

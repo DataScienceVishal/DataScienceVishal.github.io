@@ -30,6 +30,12 @@ export function Section({
   return (
     <section
       id={id}
+      /*
+       * Focusable by script, not by tab. Safari does not move keyboard focus
+       * on a fragment jump unless the target can hold it, so the skip link
+       * scrolled the page and left focus in the nav.
+       */
+      tabIndex={-1}
       aria-labelledby={`${id}-heading`}
       className="border-t border-rule"
     >

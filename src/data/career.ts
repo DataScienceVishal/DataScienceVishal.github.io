@@ -62,7 +62,7 @@ export const MOVES: Move[] = [
     band: "pipelines",
     org: "Teleperformance",
     role: "Data Engineer",
-    note: "Databricks pipelines over millions of telecom records. Nobody let him near a model for two years.",
+    note: "Databricks pipelines over millions of telecom records. A year and a half before I got near a model.",
     dates: "Jun 2024 to Jan 2026",
   },
   {
@@ -71,7 +71,7 @@ export const MOVES: Move[] = [
     band: "models",
     org: "Northeastern University London",
     role: "MSc, AI and Computer Science",
-    note: "Agent reliability. Grounding, refusal behaviour, and retrieved text treated as untrusted input.",
+    note: "Agent reliability. The dissertation and the twin are the same question approached from two ends.",
     dates: "Jan 2026 to Jan 2027",
   },
 ];
@@ -86,9 +86,19 @@ export interface Study {
 /** The second track. It overlaps the work, which is the point. */
 export const STUDY: Study[] = [
   { from: 2018.83, to: 2021.83, label: "BCom", where: "University of Delhi" },
-  { from: 2022.0, to: 2023.0, label: "PG, Data Science", where: "IIIT Bangalore" },
+  {
+    from: 2022.0,
+    to: 2023.0,
+    label: "PG, Data Science",
+    where: "IIIT Bangalore",
+  },
   { from: 2023.17, to: 2024.17, label: "MSc, Data Science", where: "LJMU" },
-  { from: 2026.08, to: 2027.08, label: "MSc, AI and CS", where: "Northeastern London" },
+  {
+    from: 2026.08,
+    to: 2027.08,
+    label: "MSc, AI and CS",
+    where: "Northeastern London",
+  },
 ];
 
 export const SPAN = { start: 2018.3, end: 2027.3 };

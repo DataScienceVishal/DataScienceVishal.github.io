@@ -3,8 +3,7 @@
 import { ArrowUpRight } from "@phosphor-icons/react";
 import { m } from "motion/react";
 import { CONTACT, NAV_LINKS } from "../data/content";
-import { CUE, HOVER_IN, HOVER_OUT, enter } from "../motion/tokens";
-import { useReduceMotion } from "../motion/reduce";
+import { HOVER_IN, HOVER_OUT } from "../motion/tokens";
 
 /**
  * A plain text bar. The twin link is a link, not an outlined button: this page
@@ -12,15 +11,8 @@ import { useReduceMotion } from "../motion/reduce";
  * register the brief rules out.
  */
 export function Nav() {
-  const reduce = useReduceMotion();
-
   return (
-    <m.header
-      className="sticky top-0 z-50 border-b border-rule bg-void"
-      initial={reduce ? false : { opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={enter(CUE.nav)}
-    >
+    <header className="cue cue--drop sticky top-0 z-50 border-b border-rule bg-void">
       <nav
         aria-label="Primary"
         className="mx-auto flex h-16 max-w-[1320px] items-center justify-between gap-4 px-5 sm:px-8 lg:h-[4.5rem] lg:px-10"
@@ -65,6 +57,6 @@ export function Nav() {
           </m.a>
         </div>
       </nav>
-    </m.header>
+    </header>
   );
 }

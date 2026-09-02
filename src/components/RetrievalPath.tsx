@@ -49,7 +49,18 @@ const STAGES: Stage[] = [
  */
 const stageAt = (i: number) => (i / (STAGES.length - 1)) * 0.82;
 /** Resting dimness before the signal reaches a stage. */
-const DIM = 0.26;
+/*
+ * How far an unreached stage is dimmed.
+ *
+ * This was 0.26, which put graphite on the ground at about 1.6:1 and the stage
+ * names at about 2.2:1: both well under the 4.5:1 floor, on text that is real
+ * content rather than decoration ("87 documents in ChromaDB", "drop past 0.75
+ * cosine distance"). Because the value is a pure function of scroll position
+ * rather than a transition, a reader who stops scrolling parks in it and stays
+ * there. 0.72 keeps the arrival legible as an arrival while leaving every
+ * stage readable the whole time.
+ */
+const DIM = 0.72;
 
 export function RetrievalPath() {
   const reduce = useReduceMotion();

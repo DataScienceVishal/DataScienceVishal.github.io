@@ -4,6 +4,7 @@ import { CHURN_CUTOFF, CIFAR_ACCURACY, UKHE_MODELS } from "../data/charts";
 import { BarChart, LineChart } from "./Chart";
 import { Claim } from "./Claim";
 import { Section } from "./Section";
+import { Boundary } from "./Boundary";
 
 interface EntryProps {
   title: string;
@@ -51,7 +52,11 @@ export function OtherWork() {
           meta="Office for Students data, Python, scikit-learn, XGBoost"
           href="https://github.com/DataScienceVishal/UK-HE-Completion-Risk-Classifier"
           hrefLabel="Repository"
-          chart={<BarChart data={UKHE_MODELS} />}
+          chart={
+            <Boundary>
+              <BarChart data={UKHE_MODELS} />
+            </Boundary>
+          }
         >
           Predicting which English providers fall in the bottom quartile for
           completion, from{" "}
@@ -89,8 +94,9 @@ export function OtherWork() {
               caption="The board turns with the scroll rather than on a loop, so it only moves while you do."
               credit={
                 <>
-                  Model: A Beautiful Game, Ed Mackey and ASWF, CC BY 4.0, from
-                  the Khronos glTF sample assets.
+                  Model: A Beautiful Game by Moeen Sayed and Mujtaba Sayed, glTF
+                  conversion by Ed Mackey, CC BY 4.0, from the Khronos glTF
+                  sample assets.
                 </>
               }
             />
@@ -113,7 +119,11 @@ export function OtherWork() {
           meta="TensorFlow, Keras"
           href="https://github.com/DataScienceVishal/CIFAR-10-CNN"
           hrefLabel="Repository"
-          chart={<LineChart data={CIFAR_ACCURACY} />}
+          chart={
+            <Boundary>
+              <LineChart data={CIFAR_ACCURACY} />
+            </Boundary>
+          }
         >
           A CNN with normalisation, dropout and L2 regularisation, trained for
           five epochs.{" "}
@@ -128,7 +138,11 @@ export function OtherWork() {
           meta="Python, SQL, scikit-learn"
           href="https://github.com/DataScienceVishal/Telecom_Churn"
           hrefLabel="Repository"
-          chart={<LineChart data={CHURN_CUTOFF} />}
+          chart={
+            <Boundary>
+              <LineChart data={CHURN_CUTOFF} />
+            </Boundary>
+          }
         >
           7,032 customers after cleaning, 21 predictors, logistic regression
           against decision tree and random forest.{" "}

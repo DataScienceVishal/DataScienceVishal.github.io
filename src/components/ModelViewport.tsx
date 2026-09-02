@@ -6,6 +6,7 @@ import { hasWebGL } from "../lib/webgl";
 import type { Spin } from "./three/ModelStage";
 import { useSmoothScroll } from "../motion/scroll";
 import { useReduceMotion } from "../motion/reduce";
+import { Boundary } from "./Boundary";
 
 const ModelStage = lazy(() => import("./three/ModelStage"));
 
@@ -108,18 +109,22 @@ export function ModelViewport({
         }}
       >
         {mounted ? (
-          <Suspense fallback={null}>
-            <ModelStage
-              url={scene.url}
-              progress={scrollYProgress}
-              spin={scene.spin}
-              reduce={Boolean(reduce)}
-              grade={scene.grade ?? 0}
-              tone={scene.tone}
-              // Below the fold, so it can afford real retina pixels.
-              maxDpr={2}
-            />
-          </Suspense>
+          <Boundary>
+            <Boundary>
+              <Suspense fallback={null}>
+                <ModelStage
+                  url={scene.url}
+                  progress={scrollYProgress}
+                  spin={scene.spin}
+                  reduce={Boolean(reduce)}
+                  grade={scene.grade ?? 0}
+                  tone={scene.tone}
+                  // Below the fold, so it can afford real retina pixels.
+                  maxDpr={2}
+                />
+              </Suspense>
+            </Boundary>
+          </Boundary>
         ) : null}
       </div>
 

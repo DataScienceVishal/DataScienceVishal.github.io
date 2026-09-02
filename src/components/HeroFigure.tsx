@@ -13,12 +13,13 @@ import { HERO_MODEL } from "../data/content";
 import { hasWebGL } from "../lib/webgl";
 import { useSmoothScroll } from "../motion/scroll";
 import { useReduceMotion } from "../motion/reduce";
+import { Boundary } from "./Boundary";
 
 const ModelStage = lazy(() => import("./three/ModelStage"));
 
 /**
  * The hero figure: the supplied model, retinted onto the page palette, turning
- * with scroll and leaning toward the pointer.
+ * with scroll and leaning towards the pointer.
  *
  * It is 3D above the fold, which is the one place three.js can genuinely hurt.
  * Three things keep it honest: the frame is sized in CSS so nothing shifts, a
@@ -122,18 +123,22 @@ export function HeroFigure({ className = "" }: { className?: string }) {
       </AnimatePresence>
 
       {ready ? (
-        <Suspense fallback={null}>
-          <ModelStage
-            url={HERO_MODEL.model}
-            progress={scrollYProgress}
-            spin={HERO_MODEL.spin}
-            reduce={reduce}
-            grade={HERO_MODEL.grade}
-            // Above the fold, so the pixel count stays modest.
-            maxDpr={1.6}
-            onReady={onReady}
-          />
-        </Suspense>
+        <Boundary>
+          <Boundary>
+            <Suspense fallback={null}>
+              <ModelStage
+                url={HERO_MODEL.model}
+                progress={scrollYProgress}
+                spin={HERO_MODEL.spin}
+                reduce={reduce}
+                grade={HERO_MODEL.grade}
+                // Above the fold, so the pixel count stays modest.
+                maxDpr={1.6}
+                onReady={onReady}
+              />
+            </Suspense>
+          </Boundary>
+        </Boundary>
       ) : null}
     </div>
   );

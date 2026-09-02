@@ -3,6 +3,7 @@ import { TRAIL_JOINT, TWICERUN_STEPS } from "../data/charts";
 import { BarChart } from "./Chart";
 import { Claim } from "./Claim";
 import { Section } from "./Section";
+import { Boundary } from "./Boundary";
 
 interface EntryProps {
   title: string;
@@ -49,7 +50,7 @@ export function AuditWork() {
     <Section
       id="audits"
       heading="Two things that did not survive checking"
-      lede="Neither is on the resume; both were written after it. Both are public, both run their checks in CI, and both exist because a number nobody has tried to break is not evidence yet."
+      lede="Neither is on the resume. Both are public, both run their checks in CI, and both started as an attempt to break a published number."
     >
       <ul className="divide-y divide-rule border-y border-rule">
         <Entry
@@ -57,13 +58,17 @@ export function AuditWork() {
           meta="trail-scorer-audit, Patronus AI traces, Python, 274 tests in CI"
           href="https://github.com/DataScienceVishal/trail-scorer-audit"
           hrefLabel="Repository"
-          chart={<BarChart data={TRAIL_JOINT} />}
+          chart={
+            <Boundary>
+              <BarChart data={TRAIL_JOINT} />
+            </Boundary>
+          }
         >
           <p>
             TRAIL is a benchmark of human-annotated agent execution traces, MIT
-            licensed, whose abstract reports the best model scoring 11 percent.
-            I wrote down nine properties a competent scorer should have and
-            fixed them before any code existed.{" "}
+            licensed, whose abstract reports the best model scoring 11%. I wrote
+            down nine properties a competent scorer should have and fixed them
+            before any code existed.{" "}
             <Claim source="trail-conditions">
               Seven came back violated and two latent
             </Claim>
@@ -84,8 +89,8 @@ export function AuditWork() {
             what pre-registration bought was the magnitude and the contingency,
             not the sign. The audit is only possible because TRAIL's authors
             published their scorer, their gold labels and their traces. A
-            benchmark that publishes a table and keeps its scoring code cannot
-            be checked from outside at all.
+            benchmark that publishes a table and keeps its scoring code to
+            itself cannot be checked from outside at all.
           </p>
         </Entry>
 
@@ -94,7 +99,11 @@ export function AuditWork() {
           meta="twicerun, DuckDB, Python, 331 tests in CI"
           href="https://github.com/DataScienceVishal/twicerun"
           hrefLabel="Repository"
-          chart={<BarChart data={TWICERUN_STEPS} />}
+          chart={
+            <Boundary>
+              <BarChart data={TWICERUN_STEPS} />
+            </Boundary>
+          }
         >
           <p>
             Run a batch pipeline several times on one input and report, per
@@ -126,7 +135,8 @@ export function AuditWork() {
             </Claim>
             . Where four clean comparisons are all the evidence there is, it
             prints the bound they support, a per-comparison divergence rate no
-            higher than 53 percent, rather than a green tick.
+            higher than 53%, and says that is a 95% one-sided bound rather than
+            a guarantee.
           </p>
         </Entry>
       </ul>

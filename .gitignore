@@ -27,3 +27,16 @@ skills-lock.json
 
 .claude/settings.local.json
 .claude/worktrees/
+
+# Credentials. None exist today; this is so none can be added by accident.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.npmrc
+
+# Third-party skill documentation. Tailwind was scanning these markdown files
+# for class names and compiling their examples into the shipped stylesheet, and
+# they give away the build process the way portfolio-build-prompt.md would.
+.claude/skills/

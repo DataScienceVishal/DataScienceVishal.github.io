@@ -9,15 +9,23 @@
     <title>Vishal Khan - AI and ML Engineer, London</title>
     <meta
       name="description"
-      content="AI and ML engineer in London. Finance and taxation from 2018 to 2021, then Databricks pipelines at Teleperformance, now working on agent reliability. Every claim on this page carries its source."
+      content="AI and ML engineer in London. Databricks pipelines at Teleperformance, now an MSc in AI working on agent reliability. Every claim carries its source."
     />
     <meta name="author" content="Vishal Khan" />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1"
+    />
+    <!-- Cross-origin referrers get the origin only, same-origin gets the path. -->
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
     <!--
-      After the first deploy, set SITE_URL below to the live origin and make the
-      canonical and og:image URLs absolute. Relative og:image works in some
-      scrapers and not in others, LinkedIn among them.
-      SITE_URL: https://<your-domain>
+      Absolute, not root-relative. The page is reachable at vishalkhan.me and at
+      datasciencevishal.github.io, and LinkedIn's scraper does not resolve a
+      relative og:image at all, so a shared link rendered as an empty grey card.
+      This is the channel the URL actually travels through.
     -->
+    <link rel="canonical" href="https://vishalkhan.me/" />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
@@ -52,14 +60,19 @@
       fetchpriority="high"
     />
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content="profile" />
+    <meta property="og:url" content="https://vishalkhan.me/" />
+    <meta property="og:locale" content="en_GB" />
     <meta property="og:site_name" content="Vishal Khan" />
-    <meta property="og:title" content="Vishal Khan - AI and ML Engineer, London" />
+    <meta
+      property="og:title"
+      content="Vishal Khan - AI and ML Engineer, London"
+    />
     <meta
       property="og:description"
-      content="A number nobody can check is not a number. AI and ML engineer in London, looking for an AI or ML internship now and full time from January 2027."
+      content="A number nobody can check is not a number. AI and ML engineer in London, looking for an AI or ML internship now and full time from early 2027. No visa sponsorship needed."
     />
-    <meta property="og:image" content="/og-image.jpg" />
+    <meta property="og:image" content="https://vishalkhan.me/og-image.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta
@@ -67,14 +80,77 @@
       content="Vishal Khan. A number nobody can check is not a number. AI and ML engineer in London."
     />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Vishal Khan - AI and ML Engineer, London" />
+    <meta
+      name="twitter:title"
+      content="Vishal Khan - AI and ML Engineer, London"
+    />
     <meta
       name="twitter:description"
-      content="AI and ML engineer in London. Every claim on this page carries its source."
+      content="A number nobody can check is not a number. AI and ML engineer in London, looking for an AI or ML internship now and full time from early 2027. No visa sponsorship needed."
     />
-    <meta name="twitter:image" content="/og-image.jpg" />
+    <meta name="twitter:image" content="https://vishalkhan.me/og-image.jpg" />
+
+    <!--
+      "Vishal Khan" is a common name. This is what lets a search engine bind
+      the string to this particular person, his university and his profiles,
+      rather than guessing. Every field restates something already on the page.
+    -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Vishal Khan",
+        "url": "https://vishalkhan.me/",
+        "image": "https://vishalkhan.me/og-image.jpg",
+        "jobTitle": "AI and ML Engineer",
+        "description": "AI and ML engineer in London, working on agent reliability and the evaluation of AI systems.",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "London",
+          "addressCountry": "GB"
+        },
+        "alumniOf": [
+          {
+            "@type": "CollegeOrUniversity",
+            "name": "Northeastern University London",
+            "url": "https://www.nulondon.ac.uk/"
+          },
+          {
+            "@type": "CollegeOrUniversity",
+            "name": "Liverpool John Moores University",
+            "url": "https://www.ljmu.ac.uk/"
+          },
+          {
+            "@type": "CollegeOrUniversity",
+            "name": "University of Delhi",
+            "url": "https://www.du.ac.in/"
+          }
+        ],
+        "knowsAbout": [
+          "Agent reliability",
+          "AI evaluation",
+          "Retrieval-augmented generation",
+          "Machine learning",
+          "Data engineering",
+          "Databricks"
+        ],
+        "sameAs": [
+          "https://github.com/DataScienceVishal",
+          "https://www.linkedin.com/in/vishalkhandatascience/"
+        ]
+      }
+    </script>
   </head>
   <body>
+    <!--
+      Blocking and first, on purpose. The hero's entrance is CSS gated on this
+      class, so the markup is visible by default and only hides itself where
+      there is JavaScript to reveal it again. Inline and synchronous so it runs
+      before the first paint and no flash of the hidden state is possible.
+    -->
+    <script>
+      document.documentElement.classList.add("js");
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

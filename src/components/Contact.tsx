@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  FilePdf,
   EnvelopeSimple,
   GithubLogo,
   LinkedinLogo,
@@ -33,6 +34,20 @@ const CHANNELS = [
     label: "LinkedIn",
     value: CONTACT.linkedinHandle,
     href: CONTACT.linkedin,
+    external: true,
+  },
+  /*
+   * The CV was on the site but reachable only as reference 2, a ten-pixel
+   * superscript inside a sentence. A recruiter needs a document to forward,
+   * and it is the artefact that ends up in front of the hiring manager. This
+   * is a row in the contact list rather than a page CTA, so the brief's ban on
+   * a CV download as the primary call to action still holds.
+   */
+  {
+    Icon: FilePdf,
+    label: "CV",
+    value: "vishal-khan-resume.pdf",
+    href: "/vishal-khan-resume.pdf",
     external: true,
   },
 ] as const;

@@ -48,11 +48,11 @@ export interface Source {
  */
 const ORDER: SourceId[] = [
   "twin-repo",
+  "twin-live",
   "resume",
   "twin-tests",
-  "twin-live",
-  "trail-repo",
   "trail-conditions",
+  "trail-repo",
   "twicerun-repo",
   "twicerun-run",
   "ljmu-thesis",

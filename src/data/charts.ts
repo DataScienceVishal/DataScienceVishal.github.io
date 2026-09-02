@@ -44,6 +44,20 @@ export interface LineChartData {
 
 export interface BarChartData {
   kind: "bar";
+  /**
+   * What a row is, and what the chart is of. Both were hardcoded as "model",
+   * which made twicerun's pipeline steps and TRAIL's predictor/benchmark pairs
+   * read as models to anyone using the text alternative.
+   */
+  rowLabel?: string;
+  title?: string;
+  /**
+   * What a highlighted bar means, in words. The highlight is carried by colour
+   * alone in the drawing, so without this the caption's reference to "the two
+   * highlighted rows" is unresolvable for a screen reader, in greyscale, or in
+   * print.
+   */
+  highlightMeans?: string;
   caption: string;
   source: SourceId;
   valueLabel: string;
@@ -96,7 +110,18 @@ export const CHURN_CUTOFF: LineChartData = {
   source: "churn-repo",
   xLabel: "probability cutoff",
   xTicks: ["0.0", "0.2", "0.4", "0.6", "0.8"],
-  xValues: ["0.0", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9"],
+  xValues: [
+    "0.0",
+    "0.1",
+    "0.2",
+    "0.3",
+    "0.4",
+    "0.5",
+    "0.6",
+    "0.7",
+    "0.8",
+    "0.9",
+  ],
   yLabel: "rate",
   yMin: 0,
   yMax: 1,
@@ -107,19 +132,26 @@ export const CHURN_CUTOFF: LineChartData = {
       label: "accuracy",
       tone: "accent",
       marker: "circle",
-      points: [0.2615, 0.6184, 0.7223, 0.7722, 0.7934, 0.8064, 0.8019, 0.7785, 0.7501, 0.7385],
+      points: [
+        0.2615, 0.6184, 0.7223, 0.7722, 0.7934, 0.8064, 0.8019, 0.7785, 0.7501,
+        0.7385,
+      ],
     },
     {
       label: "sensitivity",
       tone: "bone",
       marker: "diamond",
-      points: [1.0, 0.9425, 0.8493, 0.77, 0.6511, 0.5369, 0.3947, 0.2059, 0.0521, 0.0],
+      points: [
+        1.0, 0.9425, 0.8493, 0.77, 0.6511, 0.5369, 0.3947, 0.2059, 0.0521, 0.0,
+      ],
     },
     {
       label: "specificity",
       tone: "graphite",
       marker: "square",
-      points: [0.0, 0.5037, 0.6773, 0.773, 0.8437, 0.9018, 0.9461, 0.9813, 0.9972, 1.0],
+      points: [
+        0.0, 0.5037, 0.6773, 0.773, 0.8437, 0.9018, 0.9461, 0.9813, 0.9972, 1.0,
+      ],
     },
   ],
 };
@@ -130,6 +162,9 @@ export const UKHE_MODELS: BarChartData = {
   caption:
     "Macro F1 on the test set, not accuracy. A majority-class predictor scores 74.8% accuracy here while catching no at-risk provider at all. Random Forest is the one that shipped.",
   source: "ukhe-repo",
+  rowLabel: "classifier",
+  title: "Test macro F1 by classifier",
+  highlightMeans: "the one that shipped",
   valueLabel: "test macro F1",
   xMax: 0.8,
   format: pct1,
@@ -154,8 +189,11 @@ export const UKHE_MODELS: BarChartData = {
 export const TRAIL_JOINT: BarChartData = {
   kind: "bar",
   caption:
-    "Joint accuracy through TRAIL's unmodified scorer. The two highlighted rows are a program that cannot read: it emits 129.1x as many errors as the answer key holds on GAIA, and scores above every published model on both splits. 0.974 is the highest joint accuracy anything can reach on GAIA, so the gold-blind predictor is within 0.001 of the ceiling.",
+    "Joint accuracy through TRAIL's unmodified scorer. The two gold-blind rows are one program that cannot read: it emits 129.1x as many errors as the answer key holds on GAIA, and scores above every published model on both splits. 0.974 is the highest joint accuracy anything can reach on GAIA, so the gold-blind predictor is within 0.001 of the ceiling.",
   source: "trail-repo",
+  rowLabel: "predictor and split",
+  title: "Joint accuracy through TRAIL's own scorer",
+  highlightMeans: "gold-blind predictor, reads nothing",
   valueLabel: "joint accuracy",
   xMax: 1,
   format: pct1,
@@ -181,6 +219,9 @@ export const TWICERUN_STEPS: BarChartData = {
   caption:
     "Comparisons that diverged, out of four, on the reference pipeline. Four of the five that fired are planted bugs; mean_basket is correct code whose float average moves in the last few bits, which is why a two-run diff is not enough on its own. sparse_customer_keys reads as zero here and is the fifth bug: it broke under a stressed input, so the tool reports it as stable on this input rather than as passing.",
   source: "twicerun-run",
+  rowLabel: "pipeline step",
+  title: "Comparisons that diverged, out of four, per pipeline step",
+  highlightMeans: "planted bug, only diverges once the input is stressed",
   valueLabel: "of 4 comparisons",
   xMax: 4,
   format: (v: number) => `${v} of 4`,

@@ -236,15 +236,22 @@ export function LineChart({ data }: { data: LineChartData }) {
    */
   const nearest = useNearestIndex(n);
   const [active, setActive] = useState(-1);
-  useMotionValueEvent(nearest.index, "change", (v) => setActive(v));
+  useMotionValueEvent(nearest.index, "change", (v) => {
+    setActive(v);
+    if (v >= 0) setHeld(v);
+  });
 
   /**
    * The last index that was hovered, so the crosshair and the readout fade out
    * where they were instead of snapping back to index 0 mid fade.
+   *
+   * In state rather than a ref written during render. The readout's position is
+   * derived from it, so a value that render itself mutates makes render impure
+   * and lets two passes disagree. Both updates sit in one callback, so they
+   * batch into a single re-render.
    */
-  const held = useRef(0);
-  if (active >= 0) held.current = active;
-  const at = held.current;
+  const [held, setHeld] = useState(0);
+  const at = active >= 0 ? active : held;
   const shown = active >= 0;
 
   /**
@@ -323,11 +330,28 @@ export function LineChart({ data }: { data: LineChartData }) {
           ))}
 
           {data.xTicks.map((t, i) => {
-            const step = (n - 1) / (data.xTicks.length - 1);
+            /*
+              Position each label at the point it names, not at an even
+              division of the axis. Dividing the axis assumes there is one tick
+              per point; the churn chart has ten points and five ticks, so the
+              step came out at 2.25 and every label after the first drifted.
+              "0.8" was drawn on the 0.9 datum, one gridline past the value it
+              labelled, while the hover readout for that same point correctly
+              said 0.9. A chart that disagrees with its own readout is the one
+              kind of bug this page cannot afford.
+
+              xValues is the per-point label list, so it is the authority when
+              it exists. The even division stays as the fallback for charts
+              that label every point, where the two agree anyway.
+            */
+            const named = data.xValues?.indexOf(t) ?? -1;
+            const spacing =
+              data.xTicks.length > 1 ? (n - 1) / (data.xTicks.length - 1) : 0;
+            const at = named >= 0 ? named : i * spacing;
             return (
               <text
                 key={t}
-                x={x(i * step)}
+                x={x(at)}
                 y={PAD.top + PLOT_H + 16}
                 textAnchor="middle"
                 fill="var(--color-graphite)"
@@ -594,12 +618,14 @@ export function BarChart({ data }: { data: BarChartData }) {
       return;
     }
     const row = Math.floor((p * svgH) / rowH);
-    setActive(Math.min(data.bars.length - 1, Math.max(0, row)));
+    const next = Math.min(data.bars.length - 1, Math.max(0, row));
+    setActive(next);
+    setHeld(next);
   });
 
-  const held = useRef(0);
-  if (active >= 0) held.current = active;
-  const at = held.current;
+  /** See the line chart: held in state so render stays pure. */
+  const [held, setHeld] = useState(0);
+  const at = active >= 0 ? active : held;
   const shown = active >= 0;
   const bar = data.bars[at];
   const barEnd = LABEL_W + (bar.value / data.xMax) * trackW;
@@ -628,9 +654,16 @@ export function BarChart({ data }: { data: BarChartData }) {
           aria-labelledby={titleId}
         >
           <title id={titleId}>
-            {`${data.valueLabel} by model. ${data.bars
-              .map((b) => `${b.label} ${data.format(b.value)}`)
-              .join(", ")}.`}
+            {`${data.title ?? data.valueLabel}. ${data.bars
+              .map(
+                (b) =>
+                  `${b.label} ${data.format(b.value)}${
+                    b.highlight && data.highlightMeans
+                      ? `, ${data.highlightMeans}`
+                      : ""
+                  }`,
+              )
+              .join(". ")}.`}
           </title>
 
           {data.bars.map((b, i) => {
@@ -649,6 +682,34 @@ export function BarChart({ data }: { data: BarChartData }) {
 
             return (
               <g key={b.label}>
+                {/*
+                  The track. Three of the twicerun rows are genuinely zero, and
+                  a zero-width rect paints nothing: the row read as "not run"
+                  or as a rendering fault rather than as a measured zero. One
+                  of those zeros is the planted bug the whole entry is about,
+                  and it is the brass-highlighted row, so the emphasis was
+                  landing on an invisible mark. An empty track says nought.
+                */}
+                <rect
+                  x={LABEL_W}
+                  y={yTop}
+                  width={trackW}
+                  height={BAR_H}
+                  rx={2}
+                  fill="none"
+                  stroke="var(--color-rule)"
+                  strokeWidth={1}
+                />
+                {b.value === 0 ? (
+                  <rect
+                    x={LABEL_W}
+                    y={yTop}
+                    width={2}
+                    height={BAR_H}
+                    rx={1}
+                    fill={fill}
+                  />
+                ) : null}
                 <text
                   x={LABEL_W - 10}
                   y={yTop + BAR_H - 3}
@@ -765,9 +826,13 @@ export function BarChart({ data }: { data: BarChartData }) {
       </p>
 
       <DataTable
-        caption={data.valueLabel}
-        head={["model", data.valueLabel]}
-        rows={data.bars.map((b) => [b.label, data.format(b.value)])}
+        caption={data.title ?? data.valueLabel}
+        head={[data.rowLabel ?? "row", data.valueLabel, "note"]}
+        rows={data.bars.map((b) => [
+          b.label,
+          data.format(b.value),
+          b.highlight && data.highlightMeans ? data.highlightMeans : "",
+        ])}
       />
     </div>
   );
