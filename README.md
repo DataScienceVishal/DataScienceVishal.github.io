@@ -191,7 +191,7 @@ cites. Where the resume hedges with a tilde, the page keeps the hedge ("about
 
 Two deliberate departures:
 
-- **370 tests, not 178.** The twin's README reports 370 (257 backend, 113
+- **386 tests, not 178.** The twin's README reports 386 (272 backend, 114
   frontend); the resume PDF still says 178. The page cites the README section
   that shows the current count. Update the resume and the two will agree.
 - **No "four years in finance".** The resume supports Jul 2018 to Sep 2020 at
@@ -210,7 +210,7 @@ Two deliberate departures:
 | `public/fonts/*.woff2` | Subset to ASCII by `scripts/subset_fonts.py`. |
 
 The hero is not an image. It is the twin's real retrieval path drawn as an
-ordered list, in [HeroPipeline.tsx](src/components/HeroPipeline.tsx), with a
+ordered list, in [HeroFigure.tsx](src/components/HeroFigure.tsx), with a
 brass signal running its spine once on load. Every label and number on it is a
 setting in that repository.
 
@@ -261,3 +261,10 @@ the viewport at all four widths.
 Best practices reached 100 on mobile when the hero screenshot was replaced by the
 drawn pipeline: the `image-size-responsive` flag it was costing went with it,
 because the page no longer ships a raster hero at all.
+
+## Licence
+
+Source code is MIT, in [LICENSE](LICENSE). The bundled 3D models, fonts and
+decoders are third-party works under CC BY 4.0, the SIL Open Font License 1.1
+and Apache License 2.0 respectively, and MIT does not cover them. They are
+listed with their attribution in [NOTICE.md](NOTICE.md).

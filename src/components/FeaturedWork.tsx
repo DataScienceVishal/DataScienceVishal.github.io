@@ -22,7 +22,7 @@ function Register() {
       </dt>
       <dd className="t-body mt-2 max-w-[68ch] lg:mt-0">
         A FastAPI service with ChromaDB retrieval over{" "}
-        <Claim source="twin-repo">87 indexed documents</Claim> built from YAML
+        <Claim source="twin-repo">88 indexed documents</Claim> built from YAML
         knowledge files, the resume PDF and live GitHub ingestion, embedded and
         generated with Azure OpenAI. Intent-boosted retrieval,
         conversation-aware follow-ups, eight function-calling tools, answers
@@ -33,12 +33,14 @@ function Register() {
         Result
       </dt>
       <dd className="t-body mt-2 max-w-[68ch] lg:mt-0">
-        <Claim source="twin-live">Running on Railway and Vercel</Claim>.
+        <Claim source="twin-live">
+          Running on Azure Container Apps and Vercel
+        </Claim>.
         Ingestion is a background task keyed on content hashes, so{" "}
         <Claim source="resume">health checks answer in about 20 ms</Claim>{" "}
         during a cold start instead of restart-looping. Per-IP rate limiting and
         a daily spend cap keep it cheap.{" "}
-        <Claim source="twin-tests">370 tests run in CI</Claim> alongside mypy.
+        <Claim source="twin-tests">386 tests run in CI</Claim> alongside mypy.
       </dd>
     </dl>
   );

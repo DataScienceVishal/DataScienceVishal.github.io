@@ -106,7 +106,7 @@ export const STATUS = [
   {
     term: "From early 2027",
     value:
-      "Full time, on the Graduate Route. Two years of unrestricted work, following the MSc finishing in January.",
+      "Full time, on the Graduate Route. 18 months of unrestricted work, following the MSc finishing in January.",
   },
 ] as const;
 
@@ -139,7 +139,7 @@ export const STACK: StackGroup[] = [
       "pytest",
       "Git and GitHub",
       "Vercel",
-      "Railway",
+      "Azure Container Apps",
     ],
   },
   {

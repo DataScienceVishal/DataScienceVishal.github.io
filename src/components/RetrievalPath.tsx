@@ -34,7 +34,7 @@ interface Stage {
 const STAGES: Stage[] = [
   { op: "Question", detail: "plus the last 2 user turns" },
   { op: "Embed", detail: "text-embedding-3-small" },
-  { op: "Search", detail: "87 documents in ChromaDB" },
+  { op: "Search", detail: "88 documents in ChromaDB" },
   { op: "Cut", detail: "drop past 0.75 cosine distance" },
   { op: "Boost", detail: "intent, 0.12 off the distance" },
   { op: "Ground", detail: "best 5 chunks into the prompt" },
@@ -54,7 +54,7 @@ const stageAt = (i: number) => (i / (STAGES.length - 1)) * 0.82;
  *
  * This was 0.26, which put graphite on the ground at about 1.6:1 and the stage
  * names at about 2.2:1: both well under the 4.5:1 floor, on text that is real
- * content rather than decoration ("87 documents in ChromaDB", "drop past 0.75
+ * content rather than decoration ("88 documents in ChromaDB", "drop past 0.75
  * cosine distance"). Because the value is a pure function of scroll position
  * rather than a transition, a reader who stops scrolling parks in it and stays
  * there. 0.72 keeps the arrival legible as an arrival while leaving every
