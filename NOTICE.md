@@ -33,3 +33,15 @@ unmodified. Details in [`public/decoders/NOTICE.txt`](public/decoders/NOTICE.txt
 
 Runtime and build dependencies are declared in `package.json` and are not
 vendored into this repository. Each carries its own licence.
+
+## Content the MIT licence does not cover
+
+MIT covers the code in this repository. It does not grant any licence over the
+following, which are personal to Vishal Khan and reserved:
+
+- `public/vishal-khan-resume.pdf` and any other CV or resume file
+- `public/portrait.webp` and any other photograph of the author
+- The written copy on the page: biography, project write-ups and career history
+
+You are welcome to read, fork and learn from the code. Please do not reuse the
+resume, the photograph or the biographical text.
