@@ -16,13 +16,17 @@ on:
 permissions:
   contents: read
 
+# Every action is pinned to a commit, not a tag. A tag can be moved to other
+# code at any time, and the link check runs a third party's action in a job
+# that holds this repository's token. The comment beside each pin is the
+# release it was taken from.
+
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
           cache: npm
@@ -30,8 +34,13 @@ jobs:
       - id: install
         run: npm ci
 
-      # The script sends this token to api.github.com and nowhere else.
-      - run: npm run check:claims
+      # Bundled without the token: this step runs Vite and its plugins, and
+      # none of that code has any reason to see it.
+      - run: npm run claims:build
+
+      # Only the check itself gets the token, and it sends it to api.github.com
+      # and nowhere else.
+      - run: npm run claims:check
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -42,7 +51,7 @@ jobs:
         run: npm run build
 
       - if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-        uses: lycheeverse/lychee-action@v2
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
         with:
           # lychee.toml is written for this version. 0.24 changed how
           # include_fragments is spelled, so a different binary could reject it.

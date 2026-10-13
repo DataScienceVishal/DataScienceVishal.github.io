@@ -53,16 +53,21 @@ test.describe("plates with a mouse", () => {
   });
 
   test("a live plate moves on its own while seen, and stops drawing once scrolled away", async ({ page }) => {
-    // Software GL in CI draws the head and its sparks slowly; locally this takes 50 s.
-    test.setTimeout(120_000);
+    // Software GL draws the head and its sparks slowly: about 50 s locally, and
+    // nearly two minutes on a CI runner.
+    test.setTimeout(240_000);
     await page.goto("/");
     if (!(await webglAvailable(page))) test.skip(true, "WebGL is not available, so no live model can mount");
 
+    // The input only counts once the plate is listening for it. On a CI runner a
+    // mouse move straight after load arrived first and was missed.
+    await page.waitForLoadState("networkidle");
     const head = plate(page, "head");
-    await page.mouse.move(200, 200);
     await head.scrollIntoViewIfNeeded();
+    await page.mouse.move(200, 200);
+    await page.mouse.move(260, 240);
     const stage = head.locator("[data-motion]");
-    await expect(stage).toHaveAttribute("data-motion", "running", { timeout: 30_000 });
+    await expect(stage).toHaveAttribute("data-motion", "running", { timeout: 90_000 });
     // The still goes once the model has painted. Before that the canvas is
     // empty, and two empty frames would match for the wrong reason.
     await expect(head.locator("img.plate__still")).toHaveAttribute("data-gone", "true", { timeout: 60_000 });

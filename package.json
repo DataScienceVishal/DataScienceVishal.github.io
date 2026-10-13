@@ -10,7 +10,9 @@
     "lint": "tsc -b",
     "fonts": "python3 scripts/subset_fonts.py",
     "test:e2e": "playwright test",
-    "check:claims": "vite build --ssr src/data/sources.ts --outDir node_modules/.cache/claims --emptyOutDir && node scripts/check-claims.mjs",
+    "check:claims": "npm run claims:build && npm run claims:check",
+    "claims:build": "vite build --ssr src/data/sources.ts --outDir node_modules/.cache/claims --emptyOutDir",
+    "claims:check": "node scripts/check-claims.mjs",
     "lhci": "npx --yes @lhci/cli@0.15.1 autorun"
   },
   "dependencies": {

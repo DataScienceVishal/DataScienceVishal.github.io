@@ -11,28 +11,39 @@ import { expect, test, type Page } from "@playwright/test";
 
 type Box = [number, number, number, number];
 
+interface Which {
+  /** Only figures whose top is inside the first screen. */
+  onlyOnScreen?: boolean;
+  /** Include the travelling marks. */
+  travel?: boolean;
+}
+
 /** Every inked part of every figure, as a box relative to its own figure. */
-const drawing = (page: Page, onlyOnScreen = false) =>
-  page.evaluate((onlyOnScreen) => {
-    const result: Record<string, Box[]> = {};
-    document.querySelectorAll<HTMLElement>("[data-ink-figure]").forEach((figure, i) => {
-      const f = figure.getBoundingClientRect();
-      if (onlyOnScreen && f.top >= window.innerHeight) return;
-      result[`${figure.closest("[id]")?.id ?? "page"} figure ${i}`] = [
-        ...figure.querySelectorAll<HTMLElement>("[data-ink]"),
-      ].map((part) => {
-        const r = part.getBoundingClientRect();
-        return [r.left - f.left, r.top - f.top, r.width, r.height].map((v) => Math.round(v)) as Box;
+const drawing = (page: Page, { onlyOnScreen = false, travel = true }: Which = {}) =>
+  page.evaluate(
+    ({ onlyOnScreen, travel }) => {
+      const result: Record<string, Box[]> = {};
+      const parts = travel ? "[data-ink]" : '[data-ink]:not([data-ink="travel"])';
+      document.querySelectorAll<HTMLElement>("[data-ink-figure]").forEach((figure, i) => {
+        const f = figure.getBoundingClientRect();
+        if (onlyOnScreen && f.top >= window.innerHeight) return;
+        result[`${figure.closest("[id]")?.id ?? "page"} figure ${i}`] = [
+          ...figure.querySelectorAll<HTMLElement>(parts),
+        ].map((part) => {
+          const r = part.getBoundingClientRect();
+          return [r.left - f.left, r.top - f.top, r.width, r.height].map((v) => Math.round(v)) as Box;
+        });
       });
-    });
-    return result;
-  }, onlyOnScreen);
+      return result;
+    },
+    { onlyOnScreen, travel },
+  );
 
 const highlightSizes = (page: Page) =>
   page.locator("mark.hl").evaluateAll((marks) => marks.map((m) => getComputedStyle(m).backgroundSize));
 
 /** The same viewport with reduced motion, where the markup is the finished drawing. */
-async function staticDrawing(page: Page, onlyOnScreen = false) {
+async function staticDrawing(page: Page, which: Which = {}) {
   const context = await page.context().browser()!.newContext({
     viewport: page.viewportSize()!,
     reducedMotion: "reduce",
@@ -40,7 +51,7 @@ async function staticDrawing(page: Page, onlyOnScreen = false) {
   const still = await context.newPage();
   await still.goto("/");
   await still.waitForLoadState("networkidle");
-  const result = await drawing(still, onlyOnScreen);
+  const result = await drawing(still, which);
   await context.close();
   return result;
 }
@@ -67,12 +78,24 @@ test.describe("with motion allowed", () => {
   test("the effects leave alone whatever is already on screen", async ({ page }) => {
     // Tall enough that the first entry's figure and highlight are in the first view.
     await page.setViewportSize({ width: 1440, height: 1800 });
-    const expected = await staticDrawing(page, true);
+    // A mark already on screen keeps travelling with the reader's scroll on its
+    // CSS timeline, before the effects start and after, so where it sits depends
+    // on how far down the figure is, not on the effects. Every other part must match.
+    const which = { onlyOnScreen: true, travel: false };
+    const expected = await staticDrawing(page, which);
     expect(Object.keys(expected).length, "a figure in the first view").toBeGreaterThan(0);
 
     await page.goto("/");
     await started(page);
-    expectSameDrawing(await drawing(page, true), expected);
+    expectSameDrawing(await drawing(page, which), expected);
+    // And none of those figures was handed to the effects to be drawn again.
+    const takenOver = await page.evaluate(
+      () =>
+        [...document.querySelectorAll("[data-ink-figure]")].filter(
+          (figure) => figure.getBoundingClientRect().top < window.innerHeight && figure.hasAttribute("data-inked"),
+        ).length,
+    );
+    expect(takenOver).toBe(0);
 
     const first = page.locator("mark.hl").first();
     await expect(first).toBeInViewport();
