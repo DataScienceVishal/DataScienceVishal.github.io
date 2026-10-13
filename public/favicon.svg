@@ -1,5 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Vishal Khan">
-  <rect width="32" height="32" rx="6" fill="#0b0f19"/>
-  <text x="7" y="23" font-family="IBM Plex Mono, ui-monospace, monospace" font-size="17" font-weight="500" fill="#e9e7e2">V</text>
-  <text x="20" y="14" font-family="IBM Plex Mono, ui-monospace, monospace" font-size="10" font-weight="500" fill="#d99a4e">1</text>
+  <style>
+    .paper { fill: #f6f7f4; }
+    .grid { stroke: #dce6f1; }
+    .margin { fill: #b53d35; }
+    .ink { stroke: #1b2a4a; }
+    @media (prefers-color-scheme: dark) {
+      .paper { fill: #141413; }
+      .grid { stroke: #262624; }
+      .margin { fill: #ea7468; }
+      .ink { stroke: #eeede8; }
+    }
+  </style>
+  <rect class="paper" width="32" height="32" rx="5"/>
+  <path class="grid" d="M0 8h32M0 16h32M0 24h32M16 0v32M24 0v32" stroke-width="1"/>
+  <rect class="margin" x="7" y="0" width="2" height="32"/>
+  <path class="ink" d="M12.5 8.5 L18 24 L23.5 8.5" fill="none" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

@@ -1,132 +1,147 @@
 @import "tailwindcss";
 
 /*
-  Tailwind v4 auto-detects sources from the project root, which means it reads
-  the markdown here as if it were markup. The AI skill docs under .claude are
-  full of Tailwind class names used as examples of the generic aesthetic this
-  page exists to avoid, and every one of them was being compiled into the
-  shipped stylesheet: bg-amber-50, bg-zinc-950, text-gray-900, backdrop-blur,
-  max-w-7xl. Four foreign colour families and two effects the brief bans,
-  served to every visitor, generated from a file explaining not to use them.
+  Tailwind v4 reads every file under the project root for class names, markdown
+  included. The skill and design notes are full of example classes, and every
+  one of them used to be compiled into the shipped stylesheet.
 */
 @source not "../.claude";
+@source not "../.impeccable";
 @source not "../DESIGN.md";
 @source not "../README.md";
 @source not "../DOMAIN.md";
+@source not "../PRODUCT.md";
+@source not "../NOTICE.md";
 
-/* ===========================================================================
-   Every value below comes from DESIGN.md. Nothing is invented here. If a new
-   token is needed, it goes in DESIGN.md first.
-   =========================================================================== */
-
-/* --- Fonts. Latin subsets, self hosted, swap, two of them preloaded. ------ */
+/* --- Faces. Subset by scripts/subset_fonts.py, self hosted, two preloaded. --- */
 
 @font-face {
-  font-family: "Bricolage Grotesque";
+  font-family: "Archivo";
+  font-style: normal;
+  /* The file is cut to these ranges by scripts/subset_fonts.py. */
+  font-weight: 520 740;
+  font-stretch: 78% 94%;
+  font-display: swap;
+  src: url("/fonts/archivo-latin-wdth-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
   font-style: normal;
   font-weight: 200 800;
   font-display: swap;
-  src: url("/fonts/bricolage-grotesque-latin-wdth-normal.woff2") format("woff2");
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
-    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
-    U+2215, U+FEFF, U+FFFD;
+  src: url("/fonts/atkinson-hyperlegible-next-latin-wght-normal.woff2") format("woff2");
 }
 
 @font-face {
-  font-family: "IBM Plex Sans";
+  font-family: "Atkinson Hyperlegible Mono";
   font-style: normal;
-  font-weight: 100 700;
+  font-weight: 200 800;
   font-display: swap;
-  src: url("/fonts/ibm-plex-sans-latin-wght-normal.woff2") format("woff2");
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
-    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
-    U+2215, U+FEFF, U+FFFD;
+  src: url("/fonts/atkinson-hyperlegible-mono-latin-wght-normal.woff2") format("woff2");
 }
 
-@font-face {
-  font-family: "IBM Plex Mono";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2");
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
-    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
-    U+2215, U+FEFF, U+FFFD;
-}
+/*
+  The notebook's colours, as roles. Utilities read the variables, and the
+  variables change with the theme, so no component knows which page it is on.
+  Ratios against paper are in DESIGN.md; every text role clears 4.5:1 on both.
+*/
+@theme inline {
+  --color-paper: var(--paper);
+  --color-wash: var(--wash);
+  --color-grid: var(--grid);
+  --color-hair: var(--hair);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-pencil: var(--pencil);
+  --color-margin: var(--margin);
+  --color-plate: var(--plate);
+  --color-plate-edge: var(--plate-edge);
 
-@font-face {
-  font-family: "IBM Plex Mono";
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("/fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2");
-  unicode-range:
-    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
-    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
-    U+2215, U+FEFF, U+FFFD;
-}
-
-/* --- DESIGN.md section 2, colour, and section 3, faces ------------------- */
-
-@theme {
-  --color-void: #0b0f19; /* ground */
-  --color-slab: #131a28; /* raised surface. 1.10 on void */
-  --color-rule: #212a3d; /* hairlines only, never text */
-  --color-graphite: #7c88a0; /* metadata, markers at rest. 5.37 / 4.88 */
-  --color-read: #9aa6bc; /* body prose. 7.80 / 7.09 */
-  --color-bone: #e9e7e2; /* display, claim text. 15.50 / 14.09 */
-  --color-brass: #d99a4e; /* the one accent. 7.92 / 7.20, void ink 7.92 */
-
-  --font-display:
-    "Bricolage Grotesque", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-sans:
-    "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    sans-serif;
-  --font-mono:
-    "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Atkinson Hyperlegible Next", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Atkinson Hyperlegible Mono", ui-monospace, Menlo, Consolas, monospace;
 }
 
 :root {
-  /* DESIGN.md section 5, space */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.5rem;
-  --space-6: 2rem;
-  --space-7: 2.5rem;
-  --space-8: 3.5rem;
-  --space-9: 5rem;
-  --space-10: 6rem;
+  /* Day page: a ruled lab notebook in office daylight. */
+  --paper: #f6f7f4;
+  --wash: #eceee9;
+  --grid: #dce6f1;
+  --hair: #c5cfdb;
+  --ink: #1b2a4a;
+  --ink-soft: #3a4560;
+  --pencil: #5b6270;
+  --margin: #b53d35;
+  --plate: #151c27;
+  --plate-edge: #ffffff;
+  --tape: rgb(224 213 170 / 0.78);
+  /* A yellow highlighter, used on the one measured phrase in an entry and nowhere else. */
+  --highlight: rgb(255 222 110 / 0.62);
+  --shadow-print: 0 1px 2px rgb(27 42 74 / 0.18), 0 6px 16px rgb(27 42 74 / 0.12);
 
-  --spine-gutter: 9rem;
-
-  /* DESIGN.md section 6, radius. Nested takes the step below its parent. */
-  --radius-lg: 10px;
-  --radius-md: 6px;
-  --radius-sm: 3px;
-
-  /* DESIGN.md section 7, shadow. Layered, tinted to the ground. */
-  --shadow-raise: 0 1px 2px rgb(4 7 13 / 0.4), 0 4px 10px rgb(4 7 13 / 0.32);
-  --shadow-float: 0 2px 6px rgb(4 7 13 / 0.45), 0 10px 26px rgb(4 7 13 / 0.38);
-  --shadow-artifact:
-    0 2px 8px rgb(4 7 13 / 0.5), 0 14px 34px rgb(4 7 13 / 0.42),
-    0 40px 90px rgb(4 7 13 / 0.3);
-  --highlight-top: inset 0 1px 0 rgb(233 231 226 / 0.07);
-
-  /* DESIGN.md section 8, motion */
+  --page-max: 77.5rem;
+  --gutter: 1.25rem;
+  --margin-w: 0px;
+  /* Where the red margin rule sits, measured from the sheet's left edge. */
+  --rule-x: 0.75rem;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
-  --ease-move: cubic-bezier(0.65, 0, 0.35, 1);
-  --dur-out: 140ms;
-  --dur-in: 220ms;
-  --dur-move: 340ms;
-  --dur-enter: 620ms;
 
+  color-scheme: light;
+}
+
+/* Night page: the same notebook on black paper, written in white ink. Near
+   neutral on purpose: blue-black slate is the dark mode every page ships. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #141413;
+    --wash: #1c1c1a;
+    --grid: #262624;
+    --hair: #33332f;
+    --ink: #eeede8;
+    --ink-soft: #c6c5be;
+    --pencil: #9a9992;
+    --margin: #ea7468;
+    --plate: #151c27;
+    --plate-edge: #2e2e2b;
+    --tape: rgb(234 229 208 / 0.24);
+    --highlight: rgb(255 214 90 / 0.24);
+    --shadow-print: 0 1px 2px rgb(0 0 0 / 0.4), 0 6px 16px rgb(0 0 0 / 0.35);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #141413;
+  --wash: #1c1c1a;
+  --grid: #262624;
+  --hair: #33332f;
+  --ink: #eeede8;
+  --ink-soft: #c6c5be;
+  --pencil: #9a9992;
+  --margin: #ea7468;
+  --plate: #151c27;
+  --plate-edge: #2e2e2b;
+  --tape: rgb(234 229 208 / 0.24);
+  --highlight: rgb(255 214 90 / 0.24);
+  --shadow-print: 0 1px 2px rgb(0 0 0 / 0.4), 0 6px 16px rgb(0 0 0 / 0.35);
   color-scheme: dark;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --gutter: 2rem;
+    --rule-x: 1.125rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --gutter: 2.5rem;
+    --margin-w: 8.5rem;
+    --rule-x: calc(var(--gutter) + var(--margin-w) + 1.25rem);
+  }
 }
 
 /* --- Base ---------------------------------------------------------------- */
@@ -134,18 +149,25 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-    scroll-padding-top: 6rem;
+    scroll-padding-top: 5.5rem;
     -webkit-text-size-adjust: 100%;
+    scrollbar-color: var(--pencil) var(--paper);
   }
 
   body {
     overflow-x: clip;
-    background-color: var(--color-void);
-    color: var(--color-read);
+    background-color: var(--paper);
+    /* The ruled square. Decoration only: no text relies on it for contrast. */
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: -1px -1px;
+    color: var(--ink);
     font-family: var(--font-sans);
-    font-size: 1rem;
-    line-height: 1.65;
-    font-synthesis-weight: none;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
   }
@@ -154,8 +176,7 @@
   h2,
   h3 {
     font-family: var(--font-display);
-    color: var(--color-bone);
-    font-weight: 600;
+    color: var(--ink);
     text-wrap: balance;
   }
 
@@ -163,29 +184,50 @@
     text-wrap: pretty;
   }
 
-  /* Everything clickable says so. */
   a[href],
   button:not(:disabled),
-  [role="button"] {
+  summary {
     cursor: pointer;
   }
 
+  a {
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.22em;
+    text-decoration-color: var(--hair);
+    transition:
+      color 140ms var(--ease-in),
+      text-decoration-color 140ms var(--ease-in);
+  }
+
+  a:hover {
+    text-decoration-color: currentColor;
+    transition-duration: 220ms;
+    transition-timing-function: var(--ease-out);
+  }
+
   :focus-visible {
-    outline: 2px solid var(--color-brass);
+    outline: 2px solid var(--ink);
     outline-offset: 3px;
-    border-radius: var(--radius-sm);
+    border-radius: 2px;
   }
 
   ::selection {
-    background-color: var(--color-brass);
-    color: var(--color-void);
+    background-color: var(--ink);
+    color: var(--paper);
   }
 
-  img,
-  video {
+  img {
     display: block;
     max-width: 100%;
     height: auto;
+  }
+
+  code,
+  kbd,
+  samp {
+    font-family: var(--font-mono);
+    font-weight: 400;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -203,371 +245,477 @@
   }
 }
 
-/* --- DESIGN.md section 8, the load sequence ------------------------------
-   The hero entrance runs in CSS rather than in Motion.
-
-   It used to be Motion `initial` props, which meant the prerendered HTML
-   carried `opacity:0` inline on the header, both headline lines, the subline
-   and both calls to action. The entire first screen was therefore invisible
-   until 355kB of JavaScript had downloaded and hydrated, and permanently
-   invisible if it never did. The rest of the page rendered fine, so the site
-   effectively began at section two. That also held back the largest
-   contentful paint, which is the hero, behind hydration.
-
-   In CSS the markup ships visible, paints from the prerender, and the reveal
-   is an enhancement layered on top. The `js` class is set by a blocking inline
-   script in the document head, so the hidden state is only ever applied when
-   there is JavaScript to remove it again.
-
-   Delays are the cues from src/motion/tokens.ts. The two files are the one
-   place this composition is described and they must be kept in step.
--------------------------------------------------------------------------- */
+/* --- Type roles ------------------------------------------------------------
+   Archivo carries the notebook's printed furniture and its headings, narrowed
+   on the width axis the way a pad's labels are. Atkinson Hyperlegible Next
+   carries everything read as prose: it was drawn so that 1, l and I, and 0 and
+   O, cannot be mistaken for each other, which is the property a page of
+   figures needs most.
+--------------------------------------------------------------------------- */
 
 @layer components {
-  /* Attribution links in the colophon. Underlined so they read as links in a
-     paragraph that is otherwise all one colour, brass on hover like every
-     other outbound link on the page. */
-  .credit-link {
-    color: var(--color-graphite);
-    text-decoration: underline;
-    text-decoration-color: var(--color-rule);
-    text-underline-offset: 3px;
-    transition:
-      color var(--dur-out) var(--ease-in),
-      text-decoration-color var(--dur-out) var(--ease-in);
-  }
-
-  .credit-link:hover,
-  .credit-link:focus-visible {
-    color: var(--color-brass);
-    text-decoration-color: var(--color-brass);
-    transition-duration: var(--dur-in);
-    transition-timing-function: var(--ease-out);
-  }
-
-  /*
-    Everything else that animates, when there is no JavaScript to animate it.
-
-    Motion writes its start state into the markup at prerender: charts ship at
-    scaleX(0), line paths at stroke-dasharray "0 1", the retrieval path stages
-    at 26% opacity, the retrieval caption at 0. With JS those are the first
-    frame of an animation. Without it they are the last frame too, so the page
-    serves five blank charts underneath captions quoting their numbers.
-
-    The data is not lost either way, because every chart also ships an sr-only
-    table, but a sighted reader with JS blocked or broken sees axis furniture
-    and nothing plotted. This resets the marks to their finished state.
-
-    Scoped under html:not(.js), which the head script sets synchronously, so
-    this can never apply in a browser that is going to run the animation.
-  */
-  html:not(.js) [style*="opacity:0"] {
-    opacity: 1 !important;
-  }
-
-  html:not(.js) [style*="scale"] {
-    transform: none !important;
-  }
-
-  html:not(.js) [stroke-dasharray] {
-    stroke-dasharray: none !important;
-  }
-
-  .cue {
-    --cue-delay: 0ms;
-    --cue-y: 12px;
-  }
-
-  .js .cue {
-    opacity: 0;
-    animation: cue-rise var(--dur-enter) var(--ease-out) var(--cue-delay) both;
-  }
-
-  /* The headline lines wipe up from under their own baseline. */
-  .js .cue--reveal {
-    --cue-y: 16px;
-    animation-name: cue-reveal;
-  }
-
-  /* The nav comes down from above rather than up from below. */
-  .js .cue--drop {
-    --cue-y: -8px;
-  }
-
-  .js .cue--scale {
-    animation-name: cue-scale;
-  }
-
-  @keyframes cue-rise {
-    from {
-      opacity: 0;
-      transform: translateY(var(--cue-y));
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-
-  @keyframes cue-reveal {
-    from {
-      opacity: 0;
-      transform: translateY(var(--cue-y));
-      clip-path: inset(100% 0 0 0);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-      clip-path: inset(0 0 0 0);
-    }
-  }
-
-  @keyframes cue-scale {
-    from {
-      opacity: 0;
-      transform: scale(0.96);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-
-  /* The global reduced-motion rule collapses the duration but not the delay,
-     which on its own would leave the hero blank for half a second and then
-     snap it in. Drop the delay too, so it is simply there. */
-  @media (prefers-reduced-motion: reduce) {
-    .js .cue {
-      animation-delay: 0ms !important;
-    }
-  }
-}
-
-/* --- DESIGN.md section 3, the type scale --------------------------------- */
-
-@layer components {
-  .t-display-1 {
+  .t-display {
     font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 2rem;
-    line-height: 1.04;
-    letter-spacing: -0.035em;
-    font-variation-settings: "wdth" 100;
+    font-weight: 720;
+    font-stretch: 84%;
+    font-size: clamp(2.375rem, 1.55rem + 3.3vw, 4.25rem);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
   }
 
-  /*
-   * Emphasis inside display type is done with the face's own width axis and the
-   * accent, not with a second family and not with a synthetic italic. Bricolage
-   * ships no true italic, so an oblique here would be a browser fake.
-   */
-  .t-emph {
-    font-variation-settings: "wdth" 80;
-    color: var(--color-brass);
-  }
-
-  .t-display-2 {
+  .t-claim {
     font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 1.75rem;
+    font-weight: 680;
+    font-stretch: 88%;
+    font-size: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
     line-height: 1.12;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.02em;
   }
 
-  .t-display-3 {
+  .t-sub {
     font-family: var(--font-display);
-    font-weight: 600;
+    font-weight: 650;
+    font-stretch: 92%;
     font-size: 1.1875rem;
-    line-height: 1.25;
-    letter-spacing: -0.015em;
-  }
-
-  .t-title {
-    font-family: var(--font-sans);
-    font-weight: 600;
-    font-size: 1.0625rem;
-    line-height: 1.35;
-    letter-spacing: -0.005em;
-    color: var(--color-bone);
-  }
-
-  .t-body-lg {
-    font-size: 1.0625rem;
-    line-height: 1.6;
-  }
-
-  .t-body {
-    font-size: 0.9375rem;
-    line-height: 1.65;
-  }
-
-  .t-body-sm {
-    font-size: 0.875rem;
-    line-height: 1.6;
-  }
-
-  .t-ui {
-    font-family: var(--font-sans);
-    font-weight: 500;
-    font-size: 0.875rem;
-    line-height: 1.4;
-    letter-spacing: 0.01em;
-  }
-
-  .t-brand {
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 0.95rem;
-    line-height: 1.2;
+    line-height: 1.3;
     letter-spacing: -0.01em;
   }
 
-  .t-mono-md {
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
+  .t-lead {
+    font-size: clamp(1.125rem, 1.05rem + 0.35vw, 1.3125rem);
     line-height: 1.5;
+  }
+
+  .t-body {
+    font-size: 1.0625rem;
+    line-height: 1.6;
+  }
+
+  .t-small {
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+
+  .t-furniture {
+    font-family: var(--font-display);
+    font-weight: 560;
+    font-stretch: 80%;
+    font-size: 0.9375rem;
+    line-height: 1.35;
     letter-spacing: 0.01em;
+    font-variant-numeric: tabular-nums;
   }
 
-  .t-mono-sm {
+  .t-furniture-sm {
+    font-family: var(--font-display);
+    font-weight: 540;
+    font-stretch: 80%;
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    letter-spacing: 0.015em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .t-code {
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-weight: 400;
+    font-size: 0.875rem;
     line-height: 1.5;
-    letter-spacing: 0.02em;
   }
 
-  .t-mono-xs {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    line-height: 1.45;
-    letter-spacing: 0.06em;
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* --- The sheet -------------------------------------------------------------
+   One continuous page with a red margin rule down its whole length. Below
+   1024px the margin column collapses and the rule moves into the gutter, so the
+   page is still the same notebook on a phone.
+--------------------------------------------------------------------------- */
+
+@layer components {
+  .sheet {
+    position: relative;
+    margin-inline: auto;
+    max-width: var(--page-max);
+    padding-inline: var(--gutter);
   }
 
-  @media (min-width: 768px) {
-    .t-display-1 {
-      font-size: 3.25rem;
+  .sheet::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: var(--rule-x);
+    width: 2px;
+    background-color: var(--margin);
+    pointer-events: none;
+  }
+
+  /* Content sits to the right of the rule at every width. */
+  .sheet > * {
+    padding-left: calc(var(--rule-x) - var(--gutter) + 1rem);
+  }
+
+  @media (min-width: 1024px) {
+    .sheet > * {
+      padding-left: 0;
     }
-    .t-display-2 {
-      font-size: 2.125rem;
+  }
+
+  /* An entry: margin note in the left column from lg up, below the heading on a phone. */
+  .leaf {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 2.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    .leaf {
+      grid-template-columns: var(--margin-w) minmax(0, 1fr);
     }
-    .t-body-lg {
-      font-size: 1.125rem;
+
+    .leaf > * {
+      grid-column: 2;
     }
-    .t-body {
-      font-size: 1rem;
+
+    .leaf > .leaf__margin {
+      grid-column: 1;
+      grid-row: 1 / span 3;
+      text-align: right;
     }
   }
 
   @media (min-width: 1280px) {
-    .t-display-1 {
-      font-size: 3.5rem;
+    .leaf--plate {
+      grid-template-columns: var(--margin-w) minmax(0, 1fr) 21rem;
+    }
+
+    .leaf--plate > .leaf__plate {
+      grid-column: 3;
+      grid-row: 1 / span 6;
     }
   }
 
-  @media (min-width: 1440px) {
-    .t-display-2 {
-      font-size: 2.5rem;
+  /* Rules between pages: ink, full width of the writing area. */
+  .page-break {
+    border-top: 2px solid var(--ink);
+  }
+}
+
+/* --- Plates: dark prints taped onto the page ------------------------------ */
+
+@layer components {
+  .plate__print {
+    position: relative;
+    overflow: visible;
+    padding: 0.5rem;
+    background-color: var(--plate-edge);
+    box-shadow: var(--shadow-print);
+    transform: rotate(0.8deg);
+  }
+
+  .plate__print--tilt-left {
+    transform: rotate(-0.7deg);
+  }
+
+  .plate__image {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--plate);
+  }
+
+  .plate__tape {
+    position: absolute;
+    width: 5.5rem;
+    height: 1.5rem;
+    background-color: var(--tape);
+    pointer-events: none;
+  }
+
+  .plate__tape--a {
+    top: -0.65rem;
+    left: -1.1rem;
+    transform: rotate(-24deg);
+  }
+
+  .plate__tape--b {
+    bottom: -0.6rem;
+    right: -1rem;
+    transform: rotate(-18deg);
+  }
+
+  .plate__still {
+    transition: opacity 450ms var(--ease-out);
+  }
+
+  .plate__still[data-gone="true"] {
+    opacity: 0;
+  }
+}
+
+/* --- The working: the second depth of an entry, opened in place ----------- */
+
+@layer components {
+  .working > summary {
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-block: 0.5rem;
+  }
+
+  .working > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .working .working__caret {
+    transition: transform 220ms var(--ease-out);
+  }
+
+  .working[open] .working__caret {
+    transform: rotate(90deg);
+  }
+
+  /* Where the browser can animate to auto height, the body unrolls rather than
+     appearing. Everywhere else it simply opens. */
+  @supports (interpolate-size: allow-keywords) {
+    .working {
+      interpolate-size: allow-keywords;
     }
-    .t-display-3 {
-      font-size: 1.3125rem;
+
+    .working::details-content {
+      block-size: 0;
+      overflow-y: clip;
+      transition:
+        block-size 340ms var(--ease-out),
+        content-visibility 340ms allow-discrete;
     }
-    .t-title {
-      font-size: 1.125rem;
-    }
-    .t-brand {
-      font-size: 1rem;
+
+    .working[open]::details-content {
+      block-size: auto;
     }
   }
 }
 
-/* --- DESIGN.md section 9, the citation apparatus -------------------------- */
+/* --- Scales: what was expected against what was measured -------------------
+   The measured mark is drawn at its true position by default, with or without
+   script. Where the browser supports scroll-driven animation and the reader
+   allows motion, it travels from the expectation to the measurement as the
+   entry crosses the screen, and travels back if they scroll up. Once the
+   scroll effects start, they move it instead in every figure they draw, as the
+   last stroke of the drawing. See the end of this file.
+--------------------------------------------------------------------------- */
 
 @layer components {
-  .claim {
-    position: relative;
-    display: inline;
-    color: var(--color-bone);
-    border-bottom: 1px dotted
-      color-mix(in oklab, var(--color-graphite) 55%, transparent);
-    text-decoration: none;
-    transition: border-color var(--dur-out) var(--ease-in);
-  }
-
-  .claim:hover,
-  .claim:focus-visible {
-    border-bottom-color: var(--color-brass);
-    transition-duration: var(--dur-in);
-    transition-timing-function: var(--ease-out);
-  }
-
-  .claim__marker {
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    font-weight: 500;
-    line-height: 1;
-    letter-spacing: 0.02em;
-    color: var(--color-graphite);
-    vertical-align: super;
-    margin-left: 0.15em;
-    transition: color var(--dur-out) var(--ease-in);
-  }
-
-  .claim:hover .claim__marker,
-  .claim:focus-visible .claim__marker {
-    color: var(--color-brass);
-    transition-duration: var(--dur-in);
-    transition-timing-function: var(--ease-out);
-  }
-
   /*
-   * display:none until wanted, so a hidden label never adds to the document
-   * scroll width. Pointer and keyboard affordance on wide viewports only: on a
-   * phone, tapping the claim goes to the source, which is what matters there.
-   */
-  .claim__source {
-    display: none;
-    position: absolute;
-    left: 0;
-    bottom: calc(100% + 0.6rem);
-    z-index: 40;
-    width: max-content;
-    max-width: min(20rem, 74vw);
-    padding: 0.35rem 0.55rem;
-    border: 1px solid var(--color-rule);
-    border-left: 1px solid var(--color-brass);
-    border-radius: var(--radius-sm);
-    background-color: var(--color-slab);
-    box-shadow: var(--shadow-float);
-    color: var(--color-read);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    line-height: 1.45;
-    letter-spacing: 0.01em;
-    text-align: left;
-    white-space: normal;
-    pointer-events: none;
-    opacity: 0;
-    transition:
-      opacity var(--dur-in) var(--ease-out),
-      display var(--dur-in) allow-discrete;
+    The track is a size container, so a mark can be placed and moved in units
+    of the track's own width (cqw). The moving part is a zero-width box: an
+    earlier version slid a full-width layer instead, and at the far end of its
+    travel that layer hung 97% of a track past the edge of the page.
+  */
+  .scale__track {
+    position: relative;
+    container-type: inline-size;
+    /* Before a lesion mark has arrived it waits past the right end of its
+       track, and unclipped it widened the whole page until the reader got
+       there. The margin keeps the rings on the end marks whole. */
+    overflow: clip;
+    overflow-clip-margin: 0.75rem;
   }
 
-  @media (min-width: 768px) {
-    .claim:hover .claim__source,
-    .claim:focus-visible .claim__source {
-      display: block;
-      opacity: 1;
+  .scale__travel {
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    width: 0;
+    transform: translateX(calc(var(--to) * 1cqw));
+  }
 
-      @starting-style {
-        opacity: 0;
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .scale__travel {
+        animation: scale-travel var(--ease-out) both;
+        animation-timeline: view();
+        animation-range: entry 35% cover 45%;
       }
     }
   }
 
-  /* Claims in a narrow right hand column flip the label to stay on screen. */
-  .claim--flip .claim__source {
-    left: auto;
-    right: 0;
-    border-left: 1px solid var(--color-rule);
-    border-right: 1px solid var(--color-brass);
+  @keyframes scale-travel {
+    from {
+      transform: translateX(calc(var(--from) * 1cqw));
+    }
+    to {
+      transform: translateX(calc(var(--to) * 1cqw));
+    }
+  }
+}
+
+/* --- Small pieces -------------------------------------------------------- */
+
+@layer components {
+  /* A control that only works with script hides itself where there is none. */
+  html:not(.js) .needs-js {
+    display: none !important;
+  }
+
+  /* Pencil hatching, for a span that is an expectation rather than a value. */
+  .hatch {
+    background-image: repeating-linear-gradient(
+      135deg,
+      var(--pencil) 0 1px,
+      transparent 1px 6px
+    );
+  }
+
+  /* The theme swap cross-fades where the browser can, and is instant elsewhere. */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 220ms;
+    animation-timing-function: var(--ease-out);
+  }
+}
+
+/* --- Dated items in a list -------------------------------------------------
+   From lg up a list item reaches back across the gap into the margin column,
+   so its date sits on the same red-ruled column as every entry's date. On a
+   phone the date stays under the item's title, never above it.
+--------------------------------------------------------------------------- */
+
+@layer components {
+  .margin-item__aside {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .margin-item {
+      display: grid;
+      grid-template-columns: var(--margin-w) minmax(0, 1fr);
+      column-gap: 2.5rem;
+      margin-left: calc(-1 * (var(--margin-w) + 2.5rem));
+    }
+
+    .margin-item > .margin-item__body {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .margin-item > .margin-item__aside {
+      display: block;
+      grid-column: 1;
+      grid-row: 1;
+      text-align: right;
+    }
+
+    .margin-item .margin-item__inline {
+      display: none;
+    }
+  }
+}
+
+/* --- Scroll effects ----------------------------------------------------------
+   motion/effects.ts adds the class fx to <html> when it starts, and takes it
+   away when it stops. Without it, every rule here leaves the page exactly as
+   drawn: solid margin rule, highlights laid down, scale marks on the CSS
+   timeline above.
+--------------------------------------------------------------------------- */
+
+@layer components {
+  /* C. The highlighter. Laid down by default; the effects sweep it in. */
+  mark.hl {
+    color: inherit;
+    background-color: transparent;
+    background-image: linear-gradient(var(--highlight), var(--highlight));
+    background-repeat: no-repeat;
+    background-position: 0 88%;
+    background-size: 100% 62%;
+    padding-inline: 0.12em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+
+  /* A. While the effects run, the full rule fades back and a solid one fills
+     down the page over it as the reader goes. */
+  .sheet__progress {
+    display: none;
+  }
+
+  .fx .sheet::before {
+    opacity: 0.3;
+  }
+
+  .fx .sheet__progress {
+    display: block;
+    position: absolute;
+    inset-block: 0;
+    left: var(--rule-x);
+    width: 2px;
+    padding: 0;
+    background-color: var(--margin);
+    transform-origin: center top;
+    pointer-events: none;
+  }
+
+  /* B. Where each part is drawn out from. Set here rather than in the tweens,
+     so that GSAP never has to read one back between writes. */
+  .fx [data-ink="rule-x"] {
+    transform-origin: left center;
+  }
+
+  .fx [data-ink="rule-y"] {
+    transform-origin: center top;
+  }
+
+  .fx [data-ink="drop"] {
+    transform-origin: center bottom;
+  }
+
+  /* A figure the effects draw moves its mark through --at, in the same track
+     widths as --from and --to. A figure that was already on screen when they
+     started keeps the CSS timeline above, so its mark never jumps. */
+  [data-inked] .scale__travel {
+    animation: none;
+    transform: translateX(calc(var(--at, var(--to)) * 1cqw));
+  }
+
+  /* Page one's specks (motion/specks.ts), under everything on the page and
+     faded in. The section is positioned from the first paint, so adding the
+     canvas later cannot move anything. Placed by hand rather than by the leaf
+     grid, which would have shut it inside one column. */
+  .page-one {
+    position: relative;
+  }
+
+  .leaf > .specks {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .specks {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.2s var(--ease-out);
+  }
+
+  .specks.is-on {
+    opacity: 1;
+  }
+
+  /* D. An entry's date and name stay in the margin while it is read. Not an
+     animation, so it holds under reduced motion too. Wide screens only, where
+     there is a margin to stay in. */
+  @media (min-width: 1024px) {
+    .leaf > .leaf__margin--follow {
+      grid-row: 1 / span 30;
+      align-self: start;
+      position: sticky;
+      top: 5.5rem;
+    }
   }
 }

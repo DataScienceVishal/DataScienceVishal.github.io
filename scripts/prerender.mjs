@@ -67,48 +67,45 @@ rmSync(cssPath, { force: true });
 rmSync(resolve(root, "dist-ssr"), { recursive: true, force: true });
 
 /*
- * The citation markers must ascend as the reader descends. sources.ts already
- * guarantees every source is numbered from one ordered list, but nothing there
- * can see the page: if a claim moves, or a section is inserted above another,
- * ORDER silently stops matching the order things are actually cited in and the
- * reader meets 1, 4, 2, 3. That is precisely the kind of quiet drift the
- * numbering exists to prevent, so check it against the rendered output.
+ * Every in-page link must land somewhere. The contents row, the skip link and
+ * the entry anchors are all fragment links, and a renamed id breaks one with
+ * no error anywhere: the click scrolls nowhere and nothing reports it.
  */
-const markers = [...out.matchAll(/class="claim__marker"[^>]*>(\d+)</g)].map((m) =>
-  Number(m[1]),
-);
-const firstCited = [];
-for (const n of markers) if (!firstCited.includes(n)) firstCited.push(n);
-const ascending = firstCited.every((n, i) => i === 0 || n > firstCited[i - 1]);
-if (!ascending) {
-  throw new Error(
-    `citation markers are cited out of order: ${firstCited.join(", ")}. ` +
-      `Reorder ORDER in src/data/sources.ts to match the page.`,
-  );
+const ids = new Set([...out.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+const fragments = [...out.matchAll(/href="#([^"]*)"/g)].map((m) => m[1]);
+const dangling = [...new Set(fragments.filter((f) => !ids.has(f)))];
+if (dangling.length) {
+  throw new Error(`in-page links with no target: ${dangling.map((f) => `#${f}`).join(", ")}`);
 }
-const defined = (out.match(/id="ref-\d+"/g) ?? []).length;
-if (defined !== firstCited.length) {
-  throw new Error(
-    `${defined} sources are listed but ${firstCited.length} are cited. ` +
-      `Every source in the reference list must be cited by a claim.`,
-  );
+
+/*
+ * A link that opens a new tab without rel=noopener hands the opened page a
+ * handle on this one. Every outbound link here opens a new tab, so check them
+ * all rather than trusting each component to remember.
+ */
+const unsafe = [...out.matchAll(/<a\b[^>]*target="_blank"[^>]*>/g)]
+  .map((m) => m[0])
+  .filter((tag) => !/rel="[^"]*noopener[^"]*"/.test(tag));
+if (unsafe.length) {
+  throw new Error(`${unsafe.length} links open a new tab without rel=noopener: ${unsafe[0]}`);
 }
-console.log(`citations: ${firstCited.length} sources, cited in order`);
+console.log(`links: ${fragments.length} in-page, all resolve; new-tab links all carry noopener`);
 
 /*
  * Every character on the page must exist in the font subset.
  *
  * subset_fonts.py asks for a fixed set of codepoints, and fontTools silently
- * drops any it cannot find in the source family. It was asking for U+2192 and
- * getting nothing, so the arrow in the trajectory rendered in whatever system
- * mono the browser fell back to: a different face, mid-sentence, in the accent
- * colour, three times over. Nothing failed and nothing warned.
+ * drops any it cannot find in the source family. An earlier version of this
+ * page asked for an arrow and got nothing, so it rendered in whatever system
+ * face the browser fell back to, mid-sentence. Nothing failed and nothing
+ * warned. This also catches an en or em dash slipping into the copy, since the
+ * writing rules keep both out of the subset.
  *
  * Keep this list in step with UNICODES in scripts/subset_fonts.py.
  */
 const SUBSET = new Set([
   ...Array.from({ length: 0x7e - 0x20 + 1 }, (_, i) => 0x20 + i),
-  0xa0, 0xa3, 0xb0, 0x2013, 0x2018, 0x2019, 0x201a, 0x201c, 0x201d, 0x2026,
+  0xa0, 0xa3, 0xb0, 0x2018, 0x2019, 0x201a, 0x201b, 0x201c, 0x201d, 0x2026,
 ]);
 const visible = out
   .replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/g, " ")

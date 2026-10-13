@@ -1,18 +1,23 @@
 The fonts in this directory are subsets of the following families,
-redistributed under the SIL Open Font License 1.1. Neither declares a
-Reserved Font Name, so the subsets keep the original family names.
+redistributed under the SIL Open Font License 1.1. None declares a Reserved
+Font Name, so the subsets keep the original family names.
 
-  Bricolage Grotesque  Copyright 2022 The Bricolage Grotesque Project Authors
-                       https://github.com/ateliertriay/bricolage
-  IBM Plex Sans        Copyright 2017 IBM Corp.
-  IBM Plex Mono        Copyright 2017 IBM Corp.
-                       https://github.com/IBM/plex
+  Archivo                     Copyright 2020 The Archivo Project Authors
+                              https://github.com/Omnibus-Type/Archivo
+  Atkinson Hyperlegible Next  Copyright 2020-2024 The Atkinson Hyperlegible
+                              Next Project Authors
+                              https://github.com/googlefonts/atkinson-hyperlegible-next
+  Atkinson Hyperlegible Mono  Copyright 2020-2024 The Atkinson Hyperlegible
+                              Mono Project Authors
+                              https://github.com/googlefonts/atkinson-hyperlegible-next-mono
 
 Subset with scripts/subset_fonts.py. Full licence text follows.
 
 ----------------------------------------------------------------------
 
-Copyright 2022 The Bricolage Grotesque Project Authors (https://github.com/ateliertriay/bricolage)
+Copyright 2020 The Archivo Project Authors (https://github.com/Omnibus-Type/Archivo)
+Copyright 2020-2024 The Atkinson Hyperlegible Next Project Authors (https://github.com/googlefonts/atkinson-hyperlegible-next)
+Copyright 2020-2024 The Atkinson Hyperlegible Mono Project Authors (https://github.com/googlefonts/atkinson-hyperlegible-next-mono)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:

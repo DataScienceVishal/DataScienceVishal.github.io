@@ -1,0 +1,23 @@
+# Link check for the built page. .github/workflows/claims.yml runs lychee over
+# dist/index.html after `npm run build`, and passes --root-dir there, because
+# lychee needs that as an absolute path and this file cannot know where the
+# checkout lives. Written for lychee 0.24, which the workflow pins.
+
+# LinkedIn answers requests it takes for a bot with a non-standard 999, so a
+# working profile link would otherwise fail every week.
+accept = ["200..=299", "999"]
+
+exclude = ['^mailto:']
+
+# Covers the localhost name as well as 127.0.0.0/8 and ::1. Nothing listens
+# there on a CI runner.
+exclude_loopback = true
+
+max_retries = 2
+timeout = 20
+
+# The page links to README sections such as #readme. GitHub adds those anchors
+# with script after the page loads, so in the HTML lychee reads every one would
+# be missing. Before 0.24 this setting was true or false; "none" is the 0.24
+# spelling of false.
+include_fragments = "none"

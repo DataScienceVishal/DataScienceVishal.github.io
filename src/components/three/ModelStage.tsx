@@ -1,20 +1,16 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useRef } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { RefObject } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Center, Environment, Lightformer, useGLTF } from "@react-three/drei";
 // From three-stdlib rather than three/examples, because that is the loader
 // implementation drei's own types are written against.
 import { KTX2Loader } from "three-stdlib";
-import {
-  Box3,
-  Color,
-  Mesh,
-  MeshStandardMaterial,
-  Vector3,
-  type Group,
-} from "three";
+import { Box3, Color, Vector3 } from "three";
+import type { Group, Mesh, MeshStandardMaterial } from "three";
 import type { MotionValue } from "motion/react";
+import { GivenOff, type Particles } from "./particles";
 
 /**
  * The lazily imported half of the 3D layer. Nothing in here is referenced until
@@ -35,26 +31,25 @@ import type { MotionValue } from "motion/react";
  * touch it, which is why it stays below.
  *
  * Lighting is procedural: an Environment built from Lightformers rather than a
- * downloaded HDR, so there is no extra network request and the key light can sit
- * on the page's own accent.
+ * downloaded HDR, so there is no extra network request. The rig is a plain
+ * photographic one, a warm white key over a cool fill, because the models are
+ * prints taped into a notebook and the notebook's only colour, the margin red,
+ * is kept for measurements.
  */
 
 /**
  * Retints a loaded model onto the page palette.
  *
  * A model bought or downloaded arrives with its author's colours. This one came
- * in lavender and skin tones, which are two hues the page does not have and
- * cannot absorb. Rather than drop it, each material's albedo is converted to its
- * luminance and then remapped along the page's own neutral-to-accent ramp, the
- * same treatment the portrait gets. Metalness, roughness and every texture map
- * survive, so the form and the shading detail are untouched; only the hue moves.
- *
- * Bright surfaces go warm toward brass and dark ones go cool toward the ground,
- * which is what a single warm key light over a cool fill actually does to metal.
+ * in lavender and skin tones, which the page has no place for. Rather than drop
+ * it, each material's albedo is converted to its luminance and remapped along a
+ * neutral steel ramp, dark print to pale metal. Metalness, roughness and every
+ * texture map survive, so the form and the shading detail are untouched; only
+ * the hue moves.
  */
-const DARK = new Color("#131a28");
-const MID = new Color("#7c88a0");
-const WARM = new Color("#d99a4e");
+const DARK = new Color("#151c27");
+const MID = new Color("#7c8698");
+const WARM = new Color("#d3d8e0");
 /** Where a mapped material lands once its colour map is dropped. */
 const METAL = new Color("#8d99b0");
 /** The flat tone, a stop lighter than METAL so it holds up unlit. */
@@ -81,8 +76,6 @@ function toneToMetal(root: Group) {
        * ramped. The comment on the caller claimed "once per loaded scene",
        * which useMemo does not actually promise.
        */
-      if (mat.userData.graded) continue;
-      mat.userData.graded = true;
       if (mat.userData.graded) continue;
       mat.userData.graded = true;
       mat.map = null;
@@ -147,8 +140,7 @@ function gradeToPalette(root: Group, strength: number) {
         // fine wire strands across the face catch the key light from every
         // angle at once and clip to white, which erased the eyes. Broadening
         // the highlight fixes the face and still reads as metal on the heavy
-        // wires, which take their colour from the brass light rather than from
-        // any albedo.
+        // wires.
         mat.roughness = 0.52;
       } else {
         // Rec. 709 luminance, so the remap preserves how light each surface
@@ -161,10 +153,9 @@ function gradeToPalette(root: Group, strength: number) {
         if (t < 0.62) {
           tmp.copy(DARK).lerp(MID, t / 0.62);
         } else {
-          // Stops short of the accent at full strength. A white albedo, which
-          // is most of a glTF export, tops the ramp out, and a whole mesh at
-          // the accent is a much larger field of it than the page spends
-          // anywhere else. Bronze reads as the same family without shouting.
+          // Stops short of the top at full strength. A white albedo, which is
+          // most of a glTF export, tops the ramp out, and a whole mesh at the
+          // palest value reads as a plaster cast rather than as metal.
           tmp.copy(MID).lerp(WARM, ((t - 0.62) / 0.38) * 0.62);
         }
         mat.color.lerp(tmp, strength);
@@ -174,11 +165,37 @@ function gradeToPalette(root: Group, strength: number) {
           0.2126 * mat.emissive.r +
           0.7152 * mat.emissive.g +
           0.0722 * mat.emissive.b;
-        if (el > 0.01) mat.emissive.lerp(WARM, strength);
+        if (el > 0.01) mat.emissive.lerp(MID, strength);
       }
       mat.needsUpdate = true;
     }
   });
+}
+
+/**
+ * How a model moves on its own, on top of the scroll turn and the lean, so that
+ * a reader who stops scrolling still sees an object and not a photograph. Both
+ * start from zero, which is the pose the still was rendered in, so the hand-off
+ * from still to canvas cannot jump.
+ */
+export interface Drift {
+  /** Radians a bust looks to either side, slowly. */
+  look?: number;
+  /** Seconds per full turn, for an object shown on a turntable. */
+  turnSeconds?: number;
+}
+
+/** Where a drift has got to after `t` seconds of being drawn. */
+function drifted(drift: Drift | undefined, t: number) {
+  if (!drift) return { y: 0, x: 0, lift: 0 };
+  if (drift.turnSeconds) return { y: (t / drift.turnSeconds) * Math.PI * 2, x: 0, lift: 0 };
+  const look = drift.look ?? 0;
+  return {
+    // Two slow sines, so the head does not swing like a pendulum.
+    y: Math.sin(t * 0.42) * look + Math.sin(t * 0.17) * look * 0.33,
+    x: (Math.sin(t * 0.31 + 0.6) - Math.sin(0.6)) * look * 0.19,
+    lift: Math.sin(t * 0.7) * 0.03,
+  };
 }
 
 export interface Spin {
@@ -228,6 +245,8 @@ function Model({
   grade = 0,
   tone,
   lean = LEAN,
+  drift,
+  particles,
   onReady,
 }: {
   url: string;
@@ -238,6 +257,8 @@ function Model({
   grade?: number;
   tone?: "metal";
   lean?: number;
+  drift?: Drift;
+  particles?: Particles;
   /** Fires once the scene is loaded, graded and about to paint. */
   onReady?: () => void;
 }) {
@@ -287,6 +308,10 @@ function Model({
   // previous frame's value to ease from.
   const leanRef = useRef({ x: 0, y: 0 });
 
+  // Drift time only runs while the loop runs, so a plate scrolled away and
+  // back carries on from where it was instead of jumping ahead.
+  const driftT = useRef(0);
+
   // With the loop on demand, nothing renders unless something asks. Scroll is
   // one of the two things that can move this scene, so a change in progress
   // buys exactly one frame.
@@ -307,7 +332,7 @@ function Model({
     };
   }, [gl, invalidate]);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const g = ref.current;
     if (!g) return;
     // Rotation is a pure function of scroll position, so it tracks the reader
@@ -326,9 +351,12 @@ function Model({
     l.y += (targetY - l.y) * LEAN_EASE;
     l.x += (targetX - l.x) * LEAN_EASE;
 
-    g.rotation.y = spin.baseY + p * spin.turns * Math.PI * 2 + l.y;
-    g.rotation.x = spin.baseX + p * spin.tilt + l.x;
-    g.position.y = spin.lift + Math.sin(p * Math.PI) * spin.lift * 0.5;
+    if (!reduce && state.frameloop === "always") driftT.current += Math.min(delta, 0.1);
+    const d = drifted(reduce ? undefined : drift, driftT.current);
+
+    g.rotation.y = spin.baseY + p * spin.turns * Math.PI * 2 + l.y + d.y;
+    g.rotation.x = spin.baseX + p * spin.tilt + l.x + d.x;
+    g.position.y = spin.lift + Math.sin(p * Math.PI) * spin.lift * 0.5 + d.lift;
 
     // The lean eases toward the pointer over several frames, so it has to
     // re-arm the loop until it arrives. The threshold is a rotation too small
@@ -342,9 +370,36 @@ function Model({
     <Center>
       <group ref={ref} scale={fit * spin.scale}>
         <primitive object={scene} />
+        {particles && !reduce ? <GivenOff scene={scene} {...particles} /> : null}
       </group>
     </Center>
   );
+}
+
+/**
+ * True while the canvas is at least partly on screen and the tab is in front.
+ * Only then does a plate that moves on its own get a continuous loop.
+ */
+function useSeen(target: RefObject<HTMLElement | null>, wanted: boolean) {
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    const el = target.current;
+    if (!wanted || !el) return;
+    let inView = false;
+    const update = () => setSeen(inView && document.visibilityState === "visible");
+    const watch = new IntersectionObserver(([entry]) => {
+      inView = entry.isIntersecting;
+      update();
+    });
+    watch.observe(el);
+    document.addEventListener("visibilitychange", update);
+    return () => {
+      watch.disconnect();
+      document.removeEventListener("visibilitychange", update);
+      setSeen(false);
+    };
+  }, [target, wanted]);
+  return wanted && seen;
 }
 
 export default function ModelStage({
@@ -355,6 +410,8 @@ export default function ModelStage({
   grade = 0,
   tone,
   maxDpr = 1.75,
+  drift,
+  particles,
   onReady,
   /**
    * Optional override for the pointer lean, in radians per axis. Clamped to
@@ -383,34 +440,45 @@ export default function ModelStage({
    */
   maxDpr?: number;
   lean?: number;
+  /** Motion of its own. See Drift. */
+  drift?: Drift;
+  /** Particles given off by the model. See particles.tsx. */
+  particles?: Particles;
 }) {
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const running = useSeen(canvas, !reduce && Boolean(drift || particles));
+
   return (
     <Canvas
+      ref={canvas}
+      data-motion={running ? "running" : "still"}
       // Capped so a 3x phone does not render nine times the pixels.
       dpr={[1, maxDpr]}
       camera={{ position: [0, 0, 4.2], fov: 34 }}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       /*
-        On demand, always. This used to be "always" whenever motion was
-        allowed, which meant three canvases each rendering 60 times a second
-        for the whole life of the page: while the reader was reading, while the
-        model was off screen, while nothing on the page was moving at all. The
-        frames were indistinguishable from each other and cost a full render
-        apiece, and they were competing with scroll for the main thread.
+        On demand, except while a plate that moves on its own is on screen.
+        This used to be "always" whenever motion was allowed, which meant three
+        canvases each rendering 60 times a second for the whole life of the
+        page: while the model was off screen, while the tab was in the
+        background, while nothing in the frame was changing. Those frames were
+        indistinguishable from each other and cost a full render apiece.
 
-        Every source of change now asks for a frame explicitly: scroll through
-        the progress subscription, the pointer through a listener on the
-        canvas, and the lean easing by re-arming itself until it settles.
+        A drifting model and its particles do change every frame, so a seen
+        plate gets the continuous loop and every other plate stays on demand.
+        On demand, every source of change asks for a frame explicitly: scroll
+        through the progress subscription, the pointer through a listener on
+        the canvas, and the lean easing by re-arming itself until it settles.
       */
-      frameloop="demand"
+      frameloop={running ? "always" : "demand"}
       style={{ background: "transparent" }}
     >
       <ambientLight intensity={0.55} />
-      <directionalLight position={[3, 4, 3]} intensity={1.7} color="#fff4e2" />
+      <directionalLight position={[3, 4, 3]} intensity={1.7} color="#fff6ea" />
       <directionalLight
         position={[-4, 1, -2]}
         intensity={0.8}
-        color="#9aa6bc"
+        color="#9db8d9"
       />
 
       <Suspense fallback={null}>
@@ -427,11 +495,11 @@ export default function ModelStage({
           is ever given.
         */}
         <Environment frames={1} resolution={96}>
-          {/* A brass key light, so the metal picks up the page's accent. */}
+          {/* The key: warm white, the colour of an office window at midday. */}
           <Lightformer
             form="rect"
-            intensity={2.6}
-            color="#d99a4e"
+            intensity={2.4}
+            color="#fff1dc"
             position={[2.5, 2.5, 2]}
             scale={[4, 4, 1]}
             target={[0, 0, 0]}
@@ -439,7 +507,7 @@ export default function ModelStage({
           <Lightformer
             form="rect"
             intensity={1.1}
-            color="#9aa6bc"
+            color="#9db8d9"
             position={[-3, 0.5, -1.5]}
             scale={[4, 3, 1]}
             target={[0, 0, 0]}
@@ -447,7 +515,7 @@ export default function ModelStage({
           <Lightformer
             form="circle"
             intensity={0.7}
-            color="#e9e7e2"
+            color="#f6f7f4"
             position={[0, 4, 0]}
             scale={[3, 3, 1]}
             target={[0, 0, 0]}
@@ -461,6 +529,8 @@ export default function ModelStage({
           grade={grade}
           tone={tone}
           lean={lean}
+          drift={drift}
+          particles={particles}
           onReady={onReady}
         />
       </Suspense>

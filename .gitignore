@@ -40,3 +40,14 @@ skills-lock.json
 # for class names and compiling their examples into the shipped stylesheet, and
 # they give away the build process the way portfolio-build-prompt.md would.
 .claude/skills/
+.claude/agents/
+
+# Design tool state and the product brief it keeps. Same reason as the build
+# prompt above: working inputs, not something a visitor should read first.
+.impeccable/
+PRODUCT.md
+
+# Test and audit output.
+/test-results/
+/playwright-report/
+/.lighthouseci/

@@ -1,0 +1,54 @@
+name: claims
+
+# The figures on the page quote READMEs, a repository description and a live
+# endpoint, and any of those can change without this repo hearing about it.
+# Once a week this checks that each source still says what the page says, then
+# checks every link on the built page.
+#
+# GitHub disables scheduled workflows in a public repository after 60 days
+# without activity. If the repo goes quiet that long, re-enable this from the
+# Actions tab.
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays, 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - id: install
+        run: npm ci
+
+      # The script sends this token to api.github.com and nowhere else.
+      - run: npm run check:claims
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Run the link check even when a claim has drifted, so a week with both
+      # problems reports both. It still needs the install to have worked.
+      - id: build
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run build
+
+      - if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # lychee.toml is written for this version. 0.24 changed how
+          # include_fragments is spelled, so a different binary could reject it.
+          lycheeVersion: v0.24.2
+          # The page links to its fonts, script, images and the CV as root
+          # paths like /fonts/..., and without --root-dir lychee reports every
+          # one of them as broken.
+          args: --config lychee.toml --no-progress --root-dir ${{ github.workspace }}/dist dist/index.html
+          fail: true

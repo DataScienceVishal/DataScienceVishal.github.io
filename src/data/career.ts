@@ -1,104 +1,108 @@
 /**
- * The career, as data. Every date and title is from the resume PDF; the two
- * dissertations and the degree dates are from the education section of it.
+ * Roles and study, once. The Background page lists them and the route figure
+ * draws them from the same records, so a date cannot be right in one and
+ * wrong in the other. Everything is from the CV.
  *
- * `band` is the ordinal axis the graph rises through: what he was actually
- * working on, not the job title. That is the part the brief says is interesting.
+ * `from` and `to` are decimal years: July 2018 is 2018.5, and an end month is
+ * counted to its last day, so September 2020 ends at 2020.75.
  */
 
-export const BANDS = [
-  { key: "filings", label: "Filings" },
-  { key: "reporting", label: "Reporting" },
-  { key: "pipelines", label: "Pipelines" },
-  { key: "models", label: "Models" },
-] as const;
+export const BANDS = ["Filings", "Reporting", "Pipelines", "Models"] as const;
+export type Band = (typeof BANDS)[number];
 
-export type BandKey = (typeof BANDS)[number]["key"];
-
-export interface Move {
-  /** Decimal year, so a mid-year start lands in the right place. */
-  from: number;
-  to: number;
-  band: BandKey;
+export interface Role {
   org: string;
   role: string;
-  /** The transition, which is the content that matters here. */
-  note: string;
   dates: string;
+  from: number;
+  to: number;
+  /** What the work was, rather than what the job was called. */
+  band: Band;
+  outcome: string;
 }
 
-/** Jul 2018 is 2018.5, Sep 2020 is 2020.75, and so on. */
-export const MOVES: Move[] = [
+/** Most recent first, the order a CV is read in. */
+export const ROLES: Role[] = [
   {
-    from: 2018.5,
-    to: 2020.75,
-    band: "filings",
-    org: "PJRJ Associates",
-    role: "Finance, accounts and taxation",
-    note: "GST filings, income tax returns, audits. Every figure had to survive somebody checking it months later.",
-    dates: "Jul 2018 to Sep 2020",
-  },
-  {
-    from: 2021.0,
-    to: 2021.67,
-    band: "filings",
-    org: "Aryan Care",
-    role: "E-commerce and finance executive",
-    note: "Still filings, now beside an e-commerce operation. First time the question was what the data meant.",
-    dates: "Jan 2021 to Aug 2021",
-  },
-  {
-    from: 2021.67,
-    to: 2024.0,
-    band: "reporting",
-    org: "Avant Garde",
-    role: "Executive",
-    note: "ML sales forecasting at 80 to 90% accuracy, and a reporting rebuild that cut two hours to thirty minutes.",
-    dates: "Aug 2021 to Dec 2023",
-  },
-  {
+    org: "Teleperformance Global Business",
+    role: "Data Engineer",
+    dates: "Jun 2024 to Jan 2026",
     from: 2024.42,
     to: 2026.08,
-    band: "pipelines",
-    org: "Teleperformance",
-    role: "Data Engineer",
-    note: "Databricks pipelines over millions of telecom records. A year and a half before I got near a model.",
-    dates: "Jun 2024 to Jan 2026",
+    band: "Pipelines",
+    outcome:
+      "Databricks pipelines over millions of telecom records, feeding a data engineering team of 50 or more. Migrated on-prem SQL Server schemas to Databricks, with query performance up by about 20% and infrastructure cost down by about 20%.",
   },
   {
-    from: 2026.08,
-    to: 2027.08,
-    band: "models",
-    org: "Northeastern University London",
-    role: "MSc, AI and Computer Science",
-    note: "Agent reliability. The dissertation and the twin are the same question approached from two ends.",
-    dates: "Jan 2026 to Jan 2027",
+    org: "Avant Garde Clean Room and Engg. Solutions",
+    role: "Executive",
+    dates: "Aug 2021 to Dec 2023",
+    from: 2021.58,
+    to: 2024.0,
+    band: "Reporting",
+    outcome:
+      "ML sales forecasts reaching 80 to 90% accuracy on monthly revenue, used daily for planning. Rebuilt revenue and collections reporting in Excel and VBA, from about two hours a month to about thirty minutes.",
+  },
+  {
+    org: "Aryan Care",
+    role: "E-commerce and finance executive",
+    dates: "Jan 2021 to Aug 2021",
+    from: 2021.0,
+    to: 2021.67,
+    band: "Filings",
+    outcome: "GST and income tax filings and audits, beside an e-commerce operation.",
+  },
+  {
+    org: "PJRJ Associates",
+    role: "Finance, accounts and taxation",
+    dates: "Jul 2018 to Sep 2020",
+    from: 2018.5,
+    to: 2020.75,
+    band: "Filings",
+    outcome: "Two years of finance and taxation work: GST filings, income tax returns and audits.",
   },
 ];
 
 export interface Study {
+  degree: string;
+  where: string;
+  dates: string;
   from: number;
   to: number;
-  label: string;
-  where: string;
+  note?: string;
 }
 
-/** The second track. It overlaps the work, which is the point. */
 export const STUDY: Study[] = [
-  { from: 2018.83, to: 2021.83, label: "BCom", where: "University of Delhi" },
   {
-    from: 2022.0,
-    to: 2023.0,
-    label: "PG, Data Science",
-    where: "IIIT Bangalore",
-  },
-  { from: 2023.17, to: 2024.17, label: "MSc, Data Science", where: "LJMU" },
-  {
-    from: 2026.08,
+    degree: "MSc, AI and Computer Science",
+    where: "Northeastern University London",
+    dates: "Jan 2026 to Jan 2027",
+    from: 2026.0,
     to: 2027.08,
-    label: "MSc, AI and CS",
-    where: "Northeastern London",
+    note: "Dissertation in progress, on agent reliability. Nothing to read yet.",
+  },
+  {
+    degree: "MSc, Data Science",
+    where: "Liverpool John Moores University",
+    dates: "Mar 2023 to Mar 2024",
+    from: 2023.17,
+    to: 2024.25,
+    note: "Dissertation on reinforcement learning for dynamic pricing: DQN, A2C and PPO in a Gym-style environment built on real e-commerce data, where DQN gave the most stable profit curve. It is not published online, so that result cannot be checked from here. I will send the document on request.",
+  },
+  {
+    degree: "Executive PG Programme, Data Science",
+    where: "IIIT Bangalore",
+    dates: "Jan 2022 to Jan 2023",
+    from: 2022.0,
+    to: 2023.08,
+  },
+  {
+    degree: "Bachelor of Commerce",
+    where: "University of Delhi",
+    dates: "Nov 2018 to Nov 2021",
+    from: 2018.83,
+    to: 2021.92,
   },
 ];
 
-export const SPAN = { start: 2018.3, end: 2027.3 };
+export const SPAN = { start: 2018.25, end: 2027.25 } as const;

@@ -1,164 +1,129 @@
 /**
- * The reference list.
+ * Where each figure on the page came from, and what that place has to keep
+ * saying for the page to stay true.
  *
- * Every material claim on the page points at one of these. A source either has
- * a URL a visitor can open, or it does not and says so. Nothing here is a
- * placeholder: if a dissertation is not published, the entry says it is not
- * published and the marker links to this list instead of to a dead page.
+ * `expect` is read by scripts/check-claims.mjs, which a weekly workflow runs
+ * against the live sources. Each string must appear in what the source returns.
+ * When a README moves on and stops saying "0.973", the check fails and the page
+ * gets corrected, rather than the page quietly outliving its evidence. That is
+ * how this page ended up saying 370 tests, 87 documents and Railway long after
+ * all three had changed.
  */
+
+import { LESION, TRAIL, TWICERUN, TWIN, UKHE, dp3 } from "./figures";
 
 export type SourceId =
+  | "trail-readme"
+  | "trail-prereg"
+  | "twicerun-readme"
+  | "lesion-readme"
   | "twin-repo"
-  | "twin-tests"
-  | "twin-live"
-  | "resume"
+  | "twin-ready"
+  | "twin-readme"
+  | "untrusted-readme"
+  | "cannot-read-readme"
+  | "ukhe-readme"
+  | "chess-readme"
   | "cifar-repo"
   | "churn-repo"
-  | "ukhe-repo"
-  | "chess-repo"
-  | "trail-repo"
-  | "trail-conditions"
-  | "twicerun-repo"
-  | "twicerun-run"
-  | "ljmu-thesis"
-  | "nul-dissertation";
+  | "cv";
 
 export interface Source {
-  /** Marker printed after the claim, and the key in the reference list. */
-  n: number;
-  /** Short label shown in the hover and focus label. */
   label: string;
-  /** Longer form used in the reference list and as the accessible name. */
-  full: string;
-  /** External target, or null when there is nothing public to link to. */
-  href: string | null;
-  /** Printed in the reference list when there is no href. */
-  note?: string;
+  href: string;
+  /**
+   * What the checker fetches, when it differs from the link a reader follows.
+   * A README link opens the rendered page; the check reads the raw file.
+   */
+  check?: string;
+  expect?: string[];
 }
 
-/**
- * Reference list order: the order in which each source is first cited going
- * down the page. Markers are numbered from this, so they ascend as the reader
- * descends, which is the whole point of numbering them.
- *
- * Numbering by hand is what this replaces. Two sources were briefly both
- * marker 10, because adding a section in the middle of the page means
- * renumbering every source below it and nothing enforced that. Insert an id
- * here at the position it is first cited and every marker follows.
- */
-const ORDER: SourceId[] = [
-  "twin-repo",
-  "twin-live",
-  "resume",
-  "twin-tests",
-  "trail-conditions",
-  "trail-repo",
-  "twicerun-repo",
-  "twicerun-run",
-  "ljmu-thesis",
-  "nul-dissertation",
-  "ukhe-repo",
-  "chess-repo",
-  "cifar-repo",
-  "churn-repo",
-];
+const raw = (repo: string, path = "README.md") =>
+  `https://raw.githubusercontent.com/DataScienceVishal/${repo}/HEAD/${path}`;
 
-const ENTRIES: Record<SourceId, Omit<Source, "n">> = {
+export const SOURCES: Record<SourceId, Source> = {
+  "trail-readme": {
+    label: "the trail-scorer-audit README",
+    href: "https://github.com/DataScienceVishal/trail-scorer-audit#readme",
+    check: raw("trail-scorer-audit"),
+    expect: [dp3(TRAIL.blind), dp3(TRAIL.best), dp3(TRAIL.ceiling), TRAIL.perGold],
+  },
+  "trail-prereg": {
+    label: "its pre-registration",
+    href: "https://github.com/DataScienceVishal/trail-scorer-audit/blob/HEAD/docs/pre-registration.md",
+    check: raw("trail-scorer-audit", "docs/pre-registration.md"),
+    expect: ["scores no better than the best real judge", "2026-08-27 at 10:16"],
+  },
+  "twicerun-readme": {
+    label: "the twicerun README",
+    href: "https://github.com/DataScienceVishal/twicerun#readme",
+    check: raw("twicerun"),
+    expect: [
+      `${TWICERUN.diverged} of ${TWICERUN.stepCount} steps diverged`,
+      ...TWICERUN.steps.map((s) => s.name),
+    ],
+  },
+  "lesion-readme": {
+    label: "the lesion-split README",
+    href: "https://github.com/DataScienceVishal/lesion-split#readme",
+    check: raw("lesion-split"),
+    expect: [
+      `${LESION.leaked}%`,
+      ...LESION.gaps.map((g) => `${g.gap >= 0 ? "+" : "-"}${g.gap.toFixed(2)} points`),
+    ],
+  },
   "twin-repo": {
-    label: "ai-professional-twin, README",
-    full: "ai-professional-twin, repository README on GitHub",
+    label: "its repository description",
+    href: "https://github.com/DataScienceVishal/ai-professional-twin",
+    check: "https://api.github.com/repos/DataScienceVishal/ai-professional-twin",
+    expect: [`${TWIN.tests} tests in CI`],
+  },
+  "twin-ready": {
+    label: "the live twin's readiness endpoint",
+    href: "https://ai-professional-twin.vercel.app/api/ready",
+    expect: [`"document_count":${TWIN.documents}`],
+  },
+  "twin-readme": {
+    label: "the twin's README",
     href: "https://github.com/DataScienceVishal/ai-professional-twin#readme",
+    check: raw("ai-professional-twin"),
+    expect: ["0.75", "0.12", "SSE"],
   },
-  "twin-tests": {
-    label: "ai-professional-twin, testing and quality",
-    full: "ai-professional-twin, the testing and quality section of the README",
-    href: "https://github.com/DataScienceVishal/ai-professional-twin#testing-and-quality",
+  "untrusted-readme": {
+    label: "the untrusted-rows README",
+    href: "https://github.com/DataScienceVishal/untrusted-rows#readme",
+    check: raw("untrusted-rows"),
+    expect: ["It does not exist yet", "It does not assert that it works"],
   },
-  "twin-live": {
-    label: "AI Digital Twin, live deployment",
-    full: "AI Digital Twin, the running deployment at ai-professional-twin.vercel.app",
-    href: "https://ai-professional-twin.vercel.app/",
+  "cannot-read-readme": {
+    label: "the cannot-read README",
+    href: "https://github.com/DataScienceVishal/cannot-read#readme",
+    check: raw("cannot-read"),
+    expect: ["Nothing below has been measured in this repository yet"],
   },
-  resume: {
-    label: "Vishal Khan, resume",
-    full: "Vishal Khan, resume (PDF)",
-    href: "/vishal-khan-resume.pdf",
+  "ukhe-readme": {
+    label: "the UK-HE-Completion-Risk-Classifier README",
+    href: "https://github.com/DataScienceVishal/UK-HE-Completion-Risk-Classifier#readme",
+    check: raw("UK-HE-Completion-Risk-Classifier"),
+    expect: [String(UKHE.providers), String(UKHE.recallAfter)],
+  },
+  "chess-readme": {
+    label: "the Queens-Gambit-Female-Chess-Analytics README",
+    href: "https://github.com/DataScienceVishal/Queens-Gambit-Female-Chess-Analytics#readme",
+    check: raw("Queens-Gambit-Female-Chess-Analytics"),
+    expect: ["304,767"],
   },
   "cifar-repo": {
-    label: "CIFAR-10-CNN, repository",
-    full: "CIFAR-10-CNN, repository and notebook on GitHub",
+    label: "the CIFAR-10-CNN repository",
     href: "https://github.com/DataScienceVishal/CIFAR-10-CNN",
   },
   "churn-repo": {
-    label: "Telecom_Churn, repository",
-    full: "Telecom_Churn, repository and notebook on GitHub",
+    label: "the Telecom_Churn repository",
     href: "https://github.com/DataScienceVishal/Telecom_Churn",
   },
-  "ukhe-repo": {
-    label: "UK-HE-Completion-Risk-Classifier, README",
-    full: "UK-HE-Completion-Risk-Classifier, repository README and figures on GitHub",
-    href: "https://github.com/DataScienceVishal/UK-HE-Completion-Risk-Classifier#readme",
-    note: "Not on the resume. Published after it was written.",
-  },
-  "chess-repo": {
-    label: "Queens-Gambit-Female-Chess-Analytics, README",
-    full: "Queens-Gambit-Female-Chess-Analytics, repository README on GitHub",
-    href: "https://github.com/DataScienceVishal/Queens-Gambit-Female-Chess-Analytics#readme",
-    note: "Not on the resume. Published after it was written.",
-  },
-  "trail-repo": {
-    label: "trail-scorer-audit, README",
-    full: "trail-scorer-audit, repository README on GitHub",
-    href: "https://github.com/DataScienceVishal/trail-scorer-audit#readme",
-    note: "Not on the resume. Written after it.",
-  },
-  "trail-conditions": {
-    label: "trail-scorer-audit, the nine properties",
-    full: "trail-scorer-audit, the nine pre-registered properties and their verdicts",
-    href: "https://github.com/DataScienceVishal/trail-scorer-audit#the-nine-pre-registered-properties",
-  },
-  "twicerun-repo": {
-    label: "twicerun, README",
-    full: "twicerun, repository README on GitHub",
-    href: "https://github.com/DataScienceVishal/twicerun#readme",
-    note: "Not on the resume. Written after it.",
-  },
-  "twicerun-run": {
-    label: "twicerun, the reference run in full",
-    full: "twicerun, the annotated run on the reference pipeline, in the README",
-    href: "https://github.com/DataScienceVishal/twicerun#readme",
-  },
-  "ljmu-thesis": {
-    label: "MSc dissertation, LJMU, 2024. Not published online.",
-    full: "MSc dissertation, Liverpool John Moores University, 2024",
-    href: null,
-    note: "Not published online. Available on request.",
-  },
-  "nul-dissertation": {
-    label: "MSc dissertation, Northeastern University London. In progress.",
-    full: "MSc dissertation, Northeastern University London",
-    href: null,
-    note: "In progress, due 2027. Nothing to read yet.",
+  cv: {
+    label: "the CV",
+    href: "/vishal-khan-resume.pdf",
   },
 };
-
-// ENTRIES is a Record<SourceId, ...>, so the compiler already requires it to be
-// exhaustive. ORDER is a plain array and nothing checks it, so this does: a
-// source left out of it would otherwise be missing from SOURCES entirely and
-// surface as an undefined read at render. Module scope, so it fails the
-// prerender rather than a visitor's page.
-if (ORDER.length !== Object.keys(ENTRIES).length) {
-  const missing = (Object.keys(ENTRIES) as SourceId[]).filter(
-    (id) => !ORDER.includes(id),
-  );
-  throw new Error(
-    `sources.ts: every source must appear in ORDER. Missing: ${missing.join(", ")}`,
-  );
-}
-
-export const SOURCES: Record<SourceId, Source> = Object.fromEntries(
-  ORDER.map((id, i) => [id, { ...ENTRIES[id], n: i + 1 }]),
-) as Record<SourceId, Source>;
-
-/** Reference list order, by marker number. */
-export const SOURCE_ORDER: SourceId[] = ORDER;

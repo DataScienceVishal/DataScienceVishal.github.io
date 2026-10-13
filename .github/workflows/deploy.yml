@@ -38,11 +38,38 @@ jobs:
 
       - run: npm run build
 
+      # The browser suite runs against this same build, through the preview
+      # server playwright.config.ts starts, and a failure stops the deploy.
+      - run: npx playwright install --with-deps chromium
+
+      - run: npx playwright test
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+
+  # Lighthouse on the built page, three runs. It reports rather than blocks:
+  # scores move between runners, and a deploy should not wait on one that is
+  # having a slow minute. The thresholds it reports against are in
+  # lighthouserc.json.
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - run: npm run lhci
+        continue-on-error: true
 
   deploy:
     needs: build

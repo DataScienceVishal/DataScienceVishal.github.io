@@ -1,15 +1,33 @@
 <!doctype html>
-<html lang="en-GB" class="dark">
+<html lang="en-GB">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="dark" />
-    <meta name="theme-color" content="#0b0f19" />
+    <!--
+      Before anything paints: the theme, so a dark-mode reader never sees a
+      flash of daylight, and the js class, so controls that need script can
+      hide themselves where there is none. Stored choice first, then the OS.
+    -->
+    <script>
+      (function () {
+        var d = document.documentElement;
+        var t = null;
+        try { t = localStorage.getItem("theme"); } catch (e) {}
+        if (t !== "light" && t !== "dark") {
+          t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        d.setAttribute("data-theme", t);
+        d.classList.add("js");
+      })();
+    </script>
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f6f7f4" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#141413" media="(prefers-color-scheme: dark)" />
 
-    <title>Vishal Khan - AI and ML Engineer, London</title>
+    <title>Vishal Khan - AI and ML engineer, London</title>
     <meta
       name="description"
-      content="AI and ML engineer in London. Databricks pipelines at Teleperformance, now an MSc in AI working on agent reliability. Every claim carries its source."
+      content="AI and ML engineer in London who checks the numbers: a benchmark scorer audit, a pipeline rerun checker and a live RAG twin. Internship now, full time from 2027."
     />
     <meta name="author" content="Vishal Khan" />
     <meta
@@ -28,36 +46,21 @@
     <link rel="canonical" href="https://vishalkhan.me/" />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <link
       rel="preload"
-      href="/fonts/bricolage-grotesque-latin-wdth-normal.woff2"
+      href="/fonts/archivo-latin-wdth-normal.woff2"
       as="font"
       type="font/woff2"
       crossorigin="anonymous"
     />
     <link
       rel="preload"
-      href="/fonts/ibm-plex-sans-latin-wght-normal.woff2"
+      href="/fonts/atkinson-hyperlegible-next-latin-wght-normal.woff2"
       as="font"
       type="font/woff2"
       crossorigin="anonymous"
-    />
-
-    <!--
-      The hero figure's still. It is the largest contentful paint on every
-      viewport, and without this it queued behind the main bundle: on a
-      throttled phone it started at 645ms and finished at 2.4s, entirely
-      because 355 kB of JavaScript was ahead of it on the wire. It is in the
-      prerendered markup, but the preload scanner reaches this line first.
-    -->
-    <link
-      rel="preload"
-      href="/hero-figure.webp"
-      as="image"
-      type="image/webp"
-      fetchpriority="high"
     />
 
     <meta property="og:type" content="profile" />
@@ -66,27 +69,27 @@
     <meta property="og:site_name" content="Vishal Khan" />
     <meta
       property="og:title"
-      content="Vishal Khan - AI and ML Engineer, London"
+      content="Vishal Khan - AI and ML engineer, London"
     />
     <meta
       property="og:description"
-      content="A number nobody can check is not a number. AI and ML engineer in London, looking for an AI or ML internship now and full time from early 2027. No visa sponsorship needed."
+      content="I build AI systems, and I check the numbers before I believe them. AI and ML engineer in London: an AI or ML internship now, full time from early 2027, with no sponsorship needed for the first 18 months."
     />
     <meta property="og:image" content="https://vishalkhan.me/og-image.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta
       property="og:image:alt"
-      content="Vishal Khan. A number nobody can check is not a number. AI and ML engineer in London."
+      content="Vishal Khan. I build AI systems, and I check the numbers before I believe them. AI and ML engineer in London."
     />
     <meta name="twitter:card" content="summary_large_image" />
     <meta
       name="twitter:title"
-      content="Vishal Khan - AI and ML Engineer, London"
+      content="Vishal Khan - AI and ML engineer, London"
     />
     <meta
       name="twitter:description"
-      content="A number nobody can check is not a number. AI and ML engineer in London, looking for an AI or ML internship now and full time from early 2027. No visa sponsorship needed."
+      content="I build AI systems, and I check the numbers before I believe them. AI and ML engineer in London: an AI or ML internship now, full time from early 2027, with no sponsorship needed for the first 18 months."
     />
     <meta name="twitter:image" content="https://vishalkhan.me/og-image.jpg" />
 
@@ -102,8 +105,8 @@
         "name": "Vishal Khan",
         "url": "https://vishalkhan.me/",
         "image": "https://vishalkhan.me/og-image.jpg",
-        "jobTitle": "AI and ML Engineer",
-        "description": "AI and ML engineer in London, working on agent reliability and the evaluation of AI systems.",
+        "jobTitle": "AI and ML engineer",
+        "description": "AI and ML engineer in London. Builds AI systems and audits the numbers reported about them: benchmark scorers, pipeline nondeterminism, dataset leakage.",
         "address": {
           "@type": "PostalAddress",
           "addressLocality": "London",
@@ -129,6 +132,7 @@
         "knowsAbout": [
           "Agent reliability",
           "AI evaluation",
+          "Benchmark auditing",
           "Retrieval-augmented generation",
           "Machine learning",
           "Data engineering",
@@ -142,15 +146,6 @@
     </script>
   </head>
   <body>
-    <!--
-      Blocking and first, on purpose. The hero's entrance is CSS gated on this
-      class, so the markup is visible by default and only hides itself where
-      there is JavaScript to reveal it again. Inline and synchronous so it runs
-      before the first paint and no flash of the hidden state is possible.
-    -->
-    <script>
-      document.documentElement.classList.add("js");
-    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

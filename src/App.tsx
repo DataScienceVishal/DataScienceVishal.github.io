@@ -1,50 +1,46 @@
 import { IconContext } from "@phosphor-icons/react";
-import { LazyMotion, domAnimation } from "motion/react";
-import { AskTheTwin } from "./components/AskTheTwin";
-import { AuditWork } from "./components/AuditWork";
-import { Contact } from "./components/Contact";
-import { FeaturedWork } from "./components/FeaturedWork";
-import { Hero } from "./components/Hero";
-import { Nav } from "./components/Nav";
-import { OtherWork } from "./components/OtherWork";
-import { References } from "./components/References";
-import { Research } from "./components/Research";
-import { Stack } from "./components/Stack";
-import { Trajectory } from "./components/Trajectory";
+import { ENTRIES } from "./data/entries";
+import { Background } from "./components/notebook/Background";
+import { Colophon } from "./components/notebook/Colophon";
+import { Contact } from "./components/notebook/Contact";
+import { Contents } from "./components/notebook/Contents";
+import { EntryLeaf } from "./components/notebook/EntryLeaf";
+import { Earlier, InProgress } from "./components/notebook/LaterPages";
+import { PageOne } from "./components/notebook/PageOne";
+import { PaperSpecks } from "./components/notebook/PaperSpecks";
+import { ScrollEffects } from "./components/notebook/ScrollEffects";
 
 /**
- * `domAnimation` is the feature set this page actually uses: animations,
- * variants, exit animations, and hover and tap gestures. It is roughly a third
- * of the full bundle. `strict` makes the build fail loudly if a `motion.*`
- * component sneaks back in, since that would pull the whole engine along.
+ * The page, in reading order. Page one, the four entries, the open work, the
+ * older work, the background a CV would carry, and the back page.
  */
 export default function App() {
   return (
-    <LazyMotion features={domAnimation} strict>
-      <IconContext.Provider value={{ weight: "regular", size: 16 }}>
-        <a
-          href="#twin"
-          className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-3 focus-visible:left-3 focus-visible:z-[60] focus-visible:bg-brass focus-visible:px-4 focus-visible:py-2 focus-visible:font-sans focus-visible:text-sm focus-visible:font-medium focus-visible:text-void"
-        >
-          Skip to the work
-        </a>
+    <IconContext.Provider value={{ weight: "regular", size: 18 }}>
+      <a
+        href="#scorer-audit"
+        className="t-furniture sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-3 focus-visible:left-3 focus-visible:z-[60] focus-visible:bg-ink focus-visible:px-4 focus-visible:py-2 focus-visible:text-paper"
+      >
+        Skip to the entries
+      </a>
 
-        <Nav />
+      <Contents />
 
-        <main>
-          <Hero />
-          <FeaturedWork />
-          <AuditWork />
-          <Trajectory />
-          <Research />
-          <OtherWork />
-          <Stack />
-          <AskTheTwin />
-          <Contact />
-        </main>
+      <main className="sheet">
+        <span className="sheet__progress" aria-hidden="true" />
+        <PageOne />
+        {ENTRIES.map((entry) => (
+          <EntryLeaf key={entry.id} entry={entry} />
+        ))}
+        <InProgress />
+        <Earlier />
+        <Background />
+        <Contact />
+      </main>
 
-        <References />
-      </IconContext.Provider>
-    </LazyMotion>
+      <Colophon />
+      <ScrollEffects />
+      <PaperSpecks />
+    </IconContext.Provider>
   );
 }
