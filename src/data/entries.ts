@@ -77,13 +77,7 @@ export const ENTRIES: Entry[] = [
       ],
       command: "uv run trailaudit report --check",
     },
-    links: [
-      { label: "Repository", href: "https://github.com/DataScienceVishal/trail-scorer-audit" },
-      {
-        label: "The pre-registration",
-        href: "https://github.com/DataScienceVishal/trail-scorer-audit/blob/HEAD/docs/pre-registration.md",
-      },
-    ],
+    links: [{ label: "Repository", href: "https://github.com/DataScienceVishal/trail-scorer-audit" }],
     sources: ["trail-readme", "trail-prereg"],
   },
   {
