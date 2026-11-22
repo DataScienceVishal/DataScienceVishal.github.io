@@ -33,6 +33,7 @@ export interface Game {
   id: string;
   mode: Mode;
   playedBy: string;
+  dawn: number;
   map: MapInfo;
   players: string[];
   wrecker: string;
@@ -112,6 +113,7 @@ export function reduce(view: LiveView, msg: Msg): LiveView {
           id: msg.game_id,
           mode: msg.mode,
           playedBy: msg.played_by,
+          dawn: msg.dawn,
           map: msg.map,
           players: msg.players,
           wrecker: msg.wrecker,

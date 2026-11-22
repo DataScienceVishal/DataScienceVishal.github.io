@@ -24,20 +24,21 @@ const TICKS: { at: Row; did: Row<Action>; jobs: number[] }[] = [
   { at: ["Kitchen", "Jetty", "Lamp Room", "Boathouse", "Cottage", "Boathouse"], did: ["work", "move", "work", "move", "wait", "wait"], jobs: [2, 0, 3, 2, 1, 0] },
 ];
 
-const claim = (tick: number, room: string, saw: string[], verdict: Verdict = "true", refuted_by: string[] = [], left_out?: string[]) => ({
-  tick,
-  room,
-  saw,
-  verdict,
-  refuted_by,
-  ...(left_out ? { left_out } : {}),
-});
+const claim = (
+  tick: number,
+  room: string,
+  saw: string[],
+  verdict: Verdict = "true",
+  refuted_by: string[] = [],
+  left_out: string[] = [],
+  real_room = room,
+) => ({ tick, room, saw, verdict, refuted_by, left_out, real_room });
 
 export function sampleGame(): { event: GameEvent; wait: number }[] {
   const out: { event: GameEvent; wait: number }[] = [];
   const push = (event: GameEvent, wait: number) => out.push({ event, wait });
 
-  push({ type: "game", game_id: G, mode: "live", played_by: "scripted", seed: 0, map: MAP, players: PLAYERS, wrecker: "Bram" }, 1500);
+  push({ type: "game", game_id: G, mode: "live", played_by: "scripted", seed: 0, dawn: 40, map: MAP, players: PLAYERS, wrecker: "Bram" }, 1500);
 
   TICKS.forEach((t, i) => {
     const tick = i + 1;
@@ -71,7 +72,7 @@ export function sampleGame(): { event: GameEvent; wait: number }[] {
   const said: [string, ReturnType<typeof claim>[], string | null, string][] = [
     ["Dev", [claim(2, "Workshop", []), claim(5, "Boathouse", [])], null, "Finn was in the Boathouse when I came through from the Workshop. I passed nobody."],
     ["Ada", [claim(2, "Oil Store", []), claim(4, "Kitchen", [])], null, "Oil Store, then the Kitchen. I was on my own both times."],
-    ["Bram", [claim(2, "Workshop", [], "false_place", ["Dev"]), claim(4, "Jetty", [], "false_place")], "Dev", "Workshop, then the Jetty. Dev found the body and he was the closest to it."],
+    ["Bram", [claim(2, "Workshop", [], "false_place", ["Dev"], [], "Boathouse"), claim(4, "Jetty", [], "false_place", [], [], "Boathouse")], "Dev", "Workshop, then the Jetty. Dev found the body and he was the closest to it."],
     ["Cleo", [claim(3, "Lamp Room", [])], "Bram", "I was trimming the wick. Dev says the Workshop was empty when Bram says he was there."],
     ["Esme", [claim(1, "Yard", ["Bram"], "omission", [], ["Finn"]), claim(2, "Yard", [])], "Bram", "Bram was with me in the Yard at the start and went off towards the water."],
   ];

@@ -64,7 +64,7 @@ function StatusLine({ view }: { view: LiveView }) {
             {whoPlays(view.game)}
           </span>
           <span className="t-furniture text-pencil">
-            Tick <span className="text-ink">{view.tick}</span> of 40
+            Tick <span className="text-ink">{view.tick}</span> of {view.game.dawn}
           </span>
         </>
       ) : (
@@ -80,7 +80,7 @@ function StatusLine({ view }: { view: LiveView }) {
 function ClaimLine({ claim }: { claim: Claim }) {
   const lie = LIES.includes(claim.verdict);
   let verdict = "checks out";
-  if (claim.verdict === "false_place") verdict = "false: not where they said";
+  if (claim.verdict === "false_place") verdict = `false: was in the ${claim.real_room}`;
   if (claim.verdict === "invented_sighting") verdict = "false: saw no such player";
   if (claim.verdict === "named_body") verdict = "named a body as a sighting";
   if (claim.verdict === "omission") verdict = claim.left_out?.length ? `left out ${claim.left_out.join(" and ")}` : "left someone out";

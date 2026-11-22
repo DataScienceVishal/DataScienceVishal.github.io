@@ -26,11 +26,10 @@ export interface Claim {
   verdict: Verdict;
   /** Keepers whose own sightings disprove the claim. */
   refuted_by: string[];
-  /**
-   * For an omission, who was left out. Not yet in the server's contract; the
-   * page says "left someone out" until it is.
-   */
-  left_out?: string[];
+  /** Who was left out of `saw`; empty unless something was. */
+  left_out: string[];
+  /** Where the speaker really was at that tick. */
+  real_room: string;
 }
 
 export interface Strike {
@@ -55,6 +54,8 @@ export type GameEvent =
       /** The Azure deployment's name, "scripted", or the deployment that played a recorded game. */
       played_by: string;
       seed: number;
+      /** The tick at which the keepers win if nothing else has ended the game. */
+      dawn: number;
       map: MapInfo;
       players: string[];
       wrecker: string;
