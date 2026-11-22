@@ -6,6 +6,7 @@ import { PROFILE } from "../data/profile";
 import { MARKS, MarkIcon, type Mark } from "./marks";
 import { Island } from "./Island";
 import { holdersOf } from "./notes";
+import { VoteLines } from "./VoteLines";
 import type { Claim } from "./types";
 import { useLiveGame, type Game, type LiveView, type Meeting } from "./useLiveGame";
 
@@ -101,7 +102,6 @@ function MeetingPanel({ meeting, wrecker }: { meeting: Meeting; wrecker: string 
   // Keepers who held a sighting that disproved one of the wrecker's lies in
   // this meeting: the people the game is about.
   const holders = holdersOf(meeting.statements, wrecker);
-  const used = result ? holders.filter((h) => result.votes.some((v) => v.name === h && v.choice === wrecker)) : [];
 
   return (
     <section aria-labelledby="meeting-heading" className="mt-5">
@@ -151,37 +151,7 @@ function MeetingPanel({ meeting, wrecker }: { meeting: Meeting; wrecker: string 
           <h3 className="t-furniture text-ink" style={{ fontWeight: 650 }}>
             The vote
           </h3>
-          <ul className="mt-2 grid gap-y-1.5">
-            {result.votes.map((v) => (
-              <li key={v.name} className="t-small text-ink-soft">
-                <span className="text-ink">{v.name}</span>{" "}
-                {v.choice === "skip" ? (
-                  <>
-                    <MarkIcon mark="skip" /> skipped
-                  </>
-                ) : (
-                  <>
-                    voted for <span className="text-ink">{v.choice}</span>
-                  </>
-                )}
-                {v.reason ? <span className="text-pencil">. {v.reason}</span> : null}
-                {holders.includes(v.name) ? (
-                  <span className="t-furniture-sm ml-1 border border-ink px-1 text-ink">
-                    held a disproof{v.choice === wrecker ? ", used it" : ", did not use it"}
-                  </span>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-          {holders.length ? (
-            <p className="t-small mt-3 text-ink-soft">
-              <span className="tabular text-margin">
-                {used.length} of {holders.length}
-              </span>{" "}
-              {holders.length === 1 ? "keeper" : "keepers"} whose own sightings disproved the wrecker voted for the
-              wrecker.
-            </p>
-          ) : null}
+          <VoteLines votes={result.votes} tally={result.tally} wrecker={wrecker} holders={holders} />
           <p className="t-body mt-3 text-ink">
             {result.ejected ? (
               <>

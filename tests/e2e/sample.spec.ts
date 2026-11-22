@@ -33,18 +33,6 @@ test("holders come from every disproved wrecker claim, omissions included", asyn
   expect(holders).toEqual(["Esme", "Dev", "Ada"]);
 });
 
-test("the sample marks all three holders and what each did", async ({ page }) => {
-  await watchSample(page);
-  await expect(page.getByText("Bram is sent ashore").first()).toBeVisible({ timeout: 15_000 });
-  // The statements are list items that start with a name too, so look only at the vote's list.
-  const vote = page.getByRole("heading", { name: "The vote" }).locator("xpath=following-sibling::ul[1]");
-  for (const [name, used] of [["Dev", true], ["Esme", true], ["Ada", false]] as const) {
-    await expect(vote.getByRole("listitem").filter({ hasText: new RegExp(`^${name} `) })).toContainText(
-      used ? "held a disproof, used it" : "held a disproof, did not use it",
-    );
-  }
-});
-
 test("no emoji is drawn anywhere while the sample plays, and the legend shows fourteen marks", async ({ page }) => {
   await watchSample(page);
   const pictographs = /\p{Extended_Pictographic}/u;
@@ -114,4 +102,26 @@ test("the map carries the sample's notes from Bram's statement until the result"
   await expect(island.getByText("Bram: saw Ada here, tick 4.")).toBeVisible();
   await expect(page.getByText("Bram is sent ashore").first()).toBeVisible({ timeout: 15_000 });
   await expect(island.getByText("Bram: here, alone, tick 2.")).toHaveCount(0);
+});
+
+test("the vote is drawn as lines, holders ringed, solid when they used the proof", async ({ page }) => {
+  await watchSample(page);
+  await expect(page.getByText("Bram is sent ashore").first()).toBeVisible({ timeout: 15_000 });
+  const lines = page.locator("[data-vote-lines]");
+  await expect(lines.locator("[data-holder=true]")).toHaveCount(3);
+  await expect(lines.locator("[data-from=Dev][data-to=Bram][data-used=true]")).toHaveCount(1);
+  await expect(lines.locator("[data-from=Esme][data-to=Bram][data-used=true]")).toHaveCount(1);
+  await expect(lines.locator("[data-from=Ada][data-to=skip][data-used=false]")).toHaveCount(1);
+  await expect(lines).toContainText("I was in the Workshop at tick 2 and he was not.");
+  await expect(lines.locator(".sr-only")).toContainText("Dev voted for Bram");
+  await expect(lines.locator(".sr-only")).toContainText("Ada skipped");
+});
+
+test("at 375px the vote lines fit the meeting column", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await watchSample(page);
+  await expect(page.getByText("Bram is sent ashore").first()).toBeVisible({ timeout: 15_000 });
+  const fits = await page.locator("[data-vote-lines]").evaluate((el) => el.scrollWidth <= el.clientWidth);
+  expect(fits).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
 });
