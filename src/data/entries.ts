@@ -93,7 +93,7 @@ export const ENTRIES: Entry[] = [
     id: "find-the-wrecker",
     name: "find-the-wrecker",
     started: { iso: "2026-11-20", label: "20 Nov 2026" },
-    claim: `In ${DEADPAN.revoted} pilot meetings, LLM players sent the wrecker ashore ${DEADPAN.tables[0].wrecker} times. A rule-based detective voting on the same evidence did it twice.`,
+    claim: `In ${DEADPAN.revoted} pilot meetings, LLM players sent the wrecker ashore ${DEADPAN.tables[0].wrecker} times, ${DEADPAN.llmWithoutDisproof} of them in meetings where no keeper could prove a lie.`,
     fields: [
       {
         term: "Built",
@@ -102,13 +102,13 @@ export const ENTRIES: Entry[] = [
       },
       {
         term: "Measured, in an 11-game pilot",
-        detail: `Every claim was checked against the simulator's record. Keepers made no false-place or invented-sighting claims in ${DEADPAN.keeperClaims}. In ${DEADPAN.knowable} of ${DEADPAN.meetings} meetings a keeper's own sightings disproved something the wrecker said, and ${DEADPAN.holdersForWrecker} of the ${DEADPAN.holders} keepers holding such a disproof voted for the wrecker. All ${DEADPAN.games} games cost ${DEADPAN.usd} USD.`,
-        mark: `${DEADPAN.holdersForWrecker} of the ${DEADPAN.holders} keepers holding such a disproof voted for the wrecker`,
+        detail: `Every claim was checked against the simulator's record. Keepers made no false-place or invented-sighting claims in ${DEADPAN.keeperClaims}. In ${DEADPAN.knowable} of ${DEADPAN.meetings} meetings a keeper's own sightings disproved something the wrecker said. Keepers holding such a disproof voted for the wrecker ${DEADPAN.holdersForWrecker} times in ${DEADPAN.holders}, the other keepers in those meetings ${DEADPAN.besideHolders.forWrecker} times in ${DEADPAN.besideHolders.voters}, and keepers in meetings with no disproof ${DEADPAN.noDisproof.forWrecker} times in ${DEADPAN.noDisproof.voters}. All ${DEADPAN.games} games cost ${DEADPAN.usd} USD.`,
+        mark: `voted for the wrecker ${DEADPAN.holdersForWrecker} times in ${DEADPAN.holders}`,
       },
       {
         term: "Not yet",
         detail:
-          "These are pilot games, not results. Twelve meetings are too few to say that one way of voting beats another.",
+          "These are pilot games, not results. With 9 holders, and votes in one meeting that are not independent, the pilot cannot say whether holding the evidence changes the vote. A 60-game batch is planned and has not been run.",
       },
     ],
     figure: "revote",
@@ -118,7 +118,7 @@ export const ENTRIES: Entry[] = [
       summary: "How a meeting is re-voted, and what each player can see",
       paragraphs: [
         "Every prompt is built from what that seat saw and what was said in public, nothing else. A test swaps which player is the wrecker, changes nothing else, and checks that every keeper's prompt stays identical, character for character.",
-        "Each keeper's recorded view of a meeting is handed again to a rule-based detective and to random voters, with the wrecker's own vote kept. The detective votes only on what it holds: a strike it saw, a claim its own sightings disprove, and who was last seen with the victim.",
+        "Each keeper's recorded view of a meeting is handed again to a rule-based detective and to random voters, with the wrecker's own vote kept. The detective votes only on what it holds: a strike it saw, a claim its own sightings disprove, and who was last seen with the victim. Holding a disproof, it always votes for the wrecker, so it marks a ceiling for using the evidence rather than a rival player.",
         "Movement is scripted because letting the model choose every step would be about 120 calls a game before any meeting. Only meeting speech and votes use it, which also means every table reaches a meeting with the same sightings.",
       ],
       command: "uv run evaluate",

@@ -98,8 +98,14 @@ export const SOURCES: Record<SourceId, Source> = {
     expect: [
       `${DEADPAN.games} games`,
       `${DEADPAN.usd} USD`,
-      `${DEADPAN.holdersForWrecker} of the ${DEADPAN.holders} keepers`,
-      `${DEADPAN.keeperClaims}`,
+      `${DEADPAN.keeperClaims} claims`,
+      `In ${DEADPAN.knowable} of the ${DEADPAN.meetings} meetings`,
+      `voted for the wrecker ${DEADPAN.holdersForWrecker} times in ${DEADPAN.holders}`,
+      `${DEADPAN.besideHolders.forWrecker} times in ${DEADPAN.besideHolders.voters}`,
+      `${DEADPAN.noDisproof.forWrecker} times in ${DEADPAN.noDisproof.voters}`,
+      `(${DEADPAN.llmWithoutDisproof} of 7)`,
+      ...DEADPAN.tables.map((t) => `| ${t.wrecker} |`),
+      ...DEADPAN.tables.map((t) => `| ${t.keeper} |`),
     ],
   },
   "untrusted-readme": {

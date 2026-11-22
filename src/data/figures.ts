@@ -75,29 +75,31 @@ export const TWIN = {
 } as const;
 
 /**
- * Find the Wrecker's 11-game pilot: the commits in the deadpan repo that
- * recorded it (b6a5d93) and re-voted its meetings (515ebb0), read 2026-11-22.
- * Pilot games, not results. The repo is not public yet, so the page cannot
- * ship these until its README states them; the wrecker-readme check in
- * sources.ts fails until it does.
+ * Find the Wrecker's 11-game pilot, as the find-the-wrecker README states it,
+ * read 2026-11-22: "The pilot" section and its re-vote table, after the
+ * checker fix in deadpan 814ea9a. Pilot games, not results.
  */
 export const DEADPAN = {
   games: 11,
   usd: "0.123",
   meetings: 13,
   /** Meetings where a keeper's own sightings disproved a wrecker claim. */
-  knowable: 8,
-  /** Keepers who held such a disproof, and how many of them voted for the wrecker. */
-  holders: 12,
-  holdersForWrecker: 8,
+  knowable: 5,
+  /** Times a keeper held such a disproof, once per meeting, and voted for the wrecker. */
+  holders: 9,
+  holdersForWrecker: 6,
+  /** Other keepers in those meetings, and keepers in meetings with no disproof. */
+  besideHolders: { voters: 9, forWrecker: 2 },
+  noDisproof: { voters: 26, forWrecker: 19 },
   keeperClaims: 126,
   /** Meetings that kept their recorded turns, so could be re-voted offline. */
   revoted: 12,
-  randomDraws: "1,000",
+  /** Of the LLM table's 7, how many came in meetings where nobody held a disproof. */
+  llmWithoutDisproof: 5,
   tables: [
     { name: "LLM players", detail: "as recorded", wrecker: 7, keeper: 3 },
-    { name: "Rule-based detective", detail: "same views", wrecker: 2, keeper: 1 },
-    { name: "Random voters", detail: "mean of 1,000 draws", wrecker: 1.3, keeper: 5.4 },
+    { name: "Rule-based detective", detail: "a ceiling for using proof", wrecker: 2, keeper: 0 },
+    { name: "Random voters", detail: "exact expectation", wrecker: 1.3, keeper: 5.3 },
   ],
 } as const;
 

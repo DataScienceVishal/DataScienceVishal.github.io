@@ -89,8 +89,7 @@ export function RevoteTable() {
       <figcaption className="t-small mt-4 max-w-[30em] text-pencil">
         The {OF} pilot meetings that kept their recorded turns, each voted three ways
         on the same evidence. The wrecker&apos;s own vote is kept in all three. Random
-        voters are the mean of {DEADPAN.randomDraws} draws, so they land between
-        whole meetings.
+        voters are their exact expectation, so they land between whole meetings.
       </figcaption>
     </figure>
   );
