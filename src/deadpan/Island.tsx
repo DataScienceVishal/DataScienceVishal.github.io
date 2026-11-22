@@ -1,6 +1,7 @@
 import { m } from "motion/react";
 import { MarkSvg, type Mark } from "./marks";
 import { ISLAND } from "./map";
+import { lieNotes } from "./notes";
 import type { LiveView } from "./useLiveGame";
 
 /**
@@ -17,7 +18,26 @@ const SHORE = 18;
 const TAG_W = 50;
 const TAG_H = 20;
 /** Three tags a row, two rows: six players fit in one room. */
-const slot = (i: number) => ({ x: 30 + (i % 3) * 56, y: 54 + Math.floor(i / 3) * 42 });
+const slot = (i: number, top = 54) => ({ x: 30 + (i % 3) * 56, y: top + Math.floor(i / 3) * 42 });
+
+/** The notes a lie leaves on a room: furniture-small lines under the room's name. */
+const NOTE_LINE = 13;
+const NOTE_TOP = 36;
+/** About this many characters fit across a room at the note's size. */
+const NOTE_CHARS = 31;
+
+function wrap(text: string): string[] {
+  const out: string[] = [];
+  let line = "";
+  for (const word of text.split(" ")) {
+    if (line && (line + " " + word).length > NOTE_CHARS) {
+      out.push(line);
+      line = word;
+    } else line = line ? `${line} ${word}` : word;
+  }
+  if (line) out.push(line);
+  return out;
+}
 
 
 function badgeFor(view: LiveView, name: string): Mark | null {
@@ -74,6 +94,29 @@ export function Island({ view }: { view: LiveView }) {
     for (const b of exits) if (a < b && map.layout[a] && map.layout[b]) corridors.push([a, b]);
   }
 
+  // While a meeting is open, the wrecker's disproved claims are written on the
+  // rooms they are about. The claim lines in the meeting column carry the same
+  // facts for assistive technology, so the notes are hidden from it.
+  const meetingOpen = view.meeting && !view.meeting.result && view.game;
+  const notes = meetingOpen ? lieNotes(view.meeting!.statements, wrecker, view.trail) : [];
+  const written: Record<string, { text: string; claim: boolean }[]> = {};
+  for (const n of notes) {
+    for (const line of n.lines) {
+      const claim = line.includes(": ") || line === "False.";
+      for (const part of wrap(line)) (written[n.room] ??= []).push({ text: part, claim });
+    }
+  }
+  const claimedFalsely = new Set(
+    meetingOpen
+      ? view.meeting!.statements
+          .filter((s) => s.name === wrecker)
+          .flatMap((s) => s.claims.filter((c) => c.verdict === "false_place" && c.refuted_by.length).map((c) => c.room))
+      : [],
+  );
+  /** Where a room's tags start: under its notes, when it has any. */
+  const tagTop = (name: string) =>
+    written[name] ? Math.min(ROOM_H - 16, NOTE_TOP + written[name].length * NOTE_LINE + 22) : 54;
+
   // Who stands where: the living in seat order, then any bodies.
   const spots: Record<string, { x: number; y: number }> = {};
   const bodySpots: { name: string; x: number; y: number }[] = [];
@@ -82,11 +125,11 @@ export function Island({ view }: { view: LiveView }) {
     const bodies = view.bodies[name] ?? [];
     const box = room(name);
     here.forEach((p, i) => {
-      const s = slot(i);
+      const s = slot(i, tagTop(name));
       spots[p] = { x: box.x + s.x, y: box.y + s.y };
     });
     bodies.forEach((p, i) => {
-      const s = slot(here.length + i);
+      const s = slot(here.length + i, tagTop(name));
       bodySpots.push({ name: p, x: box.x + s.x, y: box.y + s.y });
     });
   }
@@ -116,6 +159,10 @@ export function Island({ view }: { view: LiveView }) {
       <defs>
         <pattern id="sea" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(135)">
           <line x1="0" y1="0" x2="0" y2="7" stroke="var(--pencil)" strokeWidth="1" opacity="0.55" />
+        </pattern>
+        <pattern id="lie" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(135)">
+          <rect width="6" height="6" fill="var(--paper)" />
+          <line x1="0" y1="0" x2="0" y2="6" stroke="var(--margin)" strokeWidth="1" opacity="0.5" />
         </pattern>
         <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
           <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--ink)" />
@@ -153,9 +200,9 @@ export function Island({ view }: { view: LiveView }) {
               y={box.y}
               width={ROOM_W}
               height={ROOM_H}
-              fill="var(--paper)"
-              stroke="var(--ink)"
-              strokeWidth={start ? 2.5 : 1}
+              fill={claimedFalsely.has(name) ? "url(#lie)" : "var(--paper)"}
+              stroke={written[name] ? "var(--margin)" : "var(--ink)"}
+              strokeWidth={written[name] ? 2.5 : start ? 2.5 : 1}
             />
             <text x={box.x + 10} y={box.y + 20} className="island__room" fill="var(--ink)">
               {name}
@@ -168,6 +215,39 @@ export function Island({ view }: { view: LiveView }) {
           </g>
         );
       })}
+
+      {Object.keys(written).length ? (
+        <g aria-hidden="true">
+          {Object.entries(written).map(([name, lines]) => {
+            const box = room(name);
+            if (!map.layout[name]) return null;
+            const width = Math.max(...lines.map((l) => l.text.length)) * 5.6 + 8;
+            return (
+              <g key={`notes-${name}`}>
+                {/* Writing sits on bare paper, even inside a hatched room. */}
+                <rect
+                  x={box.x + 6}
+                  y={box.y + NOTE_TOP - 10}
+                  width={Math.min(width, ROOM_W - 12)}
+                  height={lines.length * NOTE_LINE + 4}
+                  fill="var(--paper)"
+                />
+                {lines.map((l, i) => (
+                  <text
+                    key={i}
+                    x={box.x + 10}
+                    y={box.y + NOTE_TOP + i * NOTE_LINE}
+                    className="island__note"
+                    fill={l.claim ? "var(--margin)" : "var(--ink-soft)"}
+                  >
+                    {l.text}
+                  </text>
+                ))}
+              </g>
+            );
+          })}
+        </g>
+      ) : null}
 
       {bodySpots.map((b) => (
         <g key={`body-${b.name}`} transform={`translate(${b.x} ${b.y})`}>

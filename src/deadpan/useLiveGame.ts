@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useReducer, useRef } from "react";
 import { DEADPAN_API } from "./config";
+import type { Trail } from "./notes";
 import { EVENT_TYPES, type Action, type Claim, type GameEvent, type MapInfo, type Mode, type Vote } from "./types";
 
 /**
@@ -54,6 +55,8 @@ export interface LiveView {
   strike: { by: string; target: string; room: string; witnesses: string[] } | null;
   found: { by: string; body: string; room: string } | null;
   jobs: Record<string, [number, number]>;
+  /** Where everyone stood after each tick this game, for the notes a lie leaves on the map. */
+  trail: Trail;
   /** Taken out, as announced by meetings, plus anyone struck since. */
   out: string[];
   ashore: { name: string; role: "keeper" | "wrecker" }[];
@@ -80,6 +83,7 @@ export const START: LiveView = {
   strike: null,
   found: null,
   jobs: {},
+  trail: {},
   out: [],
   ashore: [],
   meeting: null,
@@ -154,6 +158,7 @@ export function reduce(view: LiveView, msg: Msg): LiveView {
         strike,
         found: msg.found,
         jobs: msg.jobs,
+        trail: { ...view.trail, [msg.tick]: msg.positions },
         out,
         meeting: null,
         log: lines.length ? keep(view.log, ...lines) : view.log,

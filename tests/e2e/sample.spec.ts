@@ -35,7 +35,7 @@ test("holders come from every disproved wrecker claim, omissions included", asyn
 
 test("the sample marks all three holders and what each did", async ({ page }) => {
   await watchSample(page);
-  await expect(page.getByText("Bram is sent ashore")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText("Bram is sent ashore").first()).toBeVisible({ timeout: 15_000 });
   // The statements are list items that start with a name too, so look only at the vote's list.
   const vote = page.getByRole("heading", { name: "The vote" }).locator("xpath=following-sibling::ul[1]");
   for (const [name, used] of [["Dev", true], ["Esme", true], ["Ada", false]] as const) {
@@ -54,4 +54,64 @@ test("no emoji is drawn anywhere while the sample plays, and the legend shows fo
     expect(text).not.toMatch(pictographs);
   }
   await expect(page.locator("#legend-heading + dl svg[role=img]")).toHaveCount(14);
+});
+
+test("lieNotes writes each kind of lie in the claim's own terms", async ({ page }) => {
+  await page.goto("/find-the-wrecker/?feed=sample&fast=1");
+  const notes = await page.evaluate(async () => {
+    const { lieNotes } = await import("/src/deadpan/notes.ts");
+    const trail = {
+      2: { Bram: "Boathouse", Dev: "Workshop", Ada: "Oil Store" },
+      4: { Bram: "Boathouse", Ada: "Kitchen" },
+    };
+    const bram = {
+      name: "Bram",
+      suspect: null,
+      speech: "",
+      fallback: false,
+      claims: [
+        { tick: 1, room: "Yard", saw: ["Finn"], verdict: "omission", refuted_by: ["Esme"], left_out: ["Esme"], real_room: "Yard" },
+        { tick: 2, room: "Workshop", saw: [], verdict: "false_place", refuted_by: ["Dev"], left_out: [], real_room: "Boathouse" },
+        { tick: 4, room: "Boathouse", saw: ["Ada"], verdict: "invented_sighting", refuted_by: ["Ada"], left_out: [], real_room: "Boathouse" },
+      ],
+    };
+    return lieNotes([bram], "Bram", trail);
+  });
+  expect(notes).toEqual([
+    { room: "Yard", tick: 1, lines: ["Bram: here, saw Finn, tick 1.", "Esme was here too."] },
+    { room: "Workshop", tick: 2, lines: ["Bram: here, alone, tick 2.", "False.", "Dev was here alone."] },
+    { room: "Boathouse", tick: 2, lines: ["Bram was here at tick 2."] },
+    { room: "Boathouse", tick: 4, lines: ["Bram: saw Ada here, tick 4.", "False."] },
+    { room: "Kitchen", tick: 4, lines: ["Ada was here at tick 4."] },
+  ]);
+});
+
+test("lieNotes keeps the claimed room's note when the trail lacks that tick", async ({ page }) => {
+  await page.goto("/find-the-wrecker/?feed=sample&fast=1");
+  const notes = await page.evaluate(async () => {
+    const { lieNotes } = await import("/src/deadpan/notes.ts");
+    const claim = { tick: 4, room: "Boathouse", saw: ["Ada"], verdict: "invented_sighting", refuted_by: ["Ada"], left_out: [], real_room: "Boathouse" };
+    return lieNotes([{ name: "Bram", suspect: null, speech: "", fallback: false, claims: [claim] }], "Bram", {});
+  });
+  expect(notes).toEqual([{ room: "Boathouse", tick: 4, lines: ["Bram: saw Ada here, tick 4.", "False."] }]);
+});
+
+test("lieNotes is empty when the wrecker says nothing disprovable", async ({ page }) => {
+  await page.goto("/find-the-wrecker/?feed=sample&fast=1");
+  const notes = await page.evaluate(async () => {
+    const { lieNotes } = await import("/src/deadpan/notes.ts");
+    const claim = { tick: 2, room: "Yard", saw: [], verdict: "true", refuted_by: [], left_out: [], real_room: "Yard" };
+    return lieNotes([{ name: "Bram", suspect: null, speech: "", fallback: false, claims: [claim] }], "Bram", {});
+  });
+  expect(notes).toEqual([]);
+});
+
+test("the map carries the sample's notes from Bram's statement until the result", async ({ page }) => {
+  await watchSample(page);
+  const island = page.locator("svg[aria-labelledby=island-title]");
+  await expect(island.getByText("Bram: here, alone, tick 2.")).toBeVisible({ timeout: 15_000 });
+  await expect(island.getByText("Ada was here at tick 4.")).toBeVisible();
+  await expect(island.getByText("Bram: saw Ada here, tick 4.")).toBeVisible();
+  await expect(page.getByText("Bram is sent ashore").first()).toBeVisible({ timeout: 15_000 });
+  await expect(island.getByText("Bram: here, alone, tick 2.")).toHaveCount(0);
 });
