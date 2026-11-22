@@ -67,7 +67,7 @@ export function sampleGame(): { event: GameEvent; wait: number }[] {
     );
   });
 
-  push({ type: "meeting", game_id: G, number: 1, tick: 5, called_by: "Dev", cause: "body", body: "Finn", body_room: "Boathouse", out: ["Finn"] }, 1500);
+  push({ type: "meeting", game_id: G, number: 1, tick: 5, called_by: "Dev", cause: "body", body: "Finn", body_room: "Boathouse", out: { Finn: "taken" } }, 1500);
 
   const said: [string, ReturnType<typeof claim>[], string | null, string][] = [
     ["Dev", [claim(2, "Workshop", []), claim(5, "Boathouse", [])], null, "Finn was in the Boathouse when I came through from the Workshop. I passed nobody."],
@@ -93,7 +93,7 @@ export function sampleGame(): { event: GameEvent; wait: number }[] {
     push({ type: "voted", game_id: G, name: v.name }, 500);
   }
   push({ type: "result", game_id: G, votes, tally: { Bram: 3, Dev: 1, skip: 1 }, ejected: "Bram", ejected_role: "wrecker" }, 4000);
-  push({ type: "end", game_id: G, winner: "keepers", reason: "The wrecker was sent ashore.", tick: 5 }, 4000);
+  push({ type: "end", game_id: G, winner: "keepers", reason: "sent ashore", tick: 5 }, 4000);
   push({ type: "intermission", game_id: G, seconds: 20, next_mode: "live", live_games_left_today: 7 }, 20000);
   return out;
 }

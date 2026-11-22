@@ -80,7 +80,8 @@ export type GameEvent =
       cause: "body" | "bell";
       body: string | null;
       body_room: string | null;
-      out: string[];
+      /** Everyone announced out so far: taken by the wrecker, or ejected by a vote. */
+      out: Record<string, "taken" | "ejected">;
     }
   | { type: "thinking"; game_id: string; name: string; phase: "speak" | "vote" }
   | {
@@ -101,8 +102,18 @@ export type GameEvent =
       ejected: string | null;
       ejected_role: "keeper" | "wrecker" | null;
     }
-  /** winner is null when a live game stopped early, after a notice saying why. */
-  | { type: "end"; game_id: string; winner: "keepers" | "wrecker" | null; reason: string; tick: number }
+  /**
+   * reason is the engine's code: "sent ashore", "jobs", "dawn" or "parity", or
+   * "stopped" with a null winner and tick when a live game stopped early, after
+   * a notice saying why.
+   */
+  | {
+      type: "end";
+      game_id: string;
+      winner: "keepers" | "wrecker" | null;
+      reason: "sent ashore" | "jobs" | "dawn" | "parity" | "stopped";
+      tick: number | null;
+    }
   | { type: "intermission"; game_id: string; seconds: number; next_mode: Mode; live_games_left_today: number }
   | { type: "notice"; game_id?: string; text: string }
   /** Instead of a stream, or at the end of a game: the day's streaming hours are used up, or too many streams. */

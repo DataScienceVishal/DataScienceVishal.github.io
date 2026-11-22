@@ -40,8 +40,11 @@ function phaseLine(view: LiveView, countdown: number) {
   if (view.phase === "intermission" && view.next) {
     return `Next game in ${countdown} s, ${view.next.mode === "live" ? "live" : "a recorded game"}.`;
   }
+  if (view.game && view.link === "idle" && !view.end) {
+    return "Not watching. Press Watch to pick the game up from where it has got to.";
+  }
   if (view.end) {
-    if (view.end.winner === null) return "The game stopped early.";
+    if (view.end.winner === null) return view.end.reason;
     return `${view.end.winner === "keepers" ? "The keepers win" : "The wrecker wins"}. ${view.end.reason}`;
   }
   if (m) {
@@ -136,7 +139,11 @@ function MeetingPanel({ meeting, wrecker }: { meeting: Meeting; wrecker: string 
               ) : null}
             </p>
             <p className="t-small mt-1 text-ink">
-              {s.fallback ? "Gave no usable reply, so a blank statement was used." : `"${s.speech}"`}
+              {s.fallback
+                ? "Gave no usable reply, so a blank statement was used."
+                : s.speech
+                  ? `"${s.speech}"`
+                  : "Said nothing beyond the claims below."}
             </p>
             <ul className="mt-2 grid gap-y-1">
               {s.claims.map((c) => (
@@ -169,7 +176,7 @@ function MeetingPanel({ meeting, wrecker }: { meeting: Meeting; wrecker: string 
                     voted for <span className="text-ink">{v.choice}</span>
                   </>
                 )}
-                <span className="text-pencil">. {v.reason}</span>
+                {v.reason ? <span className="text-pencil">. {v.reason}</span> : null}
                 {holders.includes(v.name) ? (
                   <span className="t-furniture-sm ml-1 border border-ink px-1 text-ink">
                     held a disproof{v.choice === wrecker ? ", used it" : ", did not use it"}

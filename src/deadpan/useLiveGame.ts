@@ -92,6 +92,15 @@ export const START: LiveView = {
 const list = (names: string[]) =>
   names.length <= 1 ? names.join("") : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
 
+/** The engine's end reasons, said as sentences. */
+const WHY: Record<string, string> = {
+  "sent ashore": "The wrecker was sent ashore.",
+  jobs: "The keepers finished every job.",
+  dawn: "Dawn came with the light still burning.",
+  parity: "Only one keeper was left.",
+  stopped: "The game stopped early.",
+};
+
 const keep = (log: string[], ...lines: string[]) => [...log, ...lines].slice(-40);
 
 /** Turns one event into what is drawn. Nothing here decides a rule of the game. */
@@ -153,7 +162,8 @@ export function reduce(view: LiveView, msg: Msg): LiveView {
     case "meeting": {
       if (!view.game) return view;
       const start = view.game.map.start;
-      const alive = Object.keys(view.positions).filter((p) => !msg.out.includes(p));
+      const gone = Object.keys(msg.out);
+      const alive = Object.keys(view.positions).filter((p) => !gone.includes(p));
       const why =
         msg.cause === "body" && msg.body
           ? `${msg.called_by} reported ${msg.body}'s body in the ${msg.body_room}`
@@ -166,7 +176,7 @@ export function reduce(view: LiveView, msg: Msg): LiveView {
         actions: {},
         strike: null,
         found: null,
-        out: msg.out,
+        out: gone.filter((p) => msg.out[p] === "taken"),
         meeting: {
           number: msg.number,
           calledBy: msg.called_by,
@@ -215,11 +225,12 @@ export function reduce(view: LiveView, msg: Msg): LiveView {
       };
     }
     case "end": {
+      const reason = WHY[msg.reason] ?? "";
       const said =
         msg.winner === null
-          ? `The game stopped early.`
-          : `${msg.winner === "keepers" ? "The keepers win" : "The wrecker wins"}. ${msg.reason}`;
-      return { ...view, phase: "over", end: { winner: msg.winner, reason: msg.reason }, log: keep(view.log, said) };
+          ? reason
+          : `${msg.winner === "keepers" ? "The keepers win" : "The wrecker wins"}. ${reason}`;
+      return { ...view, phase: "over", end: { winner: msg.winner, reason }, log: keep(view.log, said) };
     }
     case "intermission":
       return {
@@ -346,9 +357,9 @@ export function useLiveGame(): { view: LiveView; watch: () => void } {
       stop.current = null;
       send({ type: "link", link: "idle" });
     };
-    const sample = import.meta.env.DEV && new URLSearchParams(window.location.search).get("feed") === "sample";
-    if (sample) stop.current = playSample(send, done);
-    else if (DEADPAN_API) stop.current = listen(DEADPAN_API, send, done);
+    const api = serverUrl();
+    if (devParam("feed") === "sample") stop.current = playSample(send, done);
+    else if (api) stop.current = listen(api, send, done);
   }, []);
 
   useEffect(() => {
@@ -367,8 +378,19 @@ export function useLiveGame(): { view: LiveView; watch: () => void } {
   return { view, watch };
 }
 
+/**
+ * The server to watch. On the dev server only, ?api=http://localhost:8000
+ * points the page at a local `uv run serve`, and ?feed=sample at the
+ * hand-written game; the built page uses config.ts and nothing else.
+ */
+function devParam(name: string): string | null {
+  if (!import.meta.env.DEV || typeof window === "undefined") return null;
+  return new URLSearchParams(window.location.search).get(name);
+}
+
+const serverUrl = () => devParam("api") || DEADPAN_API;
+
 /** Whether the Watch button can do anything here: a server address, or the dev sample. */
 export function canWatch(): boolean {
-  if (DEADPAN_API) return true;
-  return import.meta.env.DEV && typeof window !== "undefined" && new URLSearchParams(window.location.search).get("feed") === "sample";
+  return Boolean(serverUrl()) || devParam("feed") === "sample";
 }
