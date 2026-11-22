@@ -2,6 +2,7 @@ import { m } from "motion/react";
 import { MarkSvg, type Mark } from "./marks";
 import { ISLAND } from "./map";
 import { lieNotes } from "./notes";
+import type { MapInfo } from "./types";
 import type { LiveView } from "./useLiveGame";
 
 /**
@@ -39,6 +40,61 @@ function wrap(text: string): string[] {
   return out;
 }
 
+/** A room's size on the drawn map, for tests that check what lands inside one. */
+export const ROOM = { w: ROOM_W, h: ROOM_H };
+
+/** The top-left corner of a cell's room box, in the map's own units. */
+function cellBox(map: MapInfo, c: number, r: number) {
+  const cells = Object.values(map.layout);
+  const minC = Math.min(...cells.map(([col]) => col));
+  const minR = Math.min(...cells.map(([, row]) => row));
+  return {
+    x: SHORE + (c - minC) * CELL_W + (CELL_W - ROOM_W) / 2,
+    y: SHORE + (r - minR) * CELL_H + (CELL_H - ROOM_H) / 2,
+  };
+}
+
+export function roomBox(map: MapInfo, name: string) {
+  const [c, r] = map.layout[name];
+  return cellBox(map, c, r);
+}
+
+/**
+ * Where each room's notes are written. In an empty room they go inside it,
+ * under its name. A room with players in it, which in a meeting is always the
+ * start room, keeps its tags where they are and has its notes written in a
+ * box on the nearest patch of sea beside it, so the notes never push a tag out
+ * of the room or sit under one. With no free patch next to it, the notes stay
+ * inside and the tags squeeze below them.
+ */
+export function placeNotes(map: MapInfo, noted: string[], occupied: string[]) {
+  const cells = Object.values(map.layout);
+  const minC = Math.min(...cells.map(([c]) => c));
+  const maxC = Math.max(...cells.map(([c]) => c));
+  const minR = Math.min(...cells.map(([, r]) => r));
+  const maxR = Math.max(...cells.map(([, r]) => r));
+  const taken = new Set(cells.map(([c, r]) => `${c},${r}`));
+  const used = new Set<string>();
+  const place: Record<string, { x: number; y: number; outside: boolean }> = {};
+  for (const name of noted) {
+    const [c, r] = map.layout[name];
+    if (occupied.includes(name)) {
+      const free = [
+        [c + 1, r],
+        [c - 1, r],
+        [c, r + 1],
+        [c, r - 1],
+      ].find(([nc, nr]) => nc >= minC && nc <= maxC && nr >= minR && nr <= maxR && !taken.has(`${nc},${nr}`) && !used.has(`${nc},${nr}`));
+      if (free) {
+        used.add(`${free[0]},${free[1]}`);
+        place[name] = { ...cellBox(map, free[0], free[1]), outside: true };
+        continue;
+      }
+    }
+    place[name] = { ...roomBox(map, name), outside: false };
+  }
+  return place;
+}
 
 function badgeFor(view: LiveView, name: string): Mark | null {
   const { meeting, end, game } = view;
@@ -83,9 +139,7 @@ export function Island({ view }: { view: LiveView }) {
   const height = (maxR - minR + 1) * CELL_H + SHORE * 2;
 
   const room = (name: string) => {
-    const [c, r] = map.layout[name];
-    const x = SHORE + (c - minC) * CELL_W + (CELL_W - ROOM_W) / 2;
-    const y = SHORE + (r - minR) * CELL_H + (CELL_H - ROOM_H) / 2;
+    const { x, y } = roomBox(map, name);
     return { x, y, cx: x + ROOM_W / 2, cy: y + ROOM_H / 2 };
   };
 
@@ -113,9 +167,22 @@ export function Island({ view }: { view: LiveView }) {
           .flatMap((s) => s.claims.filter((c) => c.verdict === "false_place" && c.refuted_by.length).map((c) => c.room))
       : [],
   );
-  /** Where a room's tags start: under its notes, when it has any. */
-  const tagTop = (name: string) =>
-    written[name] ? Math.min(ROOM_H - 16, NOTE_TOP + written[name].length * NOTE_LINE + 22) : 54;
+  const occupied = Object.keys(map.layout).filter(
+    (name) => players.some((p) => view.positions[p] === name) || (view.bodies[name] ?? []).length > 0,
+  );
+  const place = placeNotes(map, Object.keys(written), occupied);
+  /**
+   * Where a room's tags start: under notes written inside it, when it has any,
+   * and never so low that the second row leaves the room.
+   */
+  const tagTop = (name: string) => {
+    if (!written[name] || place[name]?.outside) return 54;
+    const below = NOTE_TOP + written[name].length * NOTE_LINE + 22;
+    const rows = Math.ceil(
+      (players.filter((p) => view.positions[p] === name).length + (view.bodies[name] ?? []).length) / 3,
+    );
+    return Math.min(below, ROOM_H - TAG_H / 2 - 2 - Math.max(rows - 1, 0) * 42);
+  };
 
   // Who stands where: the living in seat order, then any bodies.
   const spots: Record<string, { x: number; y: number }> = {};
@@ -219,15 +286,42 @@ export function Island({ view }: { view: LiveView }) {
       {Object.keys(written).length ? (
         <g aria-hidden="true">
           {Object.entries(written).map(([name, lines]) => {
-            const box = room(name);
-            if (!map.layout[name]) return null;
+            if (!map.layout[name] || !place[name]) return null;
+            const at = place[name];
+            const home = room(name);
+            // Inside the room the notes start under its name; in a box of
+            // their own they start at the top.
+            const top = at.outside ? 20 : NOTE_TOP;
             const width = Math.max(...lines.map((l) => l.text.length)) * 5.6 + 8;
             return (
               <g key={`notes-${name}`}>
+                {at.outside ? (
+                  <>
+                    {/* From the room's edge facing the box, so it never runs under a tag. */}
+                    <line
+                      x1={at.x > home.x ? home.x + ROOM_W : at.x < home.x ? home.x : home.cx}
+                      y1={at.y > home.y ? home.y + ROOM_H : at.y < home.y ? home.y : home.cy}
+                      x2={at.x > home.x ? at.x : at.x < home.x ? at.x + ROOM_W : at.x + ROOM_W / 2}
+                      y2={at.y > home.y ? at.y : at.y < home.y ? at.y + ROOM_H : at.y + ROOM_H / 4}
+                      stroke="var(--margin)"
+                      strokeWidth="1.5"
+                      strokeDasharray="4 3"
+                    />
+                    <rect
+                      x={at.x}
+                      y={at.y}
+                      width={ROOM_W}
+                      height={Math.max(ROOM_H / 2, lines.length * NOTE_LINE + 20)}
+                      fill="var(--paper)"
+                      stroke="var(--margin)"
+                      strokeWidth="1.5"
+                    />
+                  </>
+                ) : null}
                 {/* Writing sits on bare paper, even inside a hatched room. */}
                 <rect
-                  x={box.x + 6}
-                  y={box.y + NOTE_TOP - 10}
+                  x={at.x + 6}
+                  y={at.y + top - 10}
                   width={Math.min(width, ROOM_W - 12)}
                   height={lines.length * NOTE_LINE + 4}
                   fill="var(--paper)"
@@ -235,8 +329,8 @@ export function Island({ view }: { view: LiveView }) {
                 {lines.map((l, i) => (
                   <text
                     key={i}
-                    x={box.x + 10}
-                    y={box.y + NOTE_TOP + i * NOTE_LINE}
+                    x={at.x + 10}
+                    y={at.y + top + i * NOTE_LINE}
                     className="island__note"
                     fill={l.claim ? "var(--margin)" : "var(--ink-soft)"}
                   >

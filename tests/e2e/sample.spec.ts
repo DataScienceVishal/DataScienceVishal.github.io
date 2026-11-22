@@ -114,6 +114,7 @@ test("the vote is drawn as lines, holders ringed, solid when they used the proof
   await expect(lines.locator("[data-from=Esme][data-to=Bram][data-used=true]")).toHaveCount(1);
   await expect(lines.locator("[data-from=Ada][data-to=skip][data-used=false]")).toHaveCount(1);
   await expect(lines).toContainText("I was in the Workshop at tick 2 and he was not.");
+  await expect(lines).toContainText("Red solid: held proof and voted for the wrecker. Red dashed: held proof and did not. Grey: everyone else.");
   await expect(lines.locator(".sr-only")).toContainText("Dev voted for Bram");
   await expect(lines.locator(".sr-only")).toContainText("Ada skipped");
 });
@@ -195,3 +196,32 @@ for (const theme of ["light", "dark"] as const) {
     expect(atResult.violations.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
   });
 }
+
+test("notes on a room with players in it go beside the room, clear of every room and tag", async ({ page }) => {
+  await page.goto("/find-the-wrecker/?feed=sample&fast=1");
+  const placed = await page.evaluate(async () => {
+    const { placeNotes, roomBox, ROOM } = await import("/src/deadpan/Island.tsx");
+    const { ISLAND } = await import("/src/deadpan/map.ts");
+    const place = placeNotes(ISLAND, ["Cottage", "Kitchen"], ["Cottage"]);
+    const boxes = Object.keys(ISLAND.layout).map((name) => ({ name, ...roomBox(ISLAND, name) }));
+    const overlaps = (a: { x: number; y: number }, b: { x: number; y: number }) =>
+      a.x < b.x + ROOM.w && b.x < a.x + ROOM.w && a.y < b.y + ROOM.h && b.y < a.y + ROOM.h;
+    return {
+      cottageOutside: place.Cottage.outside,
+      cottageHits: boxes.filter((b) => overlaps(place.Cottage, b)).map((b) => b.name),
+      kitchenInside: !place.Kitchen.outside,
+      kitchenAt: place.Kitchen.x === roomBox(ISLAND, "Kitchen").x && place.Kitchen.y === roomBox(ISLAND, "Kitchen").y,
+    };
+  });
+  expect(placed).toEqual({ cottageOutside: true, cottageHits: [], kitchenInside: true, kitchenAt: true });
+});
+
+test("an invented sighting's claim line says where the named player really was", async ({ page }) => {
+  await watchSample(page);
+  // The map's note for this is hidden from assistive technology, so the claim line must carry it.
+  // The statement's own list item contains the claim's too; take the innermost.
+  await expect(page.getByRole("listitem").filter({ hasText: "Tick 4, Boathouse, saw Ada" }).last()).toContainText(
+    "Ada was in the Kitchen",
+    { timeout: 15_000 },
+  );
+});

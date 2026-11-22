@@ -60,9 +60,10 @@ const DRAW: Record<Mark, ReactElement> = {
       <path d="M8 2 L8 5 M8 11 L8 14 M2 8 L5 8 M11 8 L14 8 M3.8 3.8 L5.9 5.9 M10.1 10.1 L12.2 12.2 M12.2 3.8 L10.1 5.9 M5.9 10.1 L3.8 12.2" />
     </g>
   ),
-  // A cross, as a name struck out.
+  // A cross, as a name struck out. Ink, not red: red marks only the strike
+  // and the lie, which are what the page measures.
   out: (
-    <g {...pen(RED, 2)}>
+    <g {...pen(INK, 2)}>
       <path d="M4 4 L12 12 M12 4 L4 12" />
     </g>
   ),

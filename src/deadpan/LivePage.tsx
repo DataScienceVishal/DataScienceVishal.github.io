@@ -5,7 +5,7 @@ import { ThemeToggle } from "../components/notebook/ThemeToggle";
 import { PROFILE } from "../data/profile";
 import { MARKS, MarkIcon, type Mark } from "./marks";
 import { Island } from "./Island";
-import { holdersOf } from "./notes";
+import { holdersOf, type Trail } from "./notes";
 import { VoteLines } from "./VoteLines";
 import type { Claim } from "./types";
 import { useLiveGame, type Game, type LiveView, type Meeting } from "./useLiveGame";
@@ -74,7 +74,7 @@ function StatusLine({ view }: { view: LiveView }) {
   );
 }
 
-function ClaimLine({ claim }: { claim: Claim }) {
+function ClaimLine({ claim, trail }: { claim: Claim; trail: Trail }) {
   // A claim someone could disprove is a lie, whatever its verdict.
   const lie = claim.refuted_by.length > 0;
   let verdict = "checks out";
@@ -82,6 +82,14 @@ function ClaimLine({ claim }: { claim: Claim }) {
   if (claim.verdict === "invented_sighting") verdict = "false: saw no such player";
   if (claim.verdict === "named_body") verdict = "named a body as a sighting";
   if (claim.verdict === "omission") verdict = claim.left_out?.length ? `left out ${claim.left_out.join(" and ")}` : "left someone out";
+  // Where a falsely named player really was. The map writes this too, but the
+  // map's notes are hidden from assistive technology, so the line says it.
+  const really =
+    claim.verdict === "invented_sighting"
+      ? claim.saw
+          .filter((p) => claim.refuted_by.includes(p) && trail[claim.tick]?.[p])
+          .map((p) => `${p} was in the ${trail[claim.tick][p]}`)
+      : [];
   return (
     <li className="t-furniture-sm flex flex-wrap gap-x-2 text-pencil">
       <span className="text-ink-soft">
@@ -90,6 +98,7 @@ function ClaimLine({ claim }: { claim: Claim }) {
       <span className={lie ? "text-margin" : ""}>
         {lie ? <MarkIcon mark="lie" /> : null} {verdict}
       </span>
+      {really.length ? <span className="text-ink-soft">{really.join(", ")}</span> : null}
       {claim.refuted_by.length ? (
         <span>disproved by what {claim.refuted_by.join(" and ")} saw</span>
       ) : null}
@@ -110,7 +119,17 @@ function ProofLine({ proof }: { proof: LiveView["proof"] }) {
   );
 }
 
-function MeetingPanel({ meeting, wrecker, proof }: { meeting: Meeting; wrecker: string; proof: LiveView["proof"] }) {
+function MeetingPanel({
+  meeting,
+  wrecker,
+  proof,
+  trail,
+}: {
+  meeting: Meeting;
+  wrecker: string;
+  proof: LiveView["proof"];
+  trail: Trail;
+}) {
   const result = meeting.result;
   // Keepers who held a sighting that disproved one of the wrecker's lies in
   // this meeting: the people the game is about.
@@ -148,7 +167,7 @@ function MeetingPanel({ meeting, wrecker, proof }: { meeting: Meeting; wrecker: 
             </p>
             <ul className="mt-2 grid gap-y-1">
               {s.claims.map((c) => (
-                <ClaimLine key={`${c.tick}-${c.room}`} claim={c} />
+                <ClaimLine key={`${c.tick}-${c.room}`} claim={c} trail={trail} />
               ))}
             </ul>
           </li>
@@ -345,7 +364,7 @@ export function LivePage() {
                   </p>
                 ) : null}
                 {view.meeting && view.game ? (
-                  <MeetingPanel meeting={view.meeting} wrecker={view.game.wrecker} proof={view.proof} />
+                  <MeetingPanel meeting={view.meeting} wrecker={view.game.wrecker} proof={view.proof} trail={view.trail} />
                 ) : (
                   <>
                     {view.end ? <ProofLine proof={view.proof} /> : null}

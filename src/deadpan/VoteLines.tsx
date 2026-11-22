@@ -140,7 +140,7 @@ export function VoteLines({
         </svg>
       </div>
       <p className="t-furniture-sm mt-3 text-pencil">
-        Red: held proof that the wrecker lied. Solid: voted for the wrecker. Dashed: did not.
+        Red solid: held proof and voted for the wrecker. Red dashed: held proof and did not. Grey: everyone else.
       </p>
       <ul className="sr-only">
         {votes.map((v) => (
