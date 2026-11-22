@@ -9,8 +9,10 @@ A second page, [/find-the-wrecker/](find-the-wrecker/index.html), shows a game
 of Find the Wrecker played live by LLM agents. It is not prerendered: everything
 on it comes from the game server's Server-Sent Events stream, so it renders in
 the browser, and it connects only when the reader presses Watch, for one game.
-Until the server's address is set in [src/deadpan/config.ts](src/deadpan/config.ts)
-it says the server is not running yet. On the dev server,
+The server's address is in [src/deadpan/config.ts](src/deadpan/config.ts); the
+browser tests answer that host themselves, in
+[tests/e2e/no-live-server.ts](tests/e2e/no-live-server.ts), so no test starts a
+paid game. On the dev server,
 `/find-the-wrecker/?feed=sample` plays a short game written by hand, and
 `?api=http://localhost:8000` watches a local server started with
 `DEADPAN_PLAYERS=scripted uv run serve` in the deadpan repo. Neither ships in the
