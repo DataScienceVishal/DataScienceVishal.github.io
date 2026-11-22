@@ -3,20 +3,12 @@ import { LazyMotion, MotionConfig, domAnimation } from "motion/react";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "../components/notebook/ThemeToggle";
 import { PROFILE } from "../data/profile";
-import { BADGES, type Badge } from "./emoji";
+import { MARKS, MarkIcon, type Mark } from "./marks";
 import { Island } from "./Island";
 import { holdersOf } from "./notes";
 import type { Claim } from "./types";
 import { useLiveGame, type Game, type LiveView, type Meeting } from "./useLiveGame";
 
-
-function Emoji({ badge }: { badge: Badge }) {
-  return (
-    <span className="island__emoji" role="img" aria-label={BADGES[badge].label}>
-      {BADGES[badge].char}
-    </span>
-  );
-}
 
 /** Seconds left until `at`, read from the clock on every render, and re-rendered each second. */
 function useCountdown(at: number | undefined) {
@@ -95,7 +87,7 @@ function ClaimLine({ claim }: { claim: Claim }) {
         Tick {claim.tick}, {claim.room}, saw {claim.saw.length ? claim.saw.join(" and ") : "nobody"}
       </span>
       <span className={lie ? "text-margin" : ""}>
-        {lie ? <Emoji badge="lie" /> : null} {verdict}
+        {lie ? <MarkIcon mark="lie" /> : null} {verdict}
       </span>
       {claim.refuted_by.length ? (
         <span>disproved by what {claim.refuted_by.join(" and ")} saw</span>
@@ -130,7 +122,7 @@ function MeetingPanel({ meeting, wrecker }: { meeting: Meeting; wrecker: string 
               {s.suspect ? (
                 <span className="text-ink-soft" style={{ fontWeight: 560 }}>
                   {" "}
-                  <Emoji badge="suspect" /> suspects {s.suspect}
+                  <MarkIcon mark="suspect" /> suspects {s.suspect}
                 </span>
               ) : null}
             </p>
@@ -151,7 +143,7 @@ function MeetingPanel({ meeting, wrecker }: { meeting: Meeting; wrecker: string 
       </ol>
       {meeting.voted.length && !result ? (
         <p className="t-small mt-4 text-ink-soft">
-          <Emoji badge="voted" /> {meeting.voted.join(", ")} {meeting.voted.length === 1 ? "has" : "have"} voted.
+          <MarkIcon mark="voted" /> {meeting.voted.join(", ")} {meeting.voted.length === 1 ? "has" : "have"} voted.
         </p>
       ) : null}
       {result ? (
@@ -165,7 +157,7 @@ function MeetingPanel({ meeting, wrecker }: { meeting: Meeting; wrecker: string 
                 <span className="text-ink">{v.name}</span>{" "}
                 {v.choice === "skip" ? (
                   <>
-                    <Emoji badge="skip" /> skipped
+                    <MarkIcon mark="skip" /> skipped
                   </>
                 ) : (
                   <>
@@ -193,7 +185,7 @@ function MeetingPanel({ meeting, wrecker }: { meeting: Meeting; wrecker: string 
           <p className="t-body mt-3 text-ink">
             {result.ejected ? (
               <>
-                <Emoji badge="ashore" /> {result.ejected} is sent ashore, and was{" "}
+                <MarkIcon mark="ashore" /> {result.ejected} is sent ashore, and was{" "}
                 {result.role === "wrecker" ? "the wrecker" : "a keeper"}.
               </>
             ) : (
@@ -227,7 +219,7 @@ function Log({ lines }: { lines: string[] }) {
   );
 }
 
-const LEGEND: Badge[] = [
+const LEGEND: Mark[] = [
   "work", "ring", "strike", "out", "found", "witness", "thinking", "speaking", "suspect", "lie", "voted", "skip", "ashore", "won",
 ];
 
@@ -240,10 +232,10 @@ function Legend() {
       <dl className="mt-4 grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
         {LEGEND.map((b) => (
           <div key={b} className="flex items-center gap-3">
-            <dt className="island__emoji w-6 text-center" aria-hidden="true">
-              {BADGES[b].char}
+            <dt className="flex w-6 justify-center text-[1.1rem]" aria-hidden="true">
+              <MarkIcon mark={b} />
             </dt>
-            <dd className="t-small text-ink-soft">{BADGES[b].label}</dd>
+            <dd className="t-small text-ink-soft">{MARKS[b].label}</dd>
           </div>
         ))}
         <div className="flex items-center gap-3">
@@ -365,7 +357,7 @@ export function LivePage() {
                 </div>
                 {view.ashore.length ? (
                   <p className="t-small mt-5 text-ink-soft">
-                    <Emoji badge="ashore" /> Sent ashore: {view.ashore.map((a) => `${a.name} (${a.role})`).join(", ")}
+                    <MarkIcon mark="ashore" /> Sent ashore: {view.ashore.map((a) => `${a.name} (${a.role})`).join(", ")}
                   </p>
                 ) : null}
                 {view.meeting && view.game ? (

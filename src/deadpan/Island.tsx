@@ -1,5 +1,5 @@
 import { m } from "motion/react";
-import { BADGES, type Badge } from "./emoji";
+import { MarkSvg, type Mark } from "./marks";
 import { ISLAND } from "./map";
 import type { LiveView } from "./useLiveGame";
 
@@ -19,9 +19,8 @@ const TAG_H = 20;
 /** Three tags a row, two rows: six players fit in one room. */
 const slot = (i: number) => ({ x: 30 + (i % 3) * 56, y: 54 + Math.floor(i / 3) * 42 });
 
-const EMOJI_FONT = '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
 
-function badgeFor(view: LiveView, name: string): Badge | null {
+function badgeFor(view: LiveView, name: string): Mark | null {
   const { meeting, end, game } = view;
   if (end && game) {
     if (end.winner === null) return null;
@@ -176,9 +175,7 @@ export function Island({ view }: { view: LiveView }) {
           <text y="4.5" textAnchor="middle" className="island__tag island__tag--out" fill="var(--pencil)">
             {b.name}
           </text>
-          <text y={-TAG_H / 2 - 5} textAnchor="middle" fontSize="16" fontFamily={EMOJI_FONT}>
-            {BADGES.out.char}
-          </text>
+          <MarkSvg mark="out" x={0} y={-TAG_H / 2 - 10} />
         </g>
       ))}
 
@@ -214,10 +211,7 @@ export function Island({ view }: { view: LiveView }) {
               {p}
             </text>
             {badge ? (
-              <text y={-TAG_H / 2 - 5} textAnchor="middle" fontSize="17" fontFamily={EMOJI_FONT}>
-                <title>{BADGES[badge].label}</title>
-                {BADGES[badge].char}
-              </text>
+              <MarkSvg mark={badge} x={0} y={-TAG_H / 2 - 10} />
             ) : null}
           </m.g>
         );

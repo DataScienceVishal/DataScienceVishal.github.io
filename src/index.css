@@ -722,8 +722,8 @@
 
 /* --- The live Find the Wrecker page (src/deadpan) ------------------------
    The map's lettering, in the notebook's furniture face so the island reads
-   as a sketch on the same pad. Emoji fall back to the system's colour face,
-   which the font subset never carries.
+   as a sketch on the same pad. The marks over a tag are drawn in ink, in
+   src/deadpan/marks.tsx.
 --------------------------------------------------------------------------- */
 
 @layer components {
@@ -750,11 +750,5 @@
 
   .island__tag--out {
     text-decoration: line-through;
-  }
-
-  .island__emoji {
-    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
-    font-size: 1.05em;
-    line-height: 1;
   }
 }

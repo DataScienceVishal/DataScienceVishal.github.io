@@ -44,3 +44,14 @@ test("the sample marks all three holders and what each did", async ({ page }) =>
     );
   }
 });
+
+test("no emoji is drawn anywhere while the sample plays, and the legend shows fourteen marks", async ({ page }) => {
+  await watchSample(page);
+  const pictographs = /\p{Extended_Pictographic}/u;
+  for (const moment of ["Tick 2", "Meeting 1", "Bram is sent ashore"]) {
+    await expect(page.getByText(moment).first()).toBeVisible({ timeout: 15_000 });
+    const text = await page.evaluate(() => document.body.innerText + [...document.querySelectorAll("svg text")].map((t) => t.textContent).join(""));
+    expect(text).not.toMatch(pictographs);
+  }
+  await expect(page.locator("#legend-heading + dl svg[role=img]")).toHaveCount(14);
+});

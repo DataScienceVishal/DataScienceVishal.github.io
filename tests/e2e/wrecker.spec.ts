@@ -22,7 +22,7 @@ for (const viewport of [
       await expect(page.getByRole("heading", { level: 1 })).toHaveText("Find the Wrecker, played live by LLM agents");
       await expect(page.getByRole("status")).toContainText("The game server is not running yet");
       // The island is drawn, but there is nothing to watch: no button, no players.
-      await expect(page.locator("svg[role=img]")).toHaveCount(1);
+      await expect(page.locator("svg[aria-labelledby=island-title]")).toHaveCount(1);
       await expect(page.getByRole("button", { name: /Watch/ })).toHaveCount(0);
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport.width);
     });
