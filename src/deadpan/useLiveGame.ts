@@ -248,10 +248,15 @@ export function reduce(view: LiveView, msg: Msg): LiveView {
 type Send = (m: Msg) => void;
 type Stop = () => void;
 
-/** Plays the made-up sample game once, with the server's pauses. Dev server only. */
+/**
+ * Plays the made-up sample game once, with the server's pauses. Dev server
+ * only. ?fast=1 divides every pause by 20, so a browser test sees the whole
+ * game in a few seconds.
+ */
 function playSample(send: Send, done: () => void): Stop {
   let stopped = false;
   let timer = 0;
+  const pace = devParam("fast") === "1" ? 20 : 1;
   send({ type: "link", link: "connecting", closed: null });
   void import("./sample").then(({ sampleGame }) => {
     if (stopped) return;
@@ -265,7 +270,7 @@ function playSample(send: Send, done: () => void): Stop {
         done();
         return;
       }
-      timer = window.setTimeout(next, wait);
+      timer = window.setTimeout(next, wait / pace);
     };
     send({ type: "link", link: "open" });
     next();
