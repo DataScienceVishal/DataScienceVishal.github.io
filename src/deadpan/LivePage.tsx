@@ -18,14 +18,15 @@ function Emoji({ badge }: { badge: Badge }) {
   );
 }
 
+/** Seconds left until `at`, read from the clock on every render, and re-rendered each second. */
 function useCountdown(at: number | undefined) {
-  const [now, setNow] = useState(() => Date.now());
+  const [, setBeat] = useState(0);
   useEffect(() => {
     if (!at) return;
-    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    const id = window.setInterval(() => setBeat((n) => n + 1), 1000);
     return () => window.clearInterval(id);
   }, [at]);
-  return at ? Math.max(0, Math.ceil((at - now) / 1000)) : 0;
+  return at ? Math.max(0, Math.ceil((at - Date.now()) / 1000)) : 0;
 }
 
 /** "Live game, played by gpt-5-mini". A scripted game must never read as a model's. */
