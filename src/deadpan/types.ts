@@ -1,7 +1,8 @@
 /**
- * The events the Deadpan server streams from GET /live, as the live-game design
- * lists them. Each arrives as a Server-Sent Event whose event name is `type`
- * and whose data is the JSON payload. The engine is the source of truth; the
+ * The events the Find the Wrecker server streams from GET /live, as the
+ * live-game design lists them. Each arrives as a Server-Sent Event with an id,
+ * whose event name is `type` and whose data is the JSON payload. The browser
+ * resumes a dropped stream by itself with Last-Event-ID. The engine is the source of truth; the
  * page only draws what these say.
  */
 
@@ -23,6 +24,13 @@ export interface Claim {
   room: string;
   saw: string[];
   verdict: Verdict;
+  /** Keepers whose own sightings disprove the claim. */
+  refuted_by: string[];
+  /**
+   * For an omission, who was left out. Not yet in the server's contract; the
+   * page says "left someone out" until it is.
+   */
+  left_out?: string[];
 }
 
 export interface Strike {
@@ -40,7 +48,17 @@ export interface Vote {
 }
 
 export type GameEvent =
-  | { type: "game"; game_id: string; mode: Mode; seed: number; map: MapInfo; players: string[]; wrecker: string }
+  | {
+      type: "game";
+      game_id: string;
+      mode: Mode;
+      /** The Azure deployment's name, "scripted", or the deployment that played a recorded game. */
+      played_by: string;
+      seed: number;
+      map: MapInfo;
+      players: string[];
+      wrecker: string;
+    }
   | {
       type: "tick";
       game_id: string;
@@ -82,9 +100,12 @@ export type GameEvent =
       ejected: string | null;
       ejected_role: "keeper" | "wrecker" | null;
     }
-  | { type: "end"; game_id: string; winner: "keepers" | "wrecker"; reason: string; tick: number }
+  /** winner is null when a live game stopped early, after a notice saying why. */
+  | { type: "end"; game_id: string; winner: "keepers" | "wrecker" | null; reason: string; tick: number }
   | { type: "intermission"; game_id: string; seconds: number; next_mode: Mode; live_games_left_today: number }
-  | { type: "notice"; game_id?: string; text: string };
+  | { type: "notice"; game_id?: string; text: string }
+  /** Instead of a stream, or at the end of a game: the day's streaming hours are used up, or too many streams. */
+  | { type: "closed"; text: string };
 
 export type EventType = GameEvent["type"];
 
@@ -99,4 +120,5 @@ export const EVENT_TYPES: EventType[] = [
   "end",
   "intermission",
   "notice",
+  "closed",
 ];

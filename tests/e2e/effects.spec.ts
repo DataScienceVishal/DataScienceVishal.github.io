@@ -39,7 +39,7 @@ const drawing = (page: Page, { onlyOnScreen = false, travel = true }: Which = {}
     { onlyOnScreen, travel },
   );
 
-/** One highlight per entry that has a measured phrase: Deadpan and the three audits. */
+/** One highlight per entry that has a measured phrase: Find the Wrecker and the three audits. */
 const EVERY_MARK_DRAWN = Array.from({ length: 4 }, () => "100% 62%");
 
 const highlightSizes = (page: Page) =>
@@ -80,7 +80,7 @@ test.describe("with motion allowed", () => {
 
   test("the effects leave alone whatever is already on screen", async ({ page }) => {
     // Tall enough that the first highlight is in the first view. The twin's entry
-    // comes first and highlights nothing, so the first one is in Deadpan's.
+    // comes first and highlights nothing, so the first one is in Find the Wrecker's.
     await page.setViewportSize({ width: 1440, height: 3600 });
     // A mark already on screen keeps travelling with the reader's scroll on its
     // CSS timeline, before the effects start and after, so where it sits depends

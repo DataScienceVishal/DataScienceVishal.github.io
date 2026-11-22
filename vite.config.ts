@@ -8,12 +8,12 @@ export default defineConfig({
     target: "es2022",
     cssMinify: "lightningcss",
     rollupOptions: {
-      // The home page, prerendered after the build, and the live Deadpan page,
+      // The home page, prerendered after the build, and the live Find the Wrecker page,
       // which renders on the client because all of it comes from a stream.
       // Paths are relative to the project root, where every build runs.
       input: {
         main: "index.html",
-        deadpan: "deadpan/index.html",
+        "find-the-wrecker": "find-the-wrecker/index.html",
       },
     },
   },

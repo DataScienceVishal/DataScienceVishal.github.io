@@ -75,10 +75,11 @@ export const TWIN = {
 } as const;
 
 /**
- * deadpan's 11-game pilot: the commits that recorded it (b6a5d93) and re-voted
- * its meetings (515ebb0), read 2026-11-22. Pilot games, not results. The repo
- * is not public yet, so the page cannot ship these until its README states
- * them; the deadpan-readme check in sources.ts fails until it does.
+ * Find the Wrecker's 11-game pilot: the commits in the deadpan repo that
+ * recorded it (b6a5d93) and re-voted its meetings (515ebb0), read 2026-11-22.
+ * Pilot games, not results. The repo is not public yet, so the page cannot
+ * ship these until its README states them; the wrecker-readme check in
+ * sources.ts fails until it does.
  */
 export const DEADPAN = {
   games: 11,

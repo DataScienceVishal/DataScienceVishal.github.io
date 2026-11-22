@@ -1,5 +1,6 @@
 import { m } from "motion/react";
 import { BADGES, type Badge } from "./emoji";
+import { ISLAND } from "./map";
 import type { LiveView } from "./useLiveGame";
 
 /**
@@ -23,6 +24,7 @@ const EMOJI_FONT = '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", s
 function badgeFor(view: LiveView, name: string): Badge | null {
   const { meeting, end, game } = view;
   if (end && game) {
+    if (end.winner === null) return null;
     const won = end.winner === "wrecker" ? name === game.wrecker : name !== game.wrecker;
     return won ? "won" : null;
   }
@@ -49,9 +51,9 @@ function badgeFor(view: LiveView, name: string): Badge | null {
 }
 
 export function Island({ view }: { view: LiveView }) {
-  const game = view.game;
-  if (!game) return null;
-  const { map, players, wrecker } = game;
+  const map = view.game?.map ?? ISLAND;
+  const players = view.game?.players ?? [];
+  const wrecker = view.game?.wrecker ?? "";
 
   const cells = Object.values(map.layout);
   const minC = Math.min(...cells.map(([c]) => c));
@@ -105,7 +107,7 @@ export function Island({ view }: { view: LiveView }) {
       aria-labelledby="island-title"
     >
       <title id="island-title">
-        {`The island at tick ${view.tick}. ` +
+        {(view.game ? `The island at tick ${view.tick}. ` : "The island, before a game. ") +
           players
             .filter((p) => view.positions[p])
             .map((p) => `${p} in the ${view.positions[p]}`)

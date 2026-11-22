@@ -31,7 +31,7 @@ export interface Link {
 }
 
 export interface Entry {
-  id: "twin" | "deadpan" | "scorer-audit" | "twicerun" | "lesion-split";
+  id: "twin" | "find-the-wrecker" | "scorer-audit" | "twicerun" | "lesion-split";
   /** The repository or product name, carried in the margin beside the date. */
   name: string;
   started: { iso: string; label: string };
@@ -90,15 +90,15 @@ export const ENTRIES: Entry[] = [
     plate: "brain",
   },
   {
-    id: "deadpan",
-    name: "deadpan",
+    id: "find-the-wrecker",
+    name: "find-the-wrecker",
     started: { iso: "2026-11-20", label: "20 Nov 2026" },
     claim: `In ${DEADPAN.revoted} pilot meetings, LLM players sent the wrecker ashore ${DEADPAN.tables[0].wrecker} times. A rule-based detective voting on the same evidence did it twice.`,
     fields: [
       {
         term: "Built",
         detail:
-          "A hidden-role game in the same genre as Among Us and Werewolf, set on its own lighthouse island. Six players keep the light; one of them, the wrecker, takes the others out. Movement is scripted. In meetings, gpt-5-mini agents run by a CrewAI Flow say where they were and whom they saw, then vote one player ashore.",
+          "Find the Wrecker is a hidden-role game in the same genre as Among Us and Werewolf, set on its own lighthouse island. Six players keep the light; one of them, the wrecker, takes the others out. Movement is scripted. In meetings, gpt-5-mini agents run by a CrewAI Flow say where they were and whom they saw, then vote one player ashore.",
       },
       {
         term: "Measured, in an 11-game pilot",
@@ -123,9 +123,9 @@ export const ENTRIES: Entry[] = [
       ],
       command: "uv run evaluate",
     },
-    action: { label: "Watch a live game", href: "/deadpan/" },
-    links: [{ label: "Repository", href: "https://github.com/DataScienceVishal/deadpan" }],
-    sources: ["deadpan-readme"],
+    action: { label: "Watch a live game", href: "/find-the-wrecker/" },
+    links: [{ label: "Repository", href: "https://github.com/DataScienceVishal/find-the-wrecker" }],
+    sources: ["wrecker-readme"],
   },
   {
     id: "scorer-audit",

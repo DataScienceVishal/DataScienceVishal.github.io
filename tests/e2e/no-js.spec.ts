@@ -8,7 +8,7 @@ import { expect, test } from "@playwright/test";
 test.use({ javaScriptEnabled: false });
 
 const EMAIL = "vishalkhan251@gmail.com";
-const ENTRIES = ["twin", "deadpan", "scorer-audit", "twicerun", "lesion-split"];
+const ENTRIES = ["twin", "find-the-wrecker", "scorer-audit", "twicerun", "lesion-split"];
 
 test("the HTML already has the page heading and all five entry headings", async ({ page }) => {
   await page.goto("/");

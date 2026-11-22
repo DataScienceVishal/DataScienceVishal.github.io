@@ -66,7 +66,7 @@ export const ABOUT = [
 /** The notebook's contents row. Order is page order. */
 export const CONTENTS = [
   { href: "#twin", label: "The twin" },
-  { href: "#deadpan", label: "Deadpan" },
+  { href: "#find-the-wrecker", label: "Find the Wrecker" },
   { href: "#scorer-audit", label: "Scorer audit" },
   { href: "#twicerun", label: "twicerun" },
   { href: "#lesion-split", label: "lesion-split" },

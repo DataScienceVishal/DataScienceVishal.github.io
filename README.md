@@ -5,12 +5,14 @@ as a lab notebook: each project is a dated entry that says what was expected
 before the work, what was measured, and where the work stops. React 19, Vite 7,
 Tailwind v4, prerendered at build time and served from GitHub Pages.
 
-A second page, [/deadpan/](deadpan/index.html), shows a game of Deadpan played
-live by LLM agents. It is not prerendered: everything on it comes from the game
-server's Server-Sent Events stream, so it renders in the browser. Until the
-server's address is set in [src/deadpan/config.ts](src/deadpan/config.ts) it
-says the server is not running yet. On the dev server, `/deadpan/?feed=sample`
-plays a short game written by hand, which never ships as the page's feed.
+A second page, [/find-the-wrecker/](find-the-wrecker/index.html), shows a game
+of Find the Wrecker played live by LLM agents. It is not prerendered: everything
+on it comes from the game server's Server-Sent Events stream, so it renders in
+the browser, and it connects only when the reader presses Watch, for one game.
+Until the server's address is set in [src/deadpan/config.ts](src/deadpan/config.ts)
+it says the server is not running yet. On the dev server,
+`/find-the-wrecker/?feed=sample` plays a short game written by hand, which never
+ships as the page's feed.
 
 ```bash
 npm install
@@ -52,7 +54,7 @@ wrong when it was written. Nothing noticed when it became wrong.
 3. `vite build --ssr src/entry-server.tsx`, a server bundle used once.
 4. `node scripts/prerender.mjs`, which renders the app to HTML, puts it in
    `dist/index.html`, inlines the stylesheet and deletes the server bundle.
-   The Deadpan page shares that stylesheet and still links it, so the file is
+   The Find the Wrecker page shares that stylesheet and still links it, so the file is
    kept rather than deleted once inlined.
 
 The page ships as real markup, so it paints before any JavaScript runs and

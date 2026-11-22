@@ -1,8 +1,12 @@
-import { useEffect, useReducer } from "react";
+import { useCallback, useEffect, useReducer, useRef } from "react";
 import { DEADPAN_API } from "./config";
 import { EVENT_TYPES, type Action, type Claim, type GameEvent, type MapInfo, type Mode, type Vote } from "./types";
 
-export type Link = "connecting" | "open" | "retrying" | "off";
+/**
+ * idle: not connected, the Watch button is offered. off: no server address
+ * yet, so there is nothing to watch.
+ */
+export type Link = "idle" | "connecting" | "open" | "retrying" | "off";
 export type Phase = "waiting" | "walking" | "meeting" | "over" | "intermission";
 
 export interface Statement {
@@ -28,6 +32,7 @@ export interface Meeting {
 export interface Game {
   id: string;
   mode: Mode;
+  playedBy: string;
   map: MapInfo;
   players: string[];
   wrecker: string;
@@ -37,6 +42,8 @@ export interface LiveView {
   link: Link;
   /** Seconds until the next connection attempt, while retrying. */
   retryIn: number;
+  /** Why the line was closed, said on the page: the server's closed text, or the tab going to the background. */
+  closed: string | null;
   game: Game | null;
   phase: Phase;
   tick: number;
@@ -50,18 +57,19 @@ export interface LiveView {
   out: string[];
   ashore: { name: string; role: "keeper" | "wrecker" }[];
   meeting: Meeting | null;
-  end: { winner: "keepers" | "wrecker"; reason: string } | null;
+  end: { winner: "keepers" | "wrecker" | null; reason: string } | null;
   next: { at: number; mode: Mode; left: number } | null;
   notice: string | null;
   /** Plain sentences about what has happened, newest last. The map's text alternative. */
   log: string[];
 }
 
-type Msg = { type: "link"; link: Link; retryIn?: number } | GameEvent;
+type Msg = { type: "link"; link: Link; retryIn?: number; closed?: string | null } | GameEvent;
 
-const START: LiveView = {
-  link: "connecting",
+export const START: LiveView = {
+  link: "idle",
   retryIn: 0,
+  closed: null,
   game: null,
   phase: "waiting",
   tick: 0,
@@ -89,14 +97,25 @@ const keep = (log: string[], ...lines: string[]) => [...log, ...lines].slice(-40
 export function reduce(view: LiveView, msg: Msg): LiveView {
   switch (msg.type) {
     case "link":
-      return { ...view, link: msg.link, retryIn: msg.retryIn ?? 0 };
+      return {
+        ...view,
+        link: msg.link,
+        retryIn: msg.retryIn ?? 0,
+        closed: msg.closed === undefined ? view.closed : msg.closed,
+      };
     case "game": {
       const positions = Object.fromEntries(msg.players.map((p) => [p, msg.map.start]));
       return {
         ...START,
         link: view.link,
-        notice: view.notice,
-        game: { id: msg.game_id, mode: msg.mode, map: msg.map, players: msg.players, wrecker: msg.wrecker },
+        game: {
+          id: msg.game_id,
+          mode: msg.mode,
+          playedBy: msg.played_by,
+          map: msg.map,
+          players: msg.players,
+          wrecker: msg.wrecker,
+        },
         phase: "walking",
         positions,
         log: [`A new game. Six players start in the ${msg.map.start}. ${msg.wrecker} is the wrecker.`],
@@ -193,13 +212,13 @@ export function reduce(view: LiveView, msg: Msg): LiveView {
         log: keep(view.log, line),
       };
     }
-    case "end":
-      return {
-        ...view,
-        phase: "over",
-        end: { winner: msg.winner, reason: msg.reason },
-        log: keep(view.log, `${msg.winner === "keepers" ? "The keepers win" : "The wrecker wins"}. ${msg.reason}`),
-      };
+    case "end": {
+      const said =
+        msg.winner === null
+          ? `The game stopped early.`
+          : `${msg.winner === "keepers" ? "The keepers win" : "The wrecker wins"}. ${msg.reason}`;
+      return { ...view, phase: "over", end: { winner: msg.winner, reason: msg.reason }, log: keep(view.log, said) };
+    }
     case "intermission":
       return {
         ...view,
@@ -208,31 +227,35 @@ export function reduce(view: LiveView, msg: Msg): LiveView {
       };
     case "notice":
       return { ...view, notice: msg.text };
+    case "closed":
+      return { ...view, link: "idle", closed: msg.text };
   }
 }
 
-/** Plays the made-up sample game on a loop, with the server's pauses. */
-function playSample(send: (m: Msg) => void): () => void {
+type Send = (m: Msg) => void;
+type Stop = () => void;
+
+/** Plays the made-up sample game once, with the server's pauses. Dev server only. */
+function playSample(send: Send, done: () => void): Stop {
   let stopped = false;
   let timer = 0;
+  send({ type: "link", link: "connecting", closed: null });
   void import("./sample").then(({ sampleGame }) => {
-    const run = () => {
-      const steps = sampleGame();
-      let i = 0;
-      const next = () => {
-        if (stopped) return;
-        if (i >= steps.length) {
-          run();
-          return;
-        }
-        const { event, wait } = steps[i++];
-        send(event);
-        timer = window.setTimeout(next, wait);
-      };
-      send({ type: "link", link: "open" });
-      next();
+    if (stopped) return;
+    const steps = sampleGame();
+    let i = 0;
+    const next = () => {
+      if (stopped || i >= steps.length) return;
+      const { event, wait } = steps[i++];
+      send(event);
+      if (event.type === "end") {
+        done();
+        return;
+      }
+      timer = window.setTimeout(next, wait);
     };
-    run();
+    send({ type: "link", link: "open" });
+    next();
   });
   return () => {
     stopped = true;
@@ -241,11 +264,13 @@ function playSample(send: (m: Msg) => void): () => void {
 }
 
 /**
- * Listens to the live stream. EventSource reconnects by itself after a dropped
- * line; when the server is gone altogether it closes, and this tries again
- * with a growing wait, saying so on the page rather than going blank.
+ * Listens to the live stream for one game. EventSource reconnects by itself
+ * after a dropped line and sends Last-Event-ID, and the server resumes; when
+ * the server is gone altogether it closes, and this tries again with a growing
+ * wait, saying so on the page rather than going blank. The line is closed by
+ * the caller after `end` or `closed`.
  */
-function listen(base: string, send: (m: Msg) => void): () => void {
+function listen(base: string, send: Send, done: () => void): Stop {
   let source: EventSource | null = null;
   let timer = 0;
   let tick = 0;
@@ -253,7 +278,7 @@ function listen(base: string, send: (m: Msg) => void): () => void {
   let stopped = false;
 
   const open = () => {
-    send({ type: "link", link: "connecting" });
+    send({ type: "link", link: "connecting", closed: null });
     source = new EventSource(`${base}/live`);
     source.onopen = () => {
       wait = 2;
@@ -261,11 +286,15 @@ function listen(base: string, send: (m: Msg) => void): () => void {
     };
     for (const type of EVENT_TYPES) {
       source.addEventListener(type, (e) => {
+        let event: GameEvent;
         try {
-          send({ ...(JSON.parse((e as MessageEvent<string>).data) as object), type } as GameEvent);
+          event = { ...(JSON.parse((e as MessageEvent<string>).data) as object), type } as GameEvent;
         } catch {
           // A malformed event is skipped rather than allowed to stop the stream.
+          return;
         }
+        send(event);
+        if (event.type === "end" || event.type === "closed") done();
       });
     }
     source.onerror = () => {
@@ -293,18 +322,51 @@ function listen(base: string, send: (m: Msg) => void): () => void {
   };
 }
 
-export function useLiveGame(): LiveView {
-  const [view, send] = useReducer(reduce, START);
+/**
+ * Nothing connects until the reader presses Watch, so a tab left open
+ * overnight, or a crawler that runs script, never starts a game. One game per
+ * press: the line closes after `end`, and when the tab goes to the background.
+ */
+export function useLiveGame(): { view: LiveView; watch: () => void } {
+  const [view, send] = useReducer(reduce, { ...START, link: canWatch() ? "idle" : "off" });
+  const stop = useRef<Stop | null>(null);
 
-  useEffect(() => {
-    const sample = import.meta.env.DEV && new URLSearchParams(window.location.search).get("feed") === "sample";
-    if (sample) return playSample(send);
-    if (!DEADPAN_API) {
-      send({ type: "link", link: "off" });
-      return;
-    }
-    return listen(DEADPAN_API, send);
+  const hangUp = useCallback((closed?: string) => {
+    stop.current?.();
+    stop.current = null;
+    send({ type: "link", link: "idle", ...(closed ? { closed } : {}) });
   }, []);
 
-  return view;
+  const watch = useCallback(() => {
+    stop.current?.();
+    const done = () => {
+      stop.current?.();
+      stop.current = null;
+      send({ type: "link", link: "idle" });
+    };
+    const sample = import.meta.env.DEV && new URLSearchParams(window.location.search).get("feed") === "sample";
+    if (sample) stop.current = playSample(send, done);
+    else if (DEADPAN_API) stop.current = listen(DEADPAN_API, send, done);
+  }, []);
+
+  useEffect(() => {
+    const away = () => {
+      if (document.visibilityState === "hidden" && stop.current) {
+        hangUp("Stopped watching while this tab was in the background.");
+      }
+    };
+    document.addEventListener("visibilitychange", away);
+    return () => {
+      document.removeEventListener("visibilitychange", away);
+      stop.current?.();
+    };
+  }, [hangUp]);
+
+  return { view, watch };
+}
+
+/** Whether the Watch button can do anything here: a server address, or the dev sample. */
+export function canWatch(): boolean {
+  if (DEADPAN_API) return true;
+  return import.meta.env.DEV && typeof window !== "undefined" && new URLSearchParams(window.location.search).get("feed") === "sample";
 }

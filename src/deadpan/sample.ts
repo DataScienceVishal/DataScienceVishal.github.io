@@ -5,37 +5,13 @@
  * draws. It loads only with ?feed=sample on the dev server, and never ships
  * as the feed of the built page.
  */
+import { ISLAND as MAP } from "./map";
 import type { Action, GameEvent, Verdict } from "./types";
 
 const G = "sample-1";
 const PLAYERS = ["Ada", "Bram", "Cleo", "Dev", "Esme", "Finn"];
 
-const MAP = {
-  name: "rock-light",
-  start: "Cottage",
-  rooms: {
-    Cottage: ["Kitchen", "Stairwell", "Yard"],
-    Kitchen: ["Cottage", "Oil Store"],
-    "Oil Store": ["Kitchen", "Stairwell"],
-    Stairwell: ["Cottage", "Oil Store", "Lamp Room"],
-    "Lamp Room": ["Stairwell"],
-    Yard: ["Cottage", "Workshop", "Boathouse"],
-    Workshop: ["Yard", "Boathouse"],
-    Boathouse: ["Yard", "Workshop", "Jetty"],
-    Jetty: ["Boathouse"],
-  },
-  layout: {
-    "Lamp Room": [2, 0],
-    Stairwell: [2, 1],
-    "Oil Store": [1, 1],
-    Kitchen: [1, 2],
-    Cottage: [2, 2],
-    Yard: [2, 3],
-    Workshop: [3, 3],
-    Boathouse: [2, 4],
-    Jetty: [1, 4],
-  },
-} as Extract<GameEvent, { type: "game" }>["map"];
+
 
 type Row<T = string> = [T, T, T, T, T, T];
 
@@ -48,13 +24,20 @@ const TICKS: { at: Row; did: Row<Action>; jobs: number[] }[] = [
   { at: ["Kitchen", "Jetty", "Lamp Room", "Boathouse", "Cottage", "Boathouse"], did: ["work", "move", "work", "move", "wait", "wait"], jobs: [2, 0, 3, 2, 1, 0] },
 ];
 
-const claim = (tick: number, room: string, saw: string[], verdict: Verdict = "true") => ({ tick, room, saw, verdict });
+const claim = (tick: number, room: string, saw: string[], verdict: Verdict = "true", refuted_by: string[] = [], left_out?: string[]) => ({
+  tick,
+  room,
+  saw,
+  verdict,
+  refuted_by,
+  ...(left_out ? { left_out } : {}),
+});
 
 export function sampleGame(): { event: GameEvent; wait: number }[] {
   const out: { event: GameEvent; wait: number }[] = [];
   const push = (event: GameEvent, wait: number) => out.push({ event, wait });
 
-  push({ type: "game", game_id: G, mode: "live", seed: 0, map: MAP, players: PLAYERS, wrecker: "Bram" }, 1500);
+  push({ type: "game", game_id: G, mode: "live", played_by: "scripted", seed: 0, map: MAP, players: PLAYERS, wrecker: "Bram" }, 1500);
 
   TICKS.forEach((t, i) => {
     const tick = i + 1;
@@ -88,9 +71,9 @@ export function sampleGame(): { event: GameEvent; wait: number }[] {
   const said: [string, ReturnType<typeof claim>[], string | null, string][] = [
     ["Dev", [claim(2, "Workshop", []), claim(5, "Boathouse", [])], null, "Finn was in the Boathouse when I came through from the Workshop. I passed nobody."],
     ["Ada", [claim(2, "Oil Store", []), claim(4, "Kitchen", [])], null, "Oil Store, then the Kitchen. I was on my own both times."],
-    ["Bram", [claim(2, "Workshop", [], "false_place"), claim(4, "Jetty", [], "false_place")], "Dev", "Workshop, then the Jetty. Dev found the body and he was the closest to it."],
-    ["Cleo", [claim(3, "Lamp Room", [])], "Bram", "I was trimming the wick. Esme saw Bram and Finn leave the Yard together."],
-    ["Esme", [claim(1, "Yard", ["Bram", "Finn"]), claim(2, "Yard", [])], "Bram", "Bram and Finn were with me in the Yard and went off together."],
+    ["Bram", [claim(2, "Workshop", [], "false_place", ["Dev"]), claim(4, "Jetty", [], "false_place")], "Dev", "Workshop, then the Jetty. Dev found the body and he was the closest to it."],
+    ["Cleo", [claim(3, "Lamp Room", [])], "Bram", "I was trimming the wick. Dev says the Workshop was empty when Bram says he was there."],
+    ["Esme", [claim(1, "Yard", ["Bram"], "omission", [], ["Finn"]), claim(2, "Yard", [])], "Bram", "Bram was with me in the Yard at the start and went off towards the water."],
   ];
   for (const [name, claims, suspect, speech] of said) {
     push({ type: "thinking", game_id: G, name, phase: "speak" }, 2200);
@@ -101,8 +84,8 @@ export function sampleGame(): { event: GameEvent; wait: number }[] {
     { name: "Dev", choice: "Bram", reason: "I was in the Workshop at tick 2 and he was not." },
     { name: "Ada", choice: "skip", reason: "Nothing I saw points at anyone." },
     { name: "Bram", choice: "Dev", reason: "He was nearest the body." },
-    { name: "Cleo", choice: "Bram", reason: "Esme puts him with Finn." },
-    { name: "Esme", choice: "Bram", reason: "He left the Yard with Finn." },
+    { name: "Cleo", choice: "Bram", reason: "Dev was in the Workshop and did not see him." },
+    { name: "Esme", choice: "Bram", reason: "He headed for the Boathouse." },
   ];
   for (const v of votes) {
     push({ type: "thinking", game_id: G, name: v.name, phase: "vote" }, 1100);

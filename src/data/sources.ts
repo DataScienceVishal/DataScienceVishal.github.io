@@ -20,7 +20,7 @@ export type SourceId =
   | "twin-repo"
   | "twin-ready"
   | "twin-readme"
-  | "deadpan-readme"
+  | "wrecker-readme"
   | "untrusted-readme"
   | "cannot-read-readme"
   | "ukhe-readme"
@@ -91,10 +91,10 @@ export const SOURCES: Record<SourceId, Source> = {
     check: raw("ai-professional-twin"),
     expect: ["0.75", "0.12", "SSE"],
   },
-  "deadpan-readme": {
-    label: "the deadpan README",
-    href: "https://github.com/DataScienceVishal/deadpan#readme",
-    check: raw("deadpan"),
+  "wrecker-readme": {
+    label: "the find-the-wrecker README",
+    href: "https://github.com/DataScienceVishal/find-the-wrecker#readme",
+    check: raw("find-the-wrecker"),
     expect: [
       `${DEADPAN.games} games`,
       `${DEADPAN.usd} USD`,

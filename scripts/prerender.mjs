@@ -61,10 +61,10 @@ console.log(`inlined ${(css.length / 1024).toFixed(1)} kB of css`);
 // Write first, delete second. The other order leaves dist/index.html pointing
 // at a stylesheet that has already been removed if the write throws.
 writeFileSync(template, out);
-// The live Deadpan page is a second entry that shares this stylesheet and is
+// The live Find the Wrecker page is a second entry that shares this stylesheet and is
 // not prerendered, so it still links the file. Deleting it would leave that
 // page unstyled; keep the file whenever another built page names it.
-const otherPages = [resolve(root, "dist/deadpan/index.html")].filter((p) => existsSync(p));
+const otherPages = [resolve(root, "dist/find-the-wrecker/index.html")].filter((p) => existsSync(p));
 const shared = otherPages.some((p) => readFileSync(p, "utf8").includes(cssLink[1]));
 if (!shared) rmSync(cssPath, { force: true });
 
