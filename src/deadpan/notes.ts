@@ -4,6 +4,7 @@
  * checker's own list of keepers whose sightings disprove it, so nothing here
  * repeats the checker's rule; it only gathers its answers.
  */
+import type { Vote } from "./types";
 import type { Statement } from "./useLiveGame";
 
 /**
@@ -95,4 +96,15 @@ export function lieNotes(statements: Statement[], wrecker: string, trail: Trail)
     .map((n, i) => ({ n, i }))
     .sort((a, b) => a.n.tick - b.n.tick || a.i - b.i)
     .map(({ n }) => n);
+}
+
+/**
+ * One meeting's proof: how many keepers held proof that the wrecker lied,
+ * each counted once for the meeting, and how many of them voted for the
+ * wrecker. That is how deadpan's evaluate counts holder seats.
+ */
+export function proofUsed(statements: Statement[], votes: Vote[], wrecker: string): { held: number; used: number } {
+  const holders = holdersOf(statements, wrecker);
+  const used = holders.filter((h) => votes.some((v) => v.name === h && v.choice === wrecker));
+  return { held: holders.length, used: used.length };
 }

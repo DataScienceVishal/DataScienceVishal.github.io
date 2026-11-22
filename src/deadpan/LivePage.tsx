@@ -97,7 +97,20 @@ function ClaimLine({ claim }: { claim: Claim }) {
   );
 }
 
-function MeetingPanel({ meeting, wrecker }: { meeting: Meeting; wrecker: string }) {
+/** "Proof used this game: 2 of 3", across the game's meetings so far. Hidden until someone has held proof. */
+function ProofLine({ proof }: { proof: LiveView["proof"] }) {
+  if (!proof.held) return null;
+  return (
+    <p className="t-small mt-3 text-ink-soft">
+      Proof used this game:{" "}
+      <span className="tabular text-margin">
+        {proof.used} of {proof.held}
+      </span>
+    </p>
+  );
+}
+
+function MeetingPanel({ meeting, wrecker, proof }: { meeting: Meeting; wrecker: string; proof: LiveView["proof"] }) {
   const result = meeting.result;
   // Keepers who held a sighting that disproved one of the wrecker's lies in
   // this meeting: the people the game is about.
@@ -152,6 +165,7 @@ function MeetingPanel({ meeting, wrecker }: { meeting: Meeting; wrecker: string 
             The vote
           </h3>
           <VoteLines votes={result.votes} tally={result.tally} wrecker={wrecker} holders={holders} />
+          <ProofLine proof={proof} />
           <p className="t-body mt-3 text-ink">
             {result.ejected ? (
               <>
@@ -331,9 +345,12 @@ export function LivePage() {
                   </p>
                 ) : null}
                 {view.meeting && view.game ? (
-                  <MeetingPanel meeting={view.meeting} wrecker={view.game.wrecker} />
+                  <MeetingPanel meeting={view.meeting} wrecker={view.game.wrecker} proof={view.proof} />
                 ) : (
-                  <Log lines={view.log} />
+                  <>
+                    {view.end ? <ProofLine proof={view.proof} /> : null}
+                    <Log lines={view.log} />
+                  </>
                 )}
               </div>
             </div>

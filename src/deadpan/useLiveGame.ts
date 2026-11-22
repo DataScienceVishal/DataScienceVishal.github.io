@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useReducer, useRef } from "react";
 import { DEADPAN_API } from "./config";
-import type { Trail } from "./notes";
+import { proofUsed, type Trail } from "./notes";
 import { EVENT_TYPES, type Action, type Claim, type GameEvent, type MapInfo, type Mode, type Vote } from "./types";
 
 /**
@@ -57,6 +57,8 @@ export interface LiveView {
   jobs: Record<string, [number, number]>;
   /** Where everyone stood after each tick this game, for the notes a lie leaves on the map. */
   trail: Trail;
+  /** Holder seats across this game's meetings so far, and how many voted for the wrecker. */
+  proof: { held: number; used: number };
   /** Taken out, as announced by meetings, plus anyone struck since. */
   out: string[];
   ashore: { name: string; role: "keeper" | "wrecker" }[];
@@ -84,6 +86,7 @@ export const START: LiveView = {
   found: null,
   jobs: {},
   trail: {},
+  proof: { held: 0, used: 0 },
   out: [],
   ashore: [],
   meeting: null,
@@ -226,6 +229,10 @@ export function reduce(view: LiveView, msg: Msg): LiveView {
           thinking: null,
           result: { votes: msg.votes, tally: msg.tally, ejected: msg.ejected, role: msg.ejected_role },
         },
+        proof: (() => {
+          const met = proofUsed(view.meeting.statements, msg.votes, view.game?.wrecker ?? "");
+          return { held: view.proof.held + met.held, used: view.proof.used + met.used };
+        })(),
         log: keep(view.log, line),
       };
     }

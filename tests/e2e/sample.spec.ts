@@ -125,3 +125,23 @@ test("at 375px the vote lines fit the meeting column", async ({ page }) => {
   expect(fits).toBe(true);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
 });
+
+test("proofUsed counts each holder once per meeting, and nothing when nobody holds proof", async ({ page }) => {
+  await page.goto("/find-the-wrecker/?feed=sample&fast=1");
+  const counts = await page.evaluate(async () => {
+    const { proofUsed } = await import("/src/deadpan/notes.ts");
+    const lie = (refuted_by: string[]) => ({ tick: 2, room: "Workshop", saw: [], verdict: "false_place", refuted_by, left_out: [], real_room: "Boathouse" });
+    const said = [{ name: "Bram", suspect: null, speech: "", fallback: false, claims: [lie(["Dev", "Ada"]), lie(["Dev"])] }];
+    const votes = [{ name: "Dev", choice: "Bram", reason: "" }, { name: "Ada", choice: "skip", reason: "" }];
+    const quiet = [{ name: "Bram", suspect: null, speech: "", fallback: false, claims: [] }];
+    return [proofUsed(said, votes, "Bram"), proofUsed(quiet, votes, "Bram")];
+  });
+  expect(counts).toEqual([{ held: 2, used: 1 }, { held: 0, used: 0 }]);
+});
+
+test("the vote and the end screen show the proof used this game", async ({ page }) => {
+  await watchSample(page);
+  await expect(page.getByText("Proof used this game: 2 of 3")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText("The keepers win")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText("Proof used this game: 2 of 3")).toBeVisible();
+});
