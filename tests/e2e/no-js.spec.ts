@@ -62,3 +62,12 @@ test("controls that need script are hidden, and the address still works", async 
     await expect(link).toHaveAttribute("href", `mailto:${EMAIL}`);
   }
 });
+
+test("the Find the Wrecker entry says what the README's figures cover, and no more", async ({ page }) => {
+  await page.goto("/");
+  const entry = page.locator("article#find-the-wrecker");
+  // The 19 in 26 is the 7 re-voted meetings with no disproof, not every such meeting.
+  await expect(entry).toContainText("keepers in the 7 re-voted meetings where nobody held a disproof 19 times in 26");
+  // The detective always used a disproof in this pilot; the README does not say it always would.
+  await expect(entry).toContainText("In the pilot's 9 seats with a disproof it voted for the wrecker every time");
+});

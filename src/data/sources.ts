@@ -104,8 +104,10 @@ export const SOURCES: Record<SourceId, Source> = {
       `${DEADPAN.besideHolders.forWrecker} times in ${DEADPAN.besideHolders.voters}`,
       `${DEADPAN.noDisproof.forWrecker} times in ${DEADPAN.noDisproof.voters}`,
       `(${DEADPAN.llmWithoutDisproof} of 7)`,
-      ...DEADPAN.tables.map((t) => `| ${t.wrecker} |`),
-      ...DEADPAN.tables.map((t) => `| ${t.keeper} |`),
+      // Whole rows: a lone "| 2 |" would also match another row's cell.
+      ...DEADPAN.tables.map(
+        (t) => `| ${t.readme} | ${t.wrecker} | ${t.withDisproof} | ${t.withoutDisproof} | ${t.keeper} |`,
+      ),
     ],
   },
   "untrusted-readme": {

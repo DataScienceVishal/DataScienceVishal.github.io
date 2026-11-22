@@ -97,9 +97,12 @@ export const DEADPAN = {
   /** Of the LLM table's 7, how many came in meetings where nobody held a disproof. */
   llmWithoutDisproof: 5,
   tables: [
-    { name: "LLM players", detail: "as recorded", wrecker: 7, keeper: 3 },
-    { name: "Rule-based detective", detail: "a ceiling for using proof", wrecker: 2, keeper: 0 },
-    { name: "Random voters", detail: "exact expectation", wrecker: 1.3, keeper: 5.3 },
+    // `readme` is how the README's re-vote table names the row, and the two
+    // middle counts are its other columns, so the source check can pin each
+    // whole row rather than single cells that other rows share.
+    { name: "LLM players", readme: "The LLM players, as recorded", detail: "as recorded", wrecker: 7, withDisproof: 2, withoutDisproof: 5, keeper: 3 },
+    { name: "Rule-based detective", readme: "A rule-based detective", detail: "a ceiling for using proof", wrecker: 2, withDisproof: 1, withoutDisproof: 1, keeper: 0 },
+    { name: "Random voters", readme: "Random voters, exact expectation", detail: "exact expectation", wrecker: 1.3, withDisproof: 0.5, withoutDisproof: 0.8, keeper: 5.3 },
   ],
 } as const;
 
