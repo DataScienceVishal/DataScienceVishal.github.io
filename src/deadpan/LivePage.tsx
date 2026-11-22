@@ -5,10 +5,10 @@ import { ThemeToggle } from "../components/notebook/ThemeToggle";
 import { PROFILE } from "../data/profile";
 import { BADGES, type Badge } from "./emoji";
 import { Island } from "./Island";
+import { holdersOf } from "./notes";
 import type { Claim } from "./types";
 import { useLiveGame, type Game, type LiveView, type Meeting } from "./useLiveGame";
 
-const LIES: Claim["verdict"][] = ["false_place", "invented_sighting"];
 
 function Emoji({ badge }: { badge: Badge }) {
   return (
@@ -82,7 +82,8 @@ function StatusLine({ view }: { view: LiveView }) {
 }
 
 function ClaimLine({ claim }: { claim: Claim }) {
-  const lie = LIES.includes(claim.verdict);
+  // A claim someone could disprove is a lie, whatever its verdict.
+  const lie = claim.refuted_by.length > 0;
   let verdict = "checks out";
   if (claim.verdict === "false_place") verdict = `false: was in the ${claim.real_room}`;
   if (claim.verdict === "invented_sighting") verdict = "false: saw no such player";
@@ -107,13 +108,7 @@ function MeetingPanel({ meeting, wrecker }: { meeting: Meeting; wrecker: string 
   const result = meeting.result;
   // Keepers who held a sighting that disproved one of the wrecker's lies in
   // this meeting: the people the game is about.
-  const holders = [
-    ...new Set(
-      meeting.statements
-        .filter((s) => s.name === wrecker)
-        .flatMap((s) => s.claims.filter((c) => LIES.includes(c.verdict)).flatMap((c) => c.refuted_by)),
-    ),
-  ];
+  const holders = holdersOf(meeting.statements, wrecker);
   const used = result ? holders.filter((h) => result.votes.some((v) => v.name === h && v.choice === wrecker)) : [];
 
   return (

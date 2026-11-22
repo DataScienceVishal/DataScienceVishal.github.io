@@ -72,9 +72,21 @@ export function sampleGame(): { event: GameEvent; wait: number }[] {
   const said: [string, ReturnType<typeof claim>[], string | null, string][] = [
     ["Dev", [claim(2, "Workshop", []), claim(5, "Boathouse", [])], null, "Finn was in the Boathouse when I came through from the Workshop. I passed nobody."],
     ["Ada", [claim(2, "Oil Store", []), claim(4, "Kitchen", [])], null, "Oil Store, then the Kitchen. I was on my own both times."],
-    ["Bram", [claim(2, "Workshop", [], "false_place", ["Dev"], [], "Boathouse"), claim(4, "Jetty", [], "false_place", [], [], "Boathouse")], "Dev", "Workshop, then the Jetty. Dev found the body and he was the closest to it."],
+    [
+      "Bram",
+      [
+        // At tick 1 Esme was in the Yard with Bram and Finn; Bram names only Finn.
+        claim(1, "Yard", ["Finn"], "omission", ["Esme"], ["Esme"]),
+        claim(2, "Workshop", [], "false_place", ["Dev"], [], "Boathouse"),
+        // At tick 4 Ada was in the Kitchen, not the Boathouse.
+        claim(4, "Boathouse", ["Ada"], "invented_sighting", ["Ada"]),
+      ],
+      "Dev",
+      "Yard with Finn, then the Workshop. Ada was at the Boathouse when Finn was there. Dev found the body first.",
+    ],
     ["Cleo", [claim(3, "Lamp Room", [])], "Bram", "I was trimming the wick. Dev says the Workshop was empty when Bram says he was there."],
-    ["Esme", [claim(1, "Yard", ["Bram"], "omission", [], ["Finn"]), claim(2, "Yard", [])], "Bram", "Bram was with me in the Yard at the start and went off towards the water."],
+    // Finn was taken out before the meeting, so leaving him out is allowed.
+    ["Esme", [claim(1, "Yard", ["Bram"]), claim(2, "Yard", [])], "Bram", "Bram was with me in the Yard at the start and went off towards the water."],
   ];
   for (const [name, claims, suspect, speech] of said) {
     push({ type: "thinking", game_id: G, name, phase: "speak" }, 2200);
@@ -83,10 +95,10 @@ export function sampleGame(): { event: GameEvent; wait: number }[] {
 
   const votes = [
     { name: "Dev", choice: "Bram", reason: "I was in the Workshop at tick 2 and he was not." },
-    { name: "Ada", choice: "skip", reason: "Nothing I saw points at anyone." },
+    { name: "Ada", choice: "skip", reason: "Bram has me at the Boathouse, which is wrong, but a wrong tick is not proof." },
     { name: "Bram", choice: "Dev", reason: "He was nearest the body." },
     { name: "Cleo", choice: "Bram", reason: "Dev was in the Workshop and did not see him." },
-    { name: "Esme", choice: "Bram", reason: "He headed for the Boathouse." },
+    { name: "Esme", choice: "Bram", reason: "I was in the Yard with him at tick 1 and he left me out." },
   ];
   for (const v of votes) {
     push({ type: "thinking", game_id: G, name: v.name, phase: "vote" }, 1100);
