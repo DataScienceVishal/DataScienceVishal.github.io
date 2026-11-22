@@ -1,3 +1,4 @@
+import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
 /*
@@ -145,3 +146,52 @@ test("the vote and the end screen show the proof used this game", async ({ page 
   await expect(page.getByText("The keepers win")).toBeVisible({ timeout: 15_000 });
   await expect(page.getByText("Proof used this game: 2 of 3")).toBeVisible();
 });
+
+const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"];
+
+for (const theme of ["light", "dark"] as const) {
+  test(`the meeting has no axe violations on the ${theme} page`, async ({ page }) => {
+    // At normal speed: at ?fast=1 the notes are up for about a second, less
+    // than an axe pass takes.
+    test.setTimeout(150_000);
+    await page.addInitScript((choice) => {
+      try {
+        localStorage.setItem("theme", choice);
+      } catch {
+        // about:blank has no storage.
+      }
+    }, theme);
+    await page.goto("/find-the-wrecker/?feed=sample");
+    await page.getByRole("button", { name: "Watch a game" }).last().click();
+    const island = page.locator("svg[aria-labelledby=island-title]");
+    await expect(island.getByText("Bram: here, alone, tick 2.")).toBeVisible({ timeout: 60_000 });
+    const withNotes = await new AxeBuilder({ page }).withTags(TAGS).analyze();
+    expect(withNotes.violations.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
+    // The notes are hidden from assistive technology, so axe never checks their
+    // contrast. They sit on bare paper, so check each line against the paper.
+    const ratios = await island.locator("g[aria-hidden=true] text").evaluateAll((texts) => {
+      const rgb = (c: string) => (c.match(/\d+(\.\d+)?/g) ?? []).slice(0, 3).map(Number);
+      const lum = ([r, g, b]: number[]) =>
+        [r, g, b]
+          .map((v) => v / 255)
+          .map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
+          .reduce((sum, v, i) => sum + v * [0.2126, 0.7152, 0.0722][i], 0);
+      const probe = document.createElement("span");
+      probe.style.color = "var(--paper)";
+      document.body.append(probe);
+      const paper = lum(rgb(getComputedStyle(probe).color));
+      probe.remove();
+      return texts.map((t) => {
+        const ink = lum(rgb(getComputedStyle(t).fill));
+        const [hi, lo] = ink > paper ? [ink, paper] : [paper, ink];
+        return { text: t.textContent, ratio: Math.round(((hi + 0.05) / (lo + 0.05)) * 100) / 100 };
+      });
+    });
+    expect(ratios.length).toBeGreaterThan(0);
+    expect(ratios.filter((r) => r.ratio < 4.5)).toEqual([]);
+
+    await expect(page.locator("[data-vote-lines] polyline").first()).toBeAttached({ timeout: 60_000 });
+    const atResult = await new AxeBuilder({ page }).withTags(TAGS).analyze();
+    expect(atResult.violations.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
+  });
+}
