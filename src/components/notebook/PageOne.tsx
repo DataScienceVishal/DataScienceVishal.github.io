@@ -1,4 +1,5 @@
-import { ArrowUpRight, FilePdf } from "@phosphor-icons/react";
+import { ArrowUpRight, ChatCircleDots, FilePdf } from "@phosphor-icons/react";
+import { TWIN } from "../../data/figures";
 import { ABOUT, PROFILE } from "../../data/profile";
 import { CopyEmail } from "./CopyEmail";
 import { Plate } from "./Plate";
@@ -68,6 +69,26 @@ export function PageOne() {
         <CopyEmail email={PROFILE.email} id="page-one-email" />
       </div>
 
+      {/* The twin is the one thing on the page a visitor can try, so it gets a
+          box of its own under the address and a line saying what it does. */}
+      <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <a
+          href={PROFILE.twin}
+          {...out}
+          className="t-furniture inline-flex items-center gap-2 border-2 border-ink px-4 py-2 text-ink no-underline transition-colors duration-150 hover:bg-wash active:translate-y-px"
+          style={{ fontWeight: 650 }}
+        >
+          <ChatCircleDots size={18} aria-hidden="true" />
+          Ask my AI twin
+          <ArrowUpRight size={14} aria-hidden="true" />
+          <span className="sr-only">, opens in a new tab</span>
+        </a>
+        <span className="t-furniture-sm max-w-[22rem] text-pencil">
+          Answers questions about my work from {TWIN.documents} documents, and shows which
+          ones it used.
+        </span>
+      </div>
+
       <p className="t-furniture mt-3 flex flex-wrap items-center gap-x-6 gap-y-2">
         <a href={PROFILE.cv} className="inline-flex items-center gap-1.5 text-ink">
           <FilePdf aria-hidden="true" />
@@ -80,11 +101,6 @@ export function PageOne() {
         </a>
         <a href={PROFILE.linkedin} {...out} className="inline-flex items-center gap-1 text-ink">
           LinkedIn
-          <ArrowUpRight size={14} aria-hidden="true" />
-          <span className="sr-only">, opens in a new tab</span>
-        </a>
-        <a href={PROFILE.twin} {...out} className="inline-flex items-center gap-1 text-ink">
-          Ask my AI twin
           <ArrowUpRight size={14} aria-hidden="true" />
           <span className="sr-only">, opens in a new tab</span>
         </a>

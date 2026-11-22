@@ -74,6 +74,32 @@ export const TWIN = {
   readOn: "12 Oct 2026",
 } as const;
 
+/**
+ * deadpan's 11-game pilot: the commits that recorded it (b6a5d93) and re-voted
+ * its meetings (515ebb0), read 2026-11-22. Pilot games, not results. The repo
+ * is not public yet, so the page cannot ship these until its README states
+ * them; the deadpan-readme check in sources.ts fails until it does.
+ */
+export const DEADPAN = {
+  games: 11,
+  usd: "0.123",
+  meetings: 13,
+  /** Meetings where a keeper's own sightings disproved a wrecker claim. */
+  knowable: 8,
+  /** Keepers who held such a disproof, and how many of them voted for the wrecker. */
+  holders: 12,
+  holdersForWrecker: 8,
+  keeperClaims: 126,
+  /** Meetings that kept their recorded turns, so could be re-voted offline. */
+  revoted: 12,
+  randomDraws: "1,000",
+  tables: [
+    { name: "LLM players", detail: "as recorded", wrecker: 7, keeper: 3 },
+    { name: "Rule-based detective", detail: "same views", wrecker: 2, keeper: 1 },
+    { name: "Random voters", detail: "mean of 1,000 draws", wrecker: 1.3, keeper: 5.4 },
+  ],
+} as const;
+
 /** UK-HE-Completion-Risk-Classifier README. */
 export const UKHE = {
   providers: 312,

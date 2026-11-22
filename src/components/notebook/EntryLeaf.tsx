@@ -1,8 +1,9 @@
-import { ArrowUpRight } from "@phosphor-icons/react";
+import { ArrowRight, ArrowUpRight } from "@phosphor-icons/react";
 import type { Entry, FigureKind } from "../../data/entries";
 import { SOURCES } from "../../data/sources";
 import { LesionScale } from "./figures/LesionScale";
 import { RetrievalPath } from "./figures/RetrievalPath";
+import { RevoteTable } from "./figures/RevoteTable";
 import { TrailScale } from "./figures/TrailScale";
 import { TwicerunSteps } from "./figures/TwicerunSteps";
 import { Plate } from "./Plate";
@@ -13,6 +14,7 @@ const FIGURES: Record<FigureKind, () => React.ReactElement> = {
   twicerun: TwicerunSteps,
   lesion: LesionScale,
   retrieval: RetrievalPath,
+  revote: RevoteTable,
 };
 
 const out = { target: "_blank", rel: "noopener noreferrer" } as const;
@@ -28,6 +30,29 @@ function marked(detail: string, mark?: string) {
       <mark className="hl">{mark}</mark>
       {detail.slice(at + mark.length)}
     </>
+  );
+}
+
+/**
+ * The one thing a visitor can do with an entry right now, under its figure. A
+ * 2px ink box, the weight of the email field, so it reads as a control rather
+ * than one more link in the row at the foot of the entry.
+ */
+export function ActionLink({ link, name }: { link: { label: string; href: string }; name: string }) {
+  const external = link.href.startsWith("http");
+  return (
+    <p className="mt-7">
+      <a
+        href={link.href}
+        {...(external ? out : {})}
+        className="t-furniture inline-flex items-center gap-2 border-2 border-ink px-4 py-2 text-ink no-underline transition-colors duration-150 hover:bg-wash active:translate-y-px"
+        style={{ fontWeight: 650 }}
+      >
+        {link.label}
+        {external ? <ArrowUpRight size={16} aria-hidden="true" /> : <ArrowRight size={16} aria-hidden="true" />}
+        {external ? <span className="sr-only">, {name}, opens in a new tab</span> : null}
+      </a>
+    </p>
   );
 }
 
@@ -59,6 +84,8 @@ export function EntryLeaf({ entry }: { entry: Entry }) {
       </p>
 
       <Figure />
+
+      {entry.action ? <ActionLink link={entry.action} name={entry.name} /> : null}
 
       <dl className="mt-9 grid max-w-[32em] gap-y-5">
         {entry.fields.map((field) => (

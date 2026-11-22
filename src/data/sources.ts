@@ -10,7 +10,7 @@
  * all three had changed.
  */
 
-import { LESION, TRAIL, TWICERUN, TWIN, UKHE, dp3 } from "./figures";
+import { DEADPAN, LESION, TRAIL, TWICERUN, TWIN, UKHE, dp3 } from "./figures";
 
 export type SourceId =
   | "trail-readme"
@@ -20,6 +20,7 @@ export type SourceId =
   | "twin-repo"
   | "twin-ready"
   | "twin-readme"
+  | "deadpan-readme"
   | "untrusted-readme"
   | "cannot-read-readme"
   | "ukhe-readme"
@@ -89,6 +90,17 @@ export const SOURCES: Record<SourceId, Source> = {
     href: "https://github.com/DataScienceVishal/ai-professional-twin#readme",
     check: raw("ai-professional-twin"),
     expect: ["0.75", "0.12", "SSE"],
+  },
+  "deadpan-readme": {
+    label: "the deadpan README",
+    href: "https://github.com/DataScienceVishal/deadpan#readme",
+    check: raw("deadpan"),
+    expect: [
+      `${DEADPAN.games} games`,
+      `${DEADPAN.usd} USD`,
+      `${DEADPAN.holdersForWrecker} of the ${DEADPAN.holders} keepers`,
+      `${DEADPAN.keeperClaims}`,
+    ],
   },
   "untrusted-readme": {
     label: "the untrusted-rows README",

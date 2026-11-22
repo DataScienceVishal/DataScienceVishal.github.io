@@ -8,9 +8,9 @@ import { expect, test } from "@playwright/test";
 test.use({ javaScriptEnabled: false });
 
 const EMAIL = "vishalkhan251@gmail.com";
-const ENTRIES = ["scorer-audit", "twicerun", "lesion-split", "twin"];
+const ENTRIES = ["twin", "deadpan", "scorer-audit", "twicerun", "lesion-split"];
 
-test("the HTML already has the page heading and all four entry headings", async ({ page }) => {
+test("the HTML already has the page heading and all five entry headings", async ({ page }) => {
   await page.goto("/");
   const title = page.getByRole("heading", { level: 1 });
   await expect(title).toHaveCount(1);
@@ -32,14 +32,14 @@ test("page one says whose notebook it is before any entry starts", async ({ page
   const bio = page.locator("#top p", { hasText: "I started in finance and tax" });
   await expect(bio).toBeVisible();
   const bioBox = await bio.boundingBox();
-  const firstEntry = await page.locator("article#scorer-audit").boundingBox();
+  const firstEntry = await page.locator(`article#${ENTRIES[0]}`).boundingBox();
   expect(bioBox!.y + bioBox!.height).toBeLessThan(firstEntry!.y);
 });
 
 test("each entry's measured phrase is highlighted without script", async ({ page }) => {
   await page.goto("/");
   const marks = page.locator("article mark.hl");
-  await expect(marks).toHaveCount(3);
+  await expect(marks).toHaveCount(4);
   for (const mark of await marks.all()) {
     await expect(mark).toBeVisible();
     expect(await mark.evaluate((m) => getComputedStyle(m).backgroundSize)).toBe("100% 62%");

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- The theme before first paint, as on the home page. -->
+    <script>
+      (function () {
+        var d = document.documentElement;
+        var t = null;
+        try { t = localStorage.getItem("theme"); } catch (e) {}
+        if (t !== "light" && t !== "dark") {
+          t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        d.setAttribute("data-theme", t);
+        d.classList.add("js");
+      })();
+    </script>
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f6f7f4" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#141413" media="(prefers-color-scheme: dark)" />
+    <title>Deadpan, played live - Vishal Khan</title>
+    <meta
+      name="description"
+      content="Watch a game of Deadpan, a hidden-role game played by LLM agents, live. Every claim a player makes is checked against where everyone really was."
+    />
+    <link rel="canonical" href="https://vishalkhan.me/deadpan/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      rel="preload"
+      href="/fonts/archivo-latin-wdth-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/deadpan/main.tsx"></script>
+  </body>
+</html>

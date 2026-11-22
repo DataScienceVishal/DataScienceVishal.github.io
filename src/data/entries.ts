@@ -8,11 +8,11 @@
  * advance. lesion-split's came from the literature and is labelled as such.
  */
 
-import { CHESS, CHURN, CIFAR, LESION, TRAIL, TWICERUN, TWIN, UKHE, dp3, signed } from "./figures";
+import { CHESS, CHURN, CIFAR, DEADPAN, LESION, TRAIL, TWICERUN, TWIN, UKHE, dp3, signed } from "./figures";
 import type { SourceId } from "./sources";
 import type { PlateId } from "./plates";
 
-export type FigureKind = "trail" | "twicerun" | "lesion" | "retrieval";
+export type FigureKind = "trail" | "twicerun" | "lesion" | "retrieval" | "revote";
 
 export interface Field {
   term: string;
@@ -31,7 +31,7 @@ export interface Link {
 }
 
 export interface Entry {
-  id: "scorer-audit" | "twicerun" | "lesion-split" | "twin";
+  id: "twin" | "deadpan" | "scorer-audit" | "twicerun" | "lesion-split";
   /** The repository or product name, carried in the margin beside the date. */
   name: string;
   started: { iso: string; label: string };
@@ -41,6 +41,11 @@ export interface Entry {
   context: string;
   /** The second depth. Opens in place; nothing here is needed to follow the claim. */
   working: { summary: string; paragraphs: string[]; command?: string };
+  /**
+   * The one thing to do with the entry, set as a button directly under its
+   * figure. Only for work a visitor can use right now, not for a repository.
+   */
+  action?: Link;
   links: Link[];
   sources: SourceId[];
   plate?: PlateId;
@@ -49,6 +54,79 @@ export interface Entry {
 const gap = LESION.gaps[0];
 
 export const ENTRIES: Entry[] = [
+  {
+    id: "twin",
+    name: "ai-professional-twin",
+    started: { iso: "2026-06-12", label: "12 Jun 2026" },
+    claim: `A live assistant that answers questions about me from ${TWIN.documents} documents, cites what it used, and says so when they do not cover the question.`,
+    fields: [
+      {
+        term: "Built",
+        detail: `FastAPI and ChromaDB with Azure OpenAI, intent-boosted retrieval, and answers streamed over SSE to a React 19 front end. ${TWIN.tests} tests run in CI, ${TWIN.backendTests} backend and ${TWIN.frontendTests} frontend.`,
+      },
+      {
+        term: "Running",
+        detail: "Front end on Vercel, backend on Azure Container Apps, behind per-IP rate limits and a daily spend cap.",
+      },
+      {
+        term: "What I would change",
+        detail:
+          "Its defence against instructions planted in a retrieved README is a paragraph of the system prompt, and the test for it only asserts the paragraph is present. Nothing measures whether it works. untrusted-rows is where I am measuring that kind of defence.",
+      },
+    ],
+    figure: "retrieval",
+    context: `The ${TWIN.documents} documents are YAML knowledge files, the CV and live READMEs from public GitHub, read from the running deployment on ${TWIN.readOn}. The number moves as repositories are added.`,
+    working: {
+      summary: "Why those settings, and what the README admits",
+      paragraphs: [
+        "Follow-up questions such as \"what tools did he use?\" embed to almost nothing on their own, so the last two user turns are folded into the retrieval query. That is cheaper and more predictable than an extra model call to rewrite the question.",
+        "Intent never filters the search. It nudges preferred sources 0.12 closer, so a question about skills still finds the project where the skill was used.",
+        "Ingestion runs in the background and keys every document on a content hash, so a cold start answers health checks at once instead of restart-looping while it embeds.",
+      ],
+    },
+    action: { label: "Ask my AI twin", href: "https://ai-professional-twin.vercel.app/" },
+    links: [{ label: "Repository", href: "https://github.com/DataScienceVishal/ai-professional-twin" }],
+    sources: ["twin-ready", "twin-repo", "twin-readme", "untrusted-readme"],
+    plate: "brain",
+  },
+  {
+    id: "deadpan",
+    name: "deadpan",
+    started: { iso: "2026-11-20", label: "20 Nov 2026" },
+    claim: `In ${DEADPAN.revoted} pilot meetings, LLM players sent the wrecker ashore ${DEADPAN.tables[0].wrecker} times. A rule-based detective voting on the same evidence did it twice.`,
+    fields: [
+      {
+        term: "Built",
+        detail:
+          "A hidden-role game in the same genre as Among Us and Werewolf, set on its own lighthouse island. Six players keep the light; one of them, the wrecker, takes the others out. Movement is scripted. In meetings, gpt-5-mini agents run by a CrewAI Flow say where they were and whom they saw, then vote one player ashore.",
+      },
+      {
+        term: "Measured, in an 11-game pilot",
+        detail: `Every claim was checked against the simulator's record. Keepers made no false-place or invented-sighting claims in ${DEADPAN.keeperClaims}. In ${DEADPAN.knowable} of ${DEADPAN.meetings} meetings a keeper's own sightings disproved something the wrecker said, and ${DEADPAN.holdersForWrecker} of the ${DEADPAN.holders} keepers holding such a disproof voted for the wrecker. All ${DEADPAN.games} games cost ${DEADPAN.usd} USD.`,
+        mark: `${DEADPAN.holdersForWrecker} of the ${DEADPAN.holders} keepers holding such a disproof voted for the wrecker`,
+      },
+      {
+        term: "Not yet",
+        detail:
+          "These are pilot games, not results. Twelve meetings are too few to say that one way of voting beats another.",
+      },
+    ],
+    figure: "revote",
+    context:
+      "The question is whether an LLM agent that holds the evidence exposing a liar uses it. The simulator knows where everyone was on every tick, so for each meeting it can say which keepers could have caught the wrecker's lie, and whether they then voted for the wrecker.",
+    working: {
+      summary: "How a meeting is re-voted, and what each player can see",
+      paragraphs: [
+        "Every prompt is built from what that seat saw and what was said in public, nothing else. A test swaps which player is the wrecker, changes nothing else, and checks that every keeper's prompt stays identical, character for character.",
+        "Each keeper's recorded view of a meeting is handed again to a rule-based detective and to random voters, with the wrecker's own vote kept. The detective votes only on what it holds: a strike it saw, a claim its own sightings disprove, and who was last seen with the victim.",
+        "Movement is scripted because letting the model choose every step would be about 120 calls a game before any meeting. Only meeting speech and votes use it, which also means every table reaches a meeting with the same sightings.",
+      ],
+      command: "uv run evaluate",
+    },
+    action: { label: "Watch a live game", href: "/deadpan/" },
+    links: [{ label: "Repository", href: "https://github.com/DataScienceVishal/deadpan" }],
+    sources: ["deadpan-readme"],
+  },
   {
     id: "scorer-audit",
     name: "trail-scorer-audit",
@@ -141,43 +219,6 @@ export const ENTRIES: Entry[] = [
     },
     links: [{ label: "Repository", href: "https://github.com/DataScienceVishal/lesion-split" }],
     sources: ["lesion-readme"],
-  },
-  {
-    id: "twin",
-    name: "ai-professional-twin",
-    started: { iso: "2026-06-12", label: "12 Jun 2026" },
-    claim: `A live assistant that answers questions about me from ${TWIN.documents} documents, cites what it used, and says so when they do not cover the question.`,
-    fields: [
-      {
-        term: "Built",
-        detail: `FastAPI and ChromaDB with Azure OpenAI, intent-boosted retrieval, and answers streamed over SSE to a React 19 front end. ${TWIN.tests} tests run in CI, ${TWIN.backendTests} backend and ${TWIN.frontendTests} frontend.`,
-      },
-      {
-        term: "Running",
-        detail: "Front end on Vercel, backend on Azure Container Apps, behind per-IP rate limits and a daily spend cap.",
-      },
-      {
-        term: "What I would change",
-        detail:
-          "Its defence against instructions planted in a retrieved README is a paragraph of the system prompt, and the test for it only asserts the paragraph is present. Nothing measures whether it works. untrusted-rows is where I am measuring that kind of defence.",
-      },
-    ],
-    figure: "retrieval",
-    context: `The ${TWIN.documents} documents are YAML knowledge files, the CV and live READMEs from public GitHub, read from the running deployment on ${TWIN.readOn}. The number moves as repositories are added.`,
-    working: {
-      summary: "Why those settings, and what the README admits",
-      paragraphs: [
-        "Follow-up questions such as \"what tools did he use?\" embed to almost nothing on their own, so the last two user turns are folded into the retrieval query. That is cheaper and more predictable than an extra model call to rewrite the question.",
-        "Intent never filters the search. It nudges preferred sources 0.12 closer, so a question about skills still finds the project where the skill was used.",
-        "Ingestion runs in the background and keys every document on a content hash, so a cold start answers health checks at once instead of restart-looping while it embeds.",
-      ],
-    },
-    links: [
-      { label: "Ask the twin", href: "https://ai-professional-twin.vercel.app/" },
-      { label: "Repository", href: "https://github.com/DataScienceVishal/ai-professional-twin" },
-    ],
-    sources: ["twin-ready", "twin-repo", "twin-readme", "untrusted-readme"],
-    plate: "brain",
   },
 ];
 

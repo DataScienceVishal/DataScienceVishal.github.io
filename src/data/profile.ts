@@ -22,7 +22,7 @@ export const PROFILE = {
    * hand when the content changes, so it never claims an update that a deploy
    * alone did not make.
    */
-  checked: { iso: "2026-10-12", label: "12 Oct 2026" },
+  checked: { iso: "2026-11-22", label: "22 Nov 2026" },
 } as const;
 
 export const CALL_MAILTO =
@@ -65,10 +65,11 @@ export const ABOUT = [
 
 /** The notebook's contents row. Order is page order. */
 export const CONTENTS = [
+  { href: "#twin", label: "The twin" },
+  { href: "#deadpan", label: "Deadpan" },
   { href: "#scorer-audit", label: "Scorer audit" },
   { href: "#twicerun", label: "twicerun" },
   { href: "#lesion-split", label: "lesion-split" },
-  { href: "#twin", label: "The twin" },
   { href: "#background", label: "Background" },
   { href: "#contact", label: "Contact" },
 ] as const;

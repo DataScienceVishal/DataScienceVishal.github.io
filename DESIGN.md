@@ -257,7 +257,7 @@ Prints are rotated a little off square: 0.8deg clockwise by default, 0.7deg anti
 ## Components
 
 ### Page one
-The owner page, with ink specks drifting over its paper. The name sits at display size with the portrait taped beside it: 5rem wide on a phone, 6rem from 640px and 7rem from 1024px, in a 6px print edge, tilted left, under one strip of tape. The role and city sit under the name in furniture type. Then come the claim at headline size, two paragraphs of bio in lead type, the availability and sponsorship line in body type, the email bar, and a link row for the CV, GitHub, LinkedIn and the twin. The robot-head plate takes the third column from 1280px; on narrower screens it comes after the links. The margin carries the date the facts were last checked.
+The owner page, with ink specks drifting over its paper. The name sits at display size with the portrait taped beside it: 5rem wide on a phone, 6rem from 640px and 7rem from 1024px, in a 6px print edge, tilted left, under one strip of tape. The role and city sit under the name in furniture type. Then come the claim at headline size, two paragraphs of bio in lead type, the availability and sponsorship line in body type, the email bar, the twin's button with one line in furniture small saying what it answers from, and a link row for the CV, GitHub and LinkedIn. The robot-head plate takes the third column from 1280px; on narrower screens it comes after the links. The margin carries the date the facts were last checked.
 
 The specks are a canvas under everything on page one, made after the page is idle and never with reduced motion: one speck per 9,000 square pixels (40 to 140, and 60% of that on a touch screen), each at most 55% ink, joined by a line of at most 18% ink wherever two are within 96px (72px on a touch screen). They drift at up to about 35px a second, a little more often up than down, and part around the pointer within 110px. Every line box of text is erased from the canvas after each frame, so no speck or line is ever under the writing. They stop while page one is off screen, and on a touch screen they draw every other frame.
 
@@ -266,6 +266,7 @@ Plain, square and ink-ruled, like the printed boxes on a form.
 - **Shape:** square corners (0px).
 - **Primary (Copy email):** ink fill with paper text and a 2px ink border, furniture type at 650, 10px by 20px padding, with an SVG icon that changes for idle, copied and blocked. It joins the email field into one bar from 640px.
 - **Hover / Focus:** the fill and border move to ink soft over 150ms; pressing nudges it down 1px. Focus is the global 2px ink outline at a 3px offset.
+- **Action (Ask my AI twin, Watch a live game):** a 2px ink box with ink text, furniture type at 650, 8px by 16px padding, wash on hover, pressing nudges it down 1px. It marks the one thing a visitor can use right now: on page one under the email bar, and in an entry directly under its figure. A repository is never an action; it stays in the entry's link row.
 - **Outline (Load the 3D model):** 1px ink border, ink text, wash ground on hover. It states the model's download size in tabular figures before the reader asks for it.
 - **Theme toggle:** 1px hairline border with ink-soft text, moving to ink on hover and when pressed. It is labelled "Dark page" and exposes its state with aria-pressed. The swap cross-fades over 220ms where view transitions exist.
 
@@ -305,6 +306,9 @@ A solid 2px margin-red rule scales down over the faded margin rule, from the top
 
 From 1024px an entry's margin date and name are sticky, 5.5rem from the top. That part is plain CSS and holds under reduced motion.
 
+### Re-vote Table
+Deadpan's figure: who each way of voting sent ashore in the pilot's re-voted meetings. One row per table (LLM players, rule-based detective, random voters), each with two 0 to 12 tracks of meetings: a 1px ink axis, pencil ticks for every meeting and taller ones at 0, 6 and 12, and the count as a 12px round margin-red mark with its number beside it. All six values are measured, so all six marks are red, and which table a mark belongs to is carried by the row's label. Headers sit over a 2px ink rule from 640px; on a phone each row stacks, with the column's name above each track.
+
 ### Step Table
 Used for the step-by-step result: furniture-small headers in pencil over a 2px ink rule, hairline row dividers, step names in code type, and small 12px squares filled in ink for each run that fired. Divergence notes are in margin red. No row striping.
 
@@ -316,6 +320,10 @@ Used for the step-by-step result: furniture-small headers in pencil over a 2px i
 - **Colour scheme:** declared light or dark so form controls and scrollbars follow the page.
 - **Theme colour:** paper hex for each scheme, updated when the reader switches.
 - **Reduced motion:** smooth scrolling is turned off, every transition and animation collapses to effectively zero, and the scroll effects are not fetched at all.
+
+## The live Deadpan page
+
+A second page at /deadpan/, rendered on the client from the game server's stream, on the same paper, type and contents-row rules. The island is a sketch on the pad: rooms are ruled ink boxes on bare paper, the start room ruled at 2.5px, corridors are 2px ink-soft lines, and the sea around the land is pencil hatching like an expectation span. Players are name tags in furniture type; the wrecker's tag is inked in with paper lettering, so who it is never rests on colour. Tags glide between rooms over 0.9s, and with reduced motion they jump. Over a tag sits at most one emoji saying what that player is doing, explained by a legend under the map; the emoji are written from code points and drawn in the system's colour face. In the meeting panel a false claim is the measured result of the claim check, so it is set in margin red with its mark. Below 32rem the map keeps that width and scrolls sideways in its own box.
 
 ## Do's and Don'ts
 

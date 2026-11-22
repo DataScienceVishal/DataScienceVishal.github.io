@@ -45,11 +45,12 @@ test.describe("plates with a mouse", () => {
 
     await page.mouse.move(200, 200);
     await expect(plate(page, "head").locator("canvas")).toHaveCount(1, { timeout: 20_000 });
-    // Plate 2 is several screens down, so one mouse move at the top must not load it.
-    await expect(plate(page, "brain").locator("canvas")).toHaveCount(0);
+    // Plate 3 is several screens down, so one mouse move at the top must not load
+    // it. Plate 2 sits in the first entry, straight under page one, so it may.
+    await expect(plate(page, "chess").locator("canvas")).toHaveCount(0);
 
-    await plate(page, "brain").scrollIntoViewIfNeeded();
-    await expect(plate(page, "brain").locator("canvas")).toHaveCount(1, { timeout: 20_000 });
+    await plate(page, "chess").scrollIntoViewIfNeeded();
+    await expect(plate(page, "chess").locator("canvas")).toHaveCount(1, { timeout: 30_000 });
   });
 
   test("a live plate moves on its own while seen, and stops drawing once scrolled away", async ({ page }) => {
@@ -80,11 +81,11 @@ test.describe("plates with a mouse", () => {
     const second = await head.locator("canvas").screenshot();
     expect(first.equals(second), "two frames 1.5 s apart are identical").toBe(false);
 
-    // Two and a half screens down: past plate 1, and not yet near plate 2, whose
-    // load would hold a software-rendered main thread for seconds.
+    // Two and a half screens down: past plate 1, and nowhere near plate 3, whose
+    // 12 MB load would hold a software-rendered main thread for seconds.
     await page.evaluate(() => window.scrollBy({ top: window.innerHeight * 2.5, behavior: "instant" }));
     await expect(stage).toHaveAttribute("data-motion", "still");
-    await expect(plate(page, "brain").locator("canvas")).toHaveCount(0);
+    await expect(plate(page, "chess").locator("canvas")).toHaveCount(0);
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
     await expect(stage).toHaveAttribute("data-motion", "running");
   });

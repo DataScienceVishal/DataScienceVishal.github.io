@@ -719,3 +719,42 @@
     }
   }
 }
+
+/* --- The live Deadpan page (src/deadpan) ---------------------------------
+   The map's lettering, in the notebook's furniture face so the island reads
+   as a sketch on the same pad. Emoji fall back to the system's colour face,
+   which the font subset never carries.
+--------------------------------------------------------------------------- */
+
+@layer components {
+  .island__room {
+    font-family: var(--font-display);
+    font-weight: 650;
+    font-stretch: 88%;
+    font-size: 15px;
+  }
+
+  .island__note {
+    font-family: var(--font-display);
+    font-weight: 540;
+    font-stretch: 80%;
+    font-size: 11px;
+  }
+
+  .island__tag {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-stretch: 84%;
+    font-size: 12.5px;
+  }
+
+  .island__tag--out {
+    text-decoration: line-through;
+  }
+
+  .island__emoji {
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+    font-size: 1.05em;
+    line-height: 1;
+  }
+}

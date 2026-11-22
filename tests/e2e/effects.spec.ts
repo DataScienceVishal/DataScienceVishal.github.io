@@ -39,6 +39,9 @@ const drawing = (page: Page, { onlyOnScreen = false, travel = true }: Which = {}
     { onlyOnScreen, travel },
   );
 
+/** One highlight per entry that has a measured phrase: Deadpan and the three audits. */
+const EVERY_MARK_DRAWN = Array.from({ length: 4 }, () => "100% 62%");
+
 const highlightSizes = (page: Page) =>
   page.locator("mark.hl").evaluateAll((marks) => marks.map((m) => getComputedStyle(m).backgroundSize));
 
@@ -76,8 +79,9 @@ test.describe("with motion allowed", () => {
   test.use({ reducedMotion: "no-preference" });
 
   test("the effects leave alone whatever is already on screen", async ({ page }) => {
-    // Tall enough that the first entry's figure and highlight are in the first view.
-    await page.setViewportSize({ width: 1440, height: 1800 });
+    // Tall enough that the first highlight is in the first view. The twin's entry
+    // comes first and highlights nothing, so the first one is in Deadpan's.
+    await page.setViewportSize({ width: 1440, height: 3600 });
     // A mark already on screen keeps travelling with the reader's scroll on its
     // CSS timeline, before the effects start and after, so where it sits depends
     // on how far down the figure is, not on the effects. Every other part must match.
@@ -122,7 +126,7 @@ test.describe("with motion allowed", () => {
       await page.waitForTimeout(800);
 
       expectSameDrawing(await drawing(page), expected);
-      expect(await highlightSizes(page)).toEqual(["100% 62%", "100% 62%", "100% 62%"]);
+      expect(await highlightSizes(page)).toEqual(EVERY_MARK_DRAWN);
 
       // At the foot of the page the margin rule has filled all the way down.
       const progress = await page
@@ -257,6 +261,6 @@ test.describe("with reduced motion", () => {
     expect(fetched).toEqual([]);
     await expect(page.locator("canvas.specks")).toHaveCount(0);
     await expect(page.locator("html")).not.toHaveClass(/\bfx\b/);
-    expect(await highlightSizes(page)).toEqual(["100% 62%", "100% 62%", "100% 62%"]);
+    expect(await highlightSizes(page)).toEqual(EVERY_MARK_DRAWN);
   });
 });

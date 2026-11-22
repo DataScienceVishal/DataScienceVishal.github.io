@@ -7,5 +7,14 @@ export default defineConfig({
   build: {
     target: "es2022",
     cssMinify: "lightningcss",
+    rollupOptions: {
+      // The home page, prerendered after the build, and the live Deadpan page,
+      // which renders on the client because all of it comes from a stream.
+      // Paths are relative to the project root, where every build runs.
+      input: {
+        main: "index.html",
+        deadpan: "deadpan/index.html",
+      },
+    },
   },
 });
