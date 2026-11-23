@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useReducer, useRef } from "react";
 import { DEADPAN_API } from "./config";
+import { commaDashes } from "./dashes";
 import { proofUsed, type Trail } from "./notes";
 import { EVENT_TYPES, type Action, type Claim, type GameEvent, type MapInfo, type Mode, type Vote } from "./types";
 
@@ -204,9 +205,11 @@ export function reduce(view: LiveView, msg: Msg): LiveView {
     case "statement": {
       if (!view.meeting) return view;
       const { type: _t, game_id: _g, ...said } = msg;
+      // The model's dashes are set as commas here, once, for every feed.
+      const words = { ...said, speech: commaDashes(said.speech) };
       return {
         ...view,
-        meeting: { ...view.meeting, thinking: null, statements: [...view.meeting.statements, said] },
+        meeting: { ...view.meeting, thinking: null, statements: [...view.meeting.statements, words] },
       };
     }
     case "voted":
@@ -227,7 +230,12 @@ export function reduce(view: LiveView, msg: Msg): LiveView {
         meeting: {
           ...view.meeting,
           thinking: null,
-          result: { votes: msg.votes, tally: msg.tally, ejected: msg.ejected, role: msg.ejected_role },
+          result: {
+            votes: msg.votes.map((v) => ({ ...v, reason: commaDashes(v.reason) })),
+            tally: msg.tally,
+            ejected: msg.ejected,
+            role: msg.ejected_role,
+          },
         },
         proof: (() => {
           const met = proofUsed(view.meeting.statements, msg.votes, view.game?.wrecker ?? "");

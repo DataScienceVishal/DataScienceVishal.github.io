@@ -332,6 +332,9 @@ export function LivePage() {
             Movement is scripted; what the players say and how they vote comes from a language model,
             and every claim is checked against where everyone really was.
           </p>
+          <p className="t-small mt-2 max-w-[34em] text-pencil">
+            The players&apos; words are shown as the model wrote them, except that dashes are set as commas.
+          </p>
 
           <div className="mt-10">
             {view.notice ? (

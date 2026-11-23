@@ -82,7 +82,7 @@ export function sampleGame(): { event: GameEvent; wait: number }[] {
         claim(4, "Boathouse", ["Ada"], "invented_sighting", ["Ada"]),
       ],
       "Dev",
-      "Yard with Finn, then the Workshop. Ada was at the Boathouse when Finn was there. Dev found the body first.",
+      "Yard with Finn, then the Workshop \u2014 Ada was at the Boathouse when Finn was there. Dev found the body first.",
     ],
     ["Cleo", [claim(3, "Lamp Room", [])], "Bram", "I was trimming the wick. Dev says the Workshop was empty when Bram says he was there."],
     // Finn was taken out before the meeting, so leaving him out is allowed.
@@ -97,7 +97,7 @@ export function sampleGame(): { event: GameEvent; wait: number }[] {
     { name: "Dev", choice: "Bram", reason: "I was in the Workshop at tick 2 and he was not." },
     { name: "Ada", choice: "skip", reason: "Bram has me at the Boathouse, which is wrong, but a wrong tick is not proof." },
     { name: "Bram", choice: "Dev", reason: "He was nearest the body." },
-    { name: "Cleo", choice: "Bram", reason: "Dev was in the Workshop and did not see him." },
+    { name: "Cleo", choice: "Bram", reason: "Dev was in the Workshop at ticks 2\u20133 and did not see him." },
     { name: "Esme", choice: "Bram", reason: "I was in the Yard with him at tick 1 and he left me out." },
   ];
   for (const v of votes) {

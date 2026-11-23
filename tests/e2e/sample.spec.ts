@@ -42,6 +42,8 @@ test("no emoji is drawn anywhere while the sample plays, and the legend shows fo
     await expect(page.getByText(moment).first()).toBeVisible({ timeout: 15_000 });
     const text = await page.evaluate(() => document.body.innerText + [...document.querySelectorAll("svg text")].map((t) => t.textContent).join(""));
     expect(text).not.toMatch(pictographs);
+    // Dashes in the players' words are set as commas: none may reach the page.
+    expect(text).not.toMatch(/[\u2012-\u2015]/);
   }
   await expect(page.locator("#legend-heading + dl svg[role=img]")).toHaveCount(14);
 });
@@ -225,4 +227,58 @@ test("an invented sighting's claim line says where the named player really was",
     "Ada was in the Kitchen",
     { timeout: 15_000 },
   );
+});
+
+test("dashes in the players' words become commas, and a range between digits reads 'to'", async ({ page }) => {
+  await page.goto("/find-the-wrecker/?feed=sample&fast=1");
+  const out = await page.evaluate(async () => {
+    const { commaDashes } = await import("/src/deadpan/dashes.ts");
+    const em = "\u2014";
+    const en = "\u2013";
+    return [
+      commaDashes(`taken ${em} I suspect Bram.`),
+      commaDashes(`taken${em}I suspect Bram.`),
+      commaDashes(`${em} I was in the Yard.`),
+      commaDashes(`I was in the Yard ${em}`),
+      commaDashes(`I was in the Yard ${em}.`),
+      commaDashes(`taken, ${em} I suspect Bram.`),
+      commaDashes(`tick 4${en}6 in the Yard`),
+      commaDashes(`tick 4 ${en} 6 in the Yard`),
+      commaDashes("gpt-5-mini is the odd-one-out"),
+      commaDashes(`a\u2012b c\u2015d`),
+      // gpt-5-mini writes ticks as "tick4", so a range can end in a word.
+      commaDashes(`from tick4${en}tick6 I was in the Yard`),
+      commaDashes(`tick 4${en}tick 6`),
+      commaDashes(`at tick4 ${em} Bram at tick6`),
+      // Only commas the swap itself would make may go; the players' own stay.
+      commaDashes("Ada, Bram, Cleo, ..."),
+      commaDashes(`I was alone${em}.`),
+      commaDashes(`taken, ${em} I suspect Bram.`),
+      commaDashes(`word ${em}, word`),
+    ];
+  });
+  expect(out).toEqual([
+    "taken, I suspect Bram.",
+    "taken, I suspect Bram.",
+    "I was in the Yard.",
+    "I was in the Yard",
+    "I was in the Yard.",
+    "taken, I suspect Bram.",
+    "tick 4 to 6 in the Yard",
+    "tick 4 to 6 in the Yard",
+    "gpt-5-mini is the odd-one-out",
+    "a, b c, d",
+    "from tick4 to tick6 I was in the Yard",
+    "tick 4 to tick 6",
+    "at tick4, Bram at tick6",
+    "Ada, Bram, Cleo, ...",
+    "I was alone.",
+    "taken, I suspect Bram.",
+    "word, word",
+  ]);
+});
+
+test("the page says that dashes in the players' words are set as commas", async ({ page }) => {
+  await page.goto("/find-the-wrecker/?feed=sample&fast=1");
+  await expect(page.getByText("The players' words are shown as the model wrote them, except that dashes are set as commas.")).toBeVisible();
 });
